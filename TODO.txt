@@ -1,0 +1,21 @@
+
+I think noiseless data was actually a red herring (i.e. misled / distracted me); I wasted time trying to optimise that perfectly
+ - real data has some noise
+ - it's meant to be for experimentalists 
+ - and for realistically optimising multiple experimental datasets
+
+noise
+ - creates a non-zero "global" minimum in f_signal
+ - is more realistic for approximating experimental data
+ - load in target data; avoid generating different noise every time...
+ - to approx. "real" data start at q = 0.5 
+
+fix 2D
+ - code Mats' correct detector projection (his thesis)
+ - show that another dimension of data massively helps
+
+
+... write the readme
+
+wrap unit test
+

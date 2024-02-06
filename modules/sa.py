@@ -183,6 +183,7 @@ class Annealing:
         nmodes = displacements.shape[0]  # number of displacement vectors
         modes = list(range(nmodes))  # all modes
         ## q-vector, atomic, and pre-molecular IAM contributions ##
+        print(qvector)
         qlen = len(qvector)  # length of q-vector
         aa, bb, cc = x.read_iam_coeffs()
         compton, atomic_total, pre_molecular = self.atomic_pre_molecular(
