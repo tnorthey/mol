@@ -287,14 +287,12 @@ class Annealing:
                 predicted_function_ = iam_
 
             ### x-ray part of f
-            #if twod_mode:
             xray_contrib = (
                 np.sum(
                     (predicted_function_ - target_data) ** 2 / target_data
                 )
                 / qlen
             )
-            #else:
             #xray_contrib = np.sum((predicted_function_ - target_data) ** 2) / qlen
 
             ### harmonic oscillator part of f

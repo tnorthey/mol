@@ -1,3 +1,4 @@
+import os
 import numpy as np
 from numpy import linalg as LA
 
@@ -121,7 +122,14 @@ class Wrapper:
 
         # define target_function
         # target_function = 100 * (target_iam / reference_iam - 1)
-        target_function = target_iam
+        target_function_file = "tmp_/target_function.dat"
+        if os.path.exists(target_function_file):
+            print('Loading data from %s ...' % target_function_file)
+            target_function = np.loadtxt(target_function_file)
+        else:
+            target_function = target_iam
+            print('Saving data to %s ...' % target_function_file)
+            np.savetxt(target_function_file, target_function, fmt='%12.8f') # save to file
 
         xyz_best = starting_xyz # initialise
         #################################
@@ -194,8 +202,12 @@ class Wrapper:
         dihedral = m.new_dihedral(np.array([p0, p1, p4, p5]))
         # r05 ring-opening bond-length
         r05 = np.linalg.norm(xyz_best[0, :] - xyz_best[5, :])
+        # rmsd compared to target
+        non_h_indices = np.array([0, 1, 2, 3, 4, 5])  # chd
+        # Kabsch rotation to target
+        rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, non_h_indices)
         # encode the analysis values into the xyz header
-        header_str = "%12.8f %12.8f %12.8f" % (f_xray_best, r05, dihedral)
+        header_str = "%12.8f %12.8f %12.8f %12.8f" % (f_xray_best, rmsd, r05, dihedral)
         ### write best structure to xyz file
         print("writing to xyz... (f: %10.8f)" % f_xray_best)
         f_best_str = ("%10.8f" % f_xray_best).zfill(12)
