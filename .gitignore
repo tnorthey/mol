@@ -1,4 +1,6 @@
 # custom
+MySerialJob-*.out
+MySerialJob-*.error
 results__/
 xyz/generated/*
 xyz/initconds*

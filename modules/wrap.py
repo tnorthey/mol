@@ -122,7 +122,7 @@ class Wrapper:
 
         # define target_function
         # target_function = 100 * (target_iam / reference_iam - 1)
-        target_function_file = "tmp_/target_function.dat"
+        target_function_file = "tmp_/target_function_%s.dat" % run_id
         if os.path.exists(target_function_file):
             print('Loading data from %s ...' % target_function_file)
             target_function = np.loadtxt(target_function_file)
