@@ -1,8 +1,14 @@
 #!/bin/bash
 
 step=$1  # define the target frame e.g. 20, 30, 40, 50
-run_id=""$step"_1d"
 ringclosed=$2  # "closed" or "open"
+run_id=""$step"_1d"
+if [ $step == 20 ]
+then
+  starting_xyz_file="xyz/start.xyz"
+else
+  starting_xyz_file="tmp_/$(($step-10))_1d_near.xyz"
+fi
 starting_xyz_file="xyz/start.xyz"
 target_xyz_file="xyz/target_traj099/target_$step.xyz"  # ring-open
 python3 run_1D_chd.py $run_id $starting_xyz_file $target_xyz_file $ringclosed
