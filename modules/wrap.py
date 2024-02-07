@@ -26,6 +26,7 @@ class Wrapper:
         reference_xyz_file,
         target_xyz_file,
         qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
+        noise = 0,
         sa_nsteps=2000,
         sa_step_size=0.01,
         sa_starting_temp=0.2,
@@ -125,7 +126,6 @@ class Wrapper:
             target_function = target_iam
             # target_function = 100 * (target_iam / reference_iam - 1)
             noise_bool = True
-            noise = 2
             if noise_bool:
                 mu = 0  # normal distribution with mean of mu
                 sigma = noise
