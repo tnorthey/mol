@@ -9,6 +9,7 @@ noise
  - is more realistic for approximating experimental data
  - load in target data; avoid generating different noise every time...
  - to approx. "real" data start at q = 0.5 
+ - PLOT, write f_signal / f_signal_true, w. f_signal_true is the true signal fit to the noisy data
 
 fix 2D
  - code Mats' correct detector projection (his thesis)
