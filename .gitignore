@@ -1,5 +1,6 @@
 # custom
 *.tar
+results_/
 MySerialJob-*.out
 MySerialJob-*.error
 ccv_start_??_*.sh
