@@ -110,30 +110,31 @@ class Wrapper:
         ### Initialise some stuff ###
         #############################
 
-        ### ADDITION OF RANDOM NOISE
-        target_function = target_iam
-        noise_bool = True
-        noise = 2
-        if noise_bool:
-            mu = 0  # normal distribution with mean of mu
-            sigma = noise
-            noise_array = sigma * np.random.randn(qlen) + mu
-            target_function += noise_array
-        ###
-
-        # define target_function
-        # target_function = 100 * (target_iam / reference_iam - 1)
         target_function_file = "tmp_/TARGET_FUNCTION_%s.dat" % run_id
         target_iam_file      = "tmp_/TARGET_IAM_%s.dat" % run_id
+        # define target_function
         if os.path.exists(target_function_file):
             print('Loading data from %s ...' % target_function_file)
             target_function = np.loadtxt(target_function_file)[:, 1]
             print(target_function)
         else:
+            # save target IAM file before noise is added
+            print('Saving data to %s ...' % target_iam_file)
+            np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
+            ### ADDITION OF RANDOM NOISE
+            target_function = target_iam
+            # target_function = 100 * (target_iam / reference_iam - 1)
+            noise_bool = True
+            noise = 2
+            if noise_bool:
+                mu = 0  # normal distribution with mean of mu
+                sigma = noise
+                noise_array = sigma * np.random.randn(qlen) + mu
+                target_function += noise_array
             print('Saving data to %s ...' % target_function_file)
             np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
-            # save target IAM file before noise is added
-            np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
+            ###
+
 
         xyz_best = starting_xyz # initialise
         #################################
@@ -221,9 +222,16 @@ class Wrapper:
             atomlist,
             xyz_best,
         )
+        ### Final save to files
         # also write final xyz as "result.xyz"
         m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
-        m.write_xyz("tmp_/result.xyz", "result", atomlist, xyz_best)
+        # target xyz
+        m.write_xyz(
+            "tmp_/%s_target.xyz" % run_id,
+            "run_id: %s" % run_id,
+            atomlist,
+            target_xyz,
+        )
         # predicted data
         if twod_mode:
             np.savetxt("tmp_/%s_%s.dat" % (run_id, f_best_str), predicted_best)
@@ -233,32 +241,6 @@ class Wrapper:
                 "tmp_/%s_%s.dat" % (run_id, f_best_str),
                 np.column_stack((qvector, predicted_best)),
             )
-
-        ### Final save to files
-        # target xyz
-        m.write_xyz(
-            "tmp_/%s_target.xyz" % run_id,
-            "run_id: %s" % run_id,
-            atomlist,
-            target_xyz,
-        )
-        # also write target xyz as "target.xyz"
-        m.write_xyz("tmp_/target.xyz", "target", atomlist, target_xyz)
-        # target function
-        np.savetxt(
-            "tmp_/%s_target_function.dat" % run_id,
-            np.column_stack((qvector, target_function)),
-        )
-        # save raw target data:
-        np.savetxt(
-            "tmp_/%s_target_iam.dat" % run_id, np.column_stack((qvector, target_iam))
-        )
-        # save starting IAM signal
-        np.savetxt(
-            "tmp_/%s_starting_iam.dat" % run_id,
-            np.column_stack((qvector, starting_iam)),
-        )
-
         return  # end function
 
 
