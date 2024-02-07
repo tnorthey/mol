@@ -26,4 +26,4 @@ module load python
 source .venv/bin/activate
 
 #./go_1D_chd_qmax8_20.sh
-for i in $(cat XX_start_list_YY.txt) ; do ./go_1D_chd.sh $i "open"; done
+for i in $(cat XX_start_list_YY.txt) ; do ./go_1D_chd.sh $i ZZ "open"; done

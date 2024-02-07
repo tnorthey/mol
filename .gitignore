@@ -1,6 +1,9 @@
 # custom
 MySerialJob-*.out
 MySerialJob-*.error
+ccv_start_??_*.sh
+??_start_list_*.txt
+??_full_list.txt
 results__/
 xyz/generated/*
 xyz/initconds*

@@ -111,25 +111,29 @@ class Wrapper:
         #############################
 
         ### ADDITION OF RANDOM NOISE
+        target_function = target_iam
         noise_bool = True
         noise = 2
         if noise_bool:
             mu = 0  # normal distribution with mean of mu
             sigma = noise
             noise_array = sigma * np.random.randn(qlen) + mu
-            target_iam += noise_array
+            target_function += noise_array
         ###
 
         # define target_function
         # target_function = 100 * (target_iam / reference_iam - 1)
-        target_function_file = "tmp_/target_function_%s.dat" % run_id
+        target_function_file = "tmp_/TARGET_FUNCTION_%s.dat" % run_id
+        target_iam_file      = "tmp_/TARGET_IAM_%s.dat" % run_id
         if os.path.exists(target_function_file):
             print('Loading data from %s ...' % target_function_file)
-            target_function = np.loadtxt(target_function_file)
+            target_function = np.loadtxt(target_function_file)[:, 1]
+            print(target_function)
         else:
-            target_function = target_iam
             print('Saving data to %s ...' % target_function_file)
-            np.savetxt(target_function_file, target_function, fmt='%12.8f') # save to file
+            np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
+            # save target IAM file before noise is added
+            np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
 
         xyz_best = starting_xyz # initialise
         #################################

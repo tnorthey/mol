@@ -45,7 +45,7 @@ w.chd_1D(
     sa_step_size = 0.01,
     sa_starting_temp = 1.0,
     sa_harmonic_factor = (ACC, ACH),
-    nrestarts = 5,
+    nrestarts = 10,
     non_h_modes_only=True,  # only include "non-hydrogen" modes
 )
 
