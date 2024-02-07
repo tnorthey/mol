@@ -1,3 +1,4 @@
+fsignal, rmsd script
 
 I think noiseless data was actually a red herring (i.e. misled / distracted me); I wasted time trying to optimise that perfectly
  - real data has some noise
