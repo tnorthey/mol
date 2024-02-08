@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# for i in $(cat XX_start_list_YY.txt) ; do ./go_1D_chd_qmax8_ZZ_.sh $i; done
-
 previous_step=$1
 step=$2
 
