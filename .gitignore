@@ -2,6 +2,7 @@
 nohup.out
 *.tar
 results_/
+scripts/*.png
 MySerialJob-*.out
 MySerialJob-*.error
 ccv_start_??_*.sh
