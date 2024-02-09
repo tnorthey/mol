@@ -2,22 +2,15 @@
 CHD HF energy
 '''
 import sys
-import pyscf.gto as gto
 import numpy as np
+from pyscf import gto, scf
 
-#xyz_file = sys.argv[1]
+xyz_file = sys.argv[1]
 
 mol = gto.Mole()
-atomlist = ['H', 'H']
-xyz = [[0, 0, 1], [0, 0, 0]]
-arr = []
-for i in range(len(atomlist)):
-    arr.append((atomlist[i], xyz[i]))
-mol.atom = arr
-print(mol.atom)
-#mol = gto.M(atom=xyz_file)
+mol = gto.M(atom=xyz_file)
 mol.basis = '6-31g*'
 mol.build()
-# run RHF
-mf = mol.RHF().run()
-    
+rhf_mol = scf.RHF(mol)  # run RHF
+e_mol = rhf_mol.kernel()
+print("%12.8f" % e_mol)

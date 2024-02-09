@@ -223,7 +223,7 @@ class Wrapper:
             mol.atom = arr
             mol.basis = "6-31g*"
             mol.build()
-            rhf_mol = scf.UHF(mol)  # run RHF
+            rhf_mol = scf.RHF(mol)  # run RHF
             e_mol = rhf_mol.kernel()
         # encode the analysis values into the xyz header
         header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f" % (

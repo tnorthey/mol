@@ -1,5 +1,9 @@
 
 PySCF HF at end + print energy to the xyz header
+- done
+- loop over all results and add the energy in...
+  - script (done)
+  - figure out how to append to the line in bash..
 
 ONE input file that gets copied to tmp_/
 
