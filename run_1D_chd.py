@@ -42,11 +42,11 @@ w.chd_1D(
     target_xyz_file,
     qvector=np.linspace(0.5, 4.0, 36, endpoint=True),
     noise = 0.10,
-    sa_nsteps = 8,
+    sa_nsteps = 8000,
     sa_step_size = 0.01,
     sa_starting_temp = 1.0,
     sa_harmonic_factor = (ACC, ACH),
-    nrestarts = 1,
+    nrestarts = 10,
     non_h_modes_only=True,  # only include "non-hydrogen" modes
     hf_energy=True,   # calculate HF energy (PySCF) at the end
 )

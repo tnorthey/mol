@@ -27,7 +27,7 @@ class Wrapper:
         reference_xyz_file,
         target_xyz_file,
         qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
-        noise = 0,
+        noise=0,
         sa_nsteps=2000,
         sa_step_size=0.01,
         sa_starting_temp=0.2,
@@ -114,15 +114,15 @@ class Wrapper:
         #############################
 
         target_function_file = "tmp_/TARGET_FUNCTION_%s.dat" % run_id
-        target_iam_file      = "tmp_/TARGET_IAM_%s.dat" % run_id
+        target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id
         # define target_function
         if os.path.exists(target_function_file):
-            print('Loading data from %s ...' % target_function_file)
+            print("Loading data from %s ..." % target_function_file)
             target_function = np.loadtxt(target_function_file)[:, 1]
             print(target_function)
         else:
             # save target IAM file before noise is added
-            print('Saving data to %s ...' % target_iam_file)
+            print("Saving data to %s ..." % target_iam_file)
             np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
             ### ADDITION OF RANDOM NOISE
             target_function = target_iam
@@ -133,20 +133,21 @@ class Wrapper:
                 sigma = noise
                 noise_array = sigma * np.random.randn(qlen) + mu
                 target_function += noise_array
-            print('Saving data to %s ...' % target_function_file)
-            np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
+            print("Saving data to %s ..." % target_function_file)
+            np.savetxt(
+                target_function_file, np.column_stack((qvector, target_function))
+            )
             ###
 
-
-        xyz_best = starting_xyz # initialise
+        xyz_best = starting_xyz  # initialise
         #################################
         ### End Initialise some stuff ###
         #################################
         for i in range(nrestarts):
-            print('Run %i: SA' % i)
+            print("Run %i: SA" % i)
             starting_xyz = xyz_best
             if i == nrestarts - 1:  # last run parameters
-                print('Run %i: GA' % i)
+                print("Run %i: GA" % i)
                 sa_nsteps *= 10
                 sa_starting_temp = 0
                 sa_harmonic_factor = (0, 0)
@@ -220,12 +221,18 @@ class Wrapper:
             for i in range(len(atomlist)):
                 arr.append((atomlist[i], xyz_best[i]))
             mol.atom = arr
-            mol.basis = '6-31g*'
+            mol.basis = "6-31g*"
             mol.build()
             rhf_mol = scf.UHF(mol)  # run RHF
             e_mol = rhf_mol.kernel()
         # encode the analysis values into the xyz header
-        header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f" % (f_xray_best, rmsd, r05, dihedral, e_mol)
+        header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f" % (
+            f_xray_best,
+            rmsd,
+            r05,
+            dihedral,
+            e_mol,
+        )
         ### write best structure to xyz file
         print("writing to xyz... (f: %10.8f)" % f_xray_best)
         f_best_str = ("%10.8f" % f_xray_best).zfill(12)
@@ -255,7 +262,6 @@ class Wrapper:
                 np.column_stack((qvector, predicted_best)),
             )
         return  # end function
-
 
     def chd_2D(
         self,
@@ -458,5 +464,3 @@ class Wrapper:
         np.savetxt("tmp_/%s_starting_iam.dat" % run_id, starting_iam)
 
         return  # end function
-
-
