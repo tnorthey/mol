@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from numpy import linalg as LA
+from pyscf import gto, scf
 
 # my modules
 import modules.mol as mol
@@ -33,6 +34,7 @@ class Wrapper:
         sa_harmonic_factor=(0.01, 0.01),
         nrestarts=10,
         non_h_modes_only=False,  # only include "non-hydrogen" modes
+        hf_energy=True,
     ):
         """
         simple fitting to CHD 1D data
@@ -211,8 +213,19 @@ class Wrapper:
         non_h_indices = np.array([0, 1, 2, 3, 4, 5])  # chd
         # Kabsch rotation to target
         rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, non_h_indices)
+        # HF energy with PySCF
+        if hf_energy:
+            mol = gto.Mole()
+            arr = []
+            for i in range(len(atomlist)):
+                arr.append((atomlist[i], xyz_best[i]))
+            mol.atom = arr
+            mol.basis = '6-31g*'
+            mol.build()
+            rhf_mol = scf.UHF(mol)  # run RHF
+            e_mol = rhf_mol.kernel()
         # encode the analysis values into the xyz header
-        header_str = "%12.8f %12.8f %12.8f %12.8f" % (f_xray_best, rmsd, r05, dihedral)
+        header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f" % (f_xray_best, rmsd, r05, dihedral, e_mol)
         ### write best structure to xyz file
         print("writing to xyz... (f: %10.8f)" % f_xray_best)
         f_best_str = ("%10.8f" % f_xray_best).zfill(12)

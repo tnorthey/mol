@@ -1,4 +1,6 @@
 
+PySCF HF at end + print energy to the xyz header
+
 ONE input file that gets copied to tmp_/
 
 I think noiseless data was actually a red herring (i.e. misled / distracted me); I wasted time trying to optimise that perfectly
