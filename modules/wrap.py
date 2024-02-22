@@ -125,8 +125,10 @@ class Wrapper:
             print("Saving data to %s ..." % target_iam_file)
             np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
             ### ADDITION OF RANDOM NOISE
-            target_function = target_iam
-            # target_function = 100 * (target_iam / reference_iam - 1)
+            if pcd_mode:
+                target_function = 100 * (target_iam / reference_iam - 1)
+            else:
+                target_function = target_iam
             noise_bool = True
             if noise_bool:
                 mu = 0  # normal distribution with mean of mu
