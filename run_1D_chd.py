@@ -40,13 +40,13 @@ w.chd_1D(
     start_xyz_file,
     reference_xyz_file,
     target_xyz_file,
-    qvector=np.linspace(0.5, 4.0, 36, endpoint=True),
+    qvector=np.linspace(0.5, 8.0, 76, endpoint=True),
     noise = 0.10,
     sa_nsteps = 8000,
     sa_step_size = 0.01,
     sa_starting_temp = 1.0,
     sa_harmonic_factor = (ACC, ACH),
-    nrestarts = 1,
+    nrestarts = 10,
     non_h_modes_only=True,  # only include "non-hydrogen" modes
     hf_energy=True,   # calculate HF energy (PySCF) at the end
     pcd_mode=True,    # use percent difference instead of absolute signal

@@ -288,12 +288,10 @@ class Annealing:
 
             ### x-ray part of f
             xray_contrib = (
-                np.sum(
-                    (predicted_function_ - target_data) ** 2 / target_data
-                )
+                np.sum((predicted_function_ - target_data) ** 2 / np.abs(target_data))
                 / qlen
             )
-            #xray_contrib = np.sum((predicted_function_ - target_data) ** 2) / qlen
+            # xray_contrib = np.sum((predicted_function_ - target_data) ** 2) / qlen
 
             ### harmonic oscillator part of f
             harmonic_contrib = 0

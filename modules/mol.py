@@ -129,7 +129,7 @@ class Xyz:
         )
         return rmsd, estimated_rotation
 
-    def mapd_function(self, xyz, xyz_, indices, bond_print):
+    def mapd_function(self, xyz, xyz_, indices, bond_print=False):
         """calculate MAPD as defined in Yong et al. Faraday Disc. (2021)"""
         # MAPD is calculated between structures xyz and xyz_
         # indices: calculates MAPD for specified atomic indices

@@ -125,9 +125,7 @@ class Wrapper:
             target_pcd = 100 * (target_iam / reference_iam - 1)
             # Save PCD to file
             print("Saving data to %s ..." % target_pcd_file)
-            np.savetxt(
-                target_pcd_file, np.column_stack((qvector, target_pcd))
-            )
+            np.savetxt(target_pcd_file, np.column_stack((qvector, target_pcd)))
 
         ### ADDITION OF RANDOM NOISE
         noise_bool = True
@@ -148,10 +146,18 @@ class Wrapper:
             else:
                 target_function = target_iam
         print("Saving data to %s ..." % target_function_file)
-        np.savetxt(
-            target_function_file, np.column_stack((qvector, target_function))
-        )
+        np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
         ###
+        # calculate target_f_signal for noise data compared to clean data
+        if noise > 0:
+            if pcd_mode:
+                clean_data = target_pcd
+            else:
+                clean_data = target_iam
+            target_f_signal = (
+                np.sum((clean_data - target_function) ** 2 / np.abs(target_function))
+                / qlen
+            )
 
         xyz_best = starting_xyz  # initialise
         #################################
@@ -228,6 +234,10 @@ class Wrapper:
         non_h_indices = np.array([0, 1, 2, 3, 4, 5])  # chd
         # Kabsch rotation to target
         rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, non_h_indices)
+        # MAPD compared to target
+        mapd = m.mapd_function(xyz_best, target_xyz, non_h_indices)
+        # f_signal / target_f_signal
+        signal_ratio = f_xray_best / target_f_signal
         # HF energy with PySCF
         if hf_energy:
             mol = gto.Mole()
@@ -240,12 +250,14 @@ class Wrapper:
             rhf_mol = scf.RHF(mol)  # run RHF
             e_mol = rhf_mol.kernel()
         # encode the analysis values into the xyz header
-        header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f" % (
+        header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f" % (
             f_xray_best,
             rmsd,
             r05,
             dihedral,
             e_mol,
+            mapd,
+            signal_ratio,
         )
         ### write best structure to xyz file
         print("writing to xyz... (f: %10.8f)" % f_xray_best)

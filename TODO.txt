@@ -1,5 +1,6 @@
-10 20 32 35 37 40 44 50 55 60 65 70 75
 
+
+traj094: 10 20 32 35 37 40 44 50 55 60 65 70 75
 
 ONE input file that gets copied to tmp_/
 
