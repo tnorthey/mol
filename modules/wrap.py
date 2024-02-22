@@ -149,7 +149,7 @@ class Wrapper:
         np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
         ###
         # calculate target_f_signal for noise data compared to clean data
-        if noise > 0:
+        if noise != 0:
             if pcd_mode:
                 clean_data = target_pcd
             else:
@@ -237,7 +237,9 @@ class Wrapper:
         # MAPD compared to target
         mapd = m.mapd_function(xyz_best, target_xyz, non_h_indices)
         # f_signal / target_f_signal
-        signal_ratio = f_xray_best / target_f_signal
+        signal_ratio = 0  # define as 0 if noise == 0
+        if noise != 0:
+            signal_ratio = f_xray_best / target_f_signal
         # HF energy with PySCF
         if hf_energy:
             mol = gto.Mole()
