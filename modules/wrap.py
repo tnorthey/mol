@@ -35,6 +35,7 @@ class Wrapper:
         nrestarts=10,
         non_h_modes_only=False,  # only include "non-hydrogen" modes
         hf_energy=True,
+        pcd_mode=False,
     ):
         """
         simple fitting to CHD 1D data
@@ -79,7 +80,6 @@ class Wrapper:
         displacements = sa.read_nm_displacements(nmfile, natoms)
         nmodes = displacements.shape[0]
 
-        pcd_mode = False
         xyz_save = False
         f_save = True
 
@@ -126,7 +126,12 @@ class Wrapper:
             np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
             ### ADDITION OF RANDOM NOISE
             if pcd_mode:
-                target_function = 100 * (target_iam / reference_iam - 1)
+                target_pcd = 100 * (target_iam / reference_iam - 1)
+                target_pcd_file = "tmp_/TARGET_PCD_%s.dat" % run_id
+                np.savetxt(
+                    target_pcd_file, np.column_stack((qvector, target_pcd))
+                )
+                target_function = target_pcd
             else:
                 target_function = target_iam
             noise_bool = True
