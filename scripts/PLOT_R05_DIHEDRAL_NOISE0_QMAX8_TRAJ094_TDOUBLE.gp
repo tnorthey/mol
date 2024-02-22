@@ -33,32 +33,42 @@ set grid back ls 102
 # set border 3 back ls 80
 
 # STATS
-stats "analysis_10_noise0_qmax8_traj094.dat" u 3 prefix "t10"
-stats "analysis_20_noise0_qmax8_traj094.dat" u 3 prefix "t20"
-stats "analysis_35_noise0_qmax8_traj094.dat" u 3 prefix "t35"
-stats "analysis_40_noise0_qmax8_traj094.dat" u 3 prefix "t40"
-stats "analysis_50_noise0_qmax8_traj094.dat" u 3 prefix "t50"
-stats "analysis_60_noise0_qmax8_traj094.dat" u 3 prefix "t60"
-stats "analysis_70_noise0_qmax8_traj094.dat" u 3 prefix "t70"
-stats "analysis_75_noise0_qmax8_traj094.dat" u 3 prefix "t75"
+stats "analysis_10_noise0_qmax8_traj094_tdouble.dat" u 3 prefix "t10"
+stats "analysis_20_noise0_qmax8_traj094_tdouble.dat" u 3 prefix "t20"
+stats "analysis_32_noise0_qmax8_traj094_tdouble.dat" u 3 prefix "t32"
+stats "analysis_35_noise0_qmax8_traj094_tdouble.dat" u 3 prefix "t35"
+stats "analysis_37_noise0_qmax8_traj094_tdouble.dat" u 3 prefix "t37"
+stats "analysis_40_noise0_qmax8_traj094_tdouble.dat" u 3 prefix "t40"
+stats "analysis_44_noise0_qmax8_traj094_tdouble.dat" u 3 prefix "t44"
+stats "analysis_50_noise0_qmax8_traj094_tdouble.dat" u 3 prefix "t50"
+stats "analysis_55_noise0_qmax8_traj094_tdouble.dat" u 3 prefix "t55"
+stats "analysis_60_noise0_qmax8_traj094_tdouble.dat" u 3 prefix "t60"
+stats "analysis_65_noise0_qmax8_traj094_tdouble.dat" u 3 prefix "t65"
+stats "analysis_70_noise0_qmax8_traj094_tdouble.dat" u 3 prefix "t70"
+stats "analysis_75_noise0_qmax8_traj094_tdouble.dat" u 3 prefix "t75"
 
-t10_range = t10_lo_quartile  # t10_median
-t20_range = t20_lo_quartile  # t20_median 
-t35_range = t35_lo_quartile  # t30_median 
-t40_range = t40_lo_quartile  # t40_median 
-t50_range = t50_lo_quartile
-t60_range = t60_lo_quartile
-t70_range = t70_lo_quartile
-t75_range = t75_lo_quartile
+t10_range = t10_up_quartile  # t10_median
+t20_range = t20_up_quartile  # t20_median 
+t32_range = t32_up_quartile  # t30_median 
+t35_range = t35_up_quartile  # t30_median 
+t37_range = t37_up_quartile  # t30_median 
+t40_range = t40_up_quartile  # t40_median 
+t44_range = t44_up_quartile  # t40_median 
+t50_range = t50_up_quartile
+t55_range = t55_up_quartile
+t60_range = t60_up_quartile
+t65_range = t65_up_quartile
+t70_range = t70_up_quartile
+t75_range = t75_up_quartile
 
-#t10_range = t10_max
-#t20_range = t20_max
-#t30_range = t30_max
-#t40_range = t40_max
-#t50_range = t50_max
-#t60_range = t60_max
-#t70_range = t70_max
-#t75_range = t75_max
+#t10_range = t10_up_quartile
+#t20_range = t20_up_quartile
+#t30_range = t30_up_quartile
+#t40_range = t40_up_quartile
+#t50_range = t50_up_quartile
+#t60_range = t60_up_quartile
+#t70_range = t70_up_quartile
+#t75_range = t75_up_quartile
 
 # MACROS
 # x- and ytics for each row resp. column
@@ -102,7 +112,7 @@ POS3 = "at graph 0.55, 0.45 font 'helvetica, 40'"
 # Enable the use of macros
 set macros
 
-set output "PLOT_R05_DIHEDRAL_NOISE0_QMAX8_TRAJ094.png"
+set output "PLOT_R05_DIHEDRAL_NOISE0_QMAX8_TRAJ094_TDOUBLE.png"
 
 XMIN = 1.25
 XMAX = 6.25
@@ -134,15 +144,20 @@ array point3[1]
 array point4[1]
 
 # Plots the 100 with lowest energy (hard coded with values!)
-plot "analysis_10_noise0_qmax8_traj094.dat" u 1:($3 < t10_range ? $2 : 1/0) t "10" w p pt 3 ps 2 lw 1 lc 6,\
-     "analysis_20_noise0_qmax8_traj094.dat" u 1:($3 < t20_range ? $2 : 1/0) t "20" w p pt 6 ps 2 lw 1 lc 5,\
-     "analysis_35_noise0_qmax8_traj094.dat" u 1:($3 < t35_range ? $2 : 1/0) t "35" w p pt 2 ps 1 lw 1 lc 2,\
-     "analysis_40_noise0_qmax8_traj094.dat" u 1:($3 < t40_range ? $2 : 1/0) t "40" w p pt 6 ps 2 lw 1 lc 4,\
-     "analysis_50_noise0_qmax8_traj094.dat" u 1:($3 < t50_range ? $2 : 1/0) t "50" w p pt 1 ps 2 lw 1 lc 6,\
-     "analysis_60_noise0_qmax8_traj094.dat" u 1:($3 < t60_range ? $2 : 1/0) t "60" w p pt 6 ps 2 lw 4 lc 6,\
-     "analysis_70_noise0_qmax8_traj094.dat" u 1:($3 < t70_range ? $2 : 1/0) t "70" w p pt 6 ps 2 lw 4 lc 0,\
-     "analysis_75_noise0_qmax8_traj094.dat" u 1:($3 < t75_range ? $2 : 1/0) t "75" w p pt 5 ps 1 lw 1 lc 3,\
-     "target_r05_dihedral_traj094_points.dat" u 1:2 t "target" w p pt 6 ps 3 lw 8 lc 7,\
+plot "analysis_10_noise0_qmax8_traj094_tdouble.dat" u 1:($3 < t10_range ? $2 : 1/0) t "10" w p pt 3 ps 2 lw 1 lc 6,\
+     "analysis_20_noise0_qmax8_traj094_tdouble.dat" u 1:($3 < t20_range ? $2 : 1/0) t "20" w p pt 6 ps 2 lw 1 lc 5,\
+     "analysis_32_noise0_qmax8_traj094_tdouble.dat" u 1:($3 < t32_range ? $2 : 1/0) t "32" w p pt 1 ps 1 lw 1 lc 2,\
+     "analysis_35_noise0_qmax8_traj094_tdouble.dat" u 1:($3 < t35_range ? $2 : 1/0) t "35" w p pt 2 ps 1 lw 1 lc 2,\
+     "analysis_37_noise0_qmax8_traj094_tdouble.dat" u 1:($3 < t37_range ? $2 : 1/0) t "37" w p pt 3 ps 1 lw 1 lc 2,\
+     "analysis_40_noise0_qmax8_traj094_tdouble.dat" u 1:($3 < t40_range ? $2 : 1/0) t "40" w p pt 6 ps 2 lw 1 lc 4,\
+     "analysis_44_noise0_qmax8_traj094_tdouble.dat" u 1:($3 < t44_range ? $2 : 1/0) t "44" w p pt 3 ps 2 lw 1 lc 4,\
+     "analysis_50_noise0_qmax8_traj094_tdouble.dat" u 1:($3 < t50_range ? $2 : 1/0) t "50" w p pt 1 ps 2 lw 1 lc 6,\
+     "analysis_55_noise0_qmax8_traj094_tdouble.dat" u 1:($3 < t55_range ? $2 : 1/0) t "55" w p pt 2 ps 2 lw 1 lc 6,\
+     "analysis_60_noise0_qmax8_traj094_tdouble.dat" u 1:($3 < t60_range ? $2 : 1/0) t "60" w p pt 6 ps 2 lw 4 lc 6,\
+     "analysis_65_noise0_qmax8_traj094_tdouble.dat" u 1:($3 < t65_range ? $2 : 1/0) t "65" w p pt 2 ps 2 lw 4 lc 6,\
+     "analysis_70_noise0_qmax8_traj094_tdouble.dat" u 1:($3 < t70_range ? $2 : 1/0) t "70" w p pt 6 ps 2 lw 4 lc 0,\
+     "analysis_75_noise0_qmax8_traj094_tdouble.dat" u 1:($3 < t75_range ? $2 : 1/0) t "75" w p pt 5 ps 1 lw 1 lc 3,\
+     "target_r05_dihedral_traj094_points_tdouble.dat" u 1:2 t "target" w p pt 6 ps 3 lw 8 lc 7,\
      "target_r05_dihedral_traj094.dat" u 1:2 t "" w l lw 4 lc 7,\
 
 

@@ -1,9 +1,5 @@
+10 20 32 35 37 40 44 50 55 60 65 70 75
 
-PySCF HF at end + print energy to the xyz header
-- done
-- loop over all results and add the energy in...
-  - script (done)
-  - figure out how to append to the line in bash..
 
 ONE input file that gets copied to tmp_/
 
