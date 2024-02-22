@@ -115,36 +115,40 @@ class Wrapper:
 
         target_function_file = "tmp_/TARGET_FUNCTION_%s.dat" % run_id
         target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id
+        target_pcd_file = "tmp_/TARGET_PCD_%s.dat" % run_id
+
+        # save target IAM file before noise is added
+        print("Saving data to %s ..." % target_iam_file)
+        np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
+        ### ADDITION OF RANDOM NOISE
+        noise_bool = True
+        if noise_bool:
+            mu = 0  # normal distribution with mean of mu
+            sigma = noise
+            noise_array = sigma * np.random.randn(qlen) + mu
+            target_iam += noise_array
+
         # define target_function
         if os.path.exists(target_function_file):
             print("Loading data from %s ..." % target_function_file)
             target_function = np.loadtxt(target_function_file)[:, 1]
             print(target_function)
         else:
-            # save target IAM file before noise is added
-            print("Saving data to %s ..." % target_iam_file)
-            np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
-            ### ADDITION OF RANDOM NOISE
             if pcd_mode:
                 target_pcd = 100 * (target_iam / reference_iam - 1)
-                target_pcd_file = "tmp_/TARGET_PCD_%s.dat" % run_id
+                # Save PCD to file
+                print("Saving data to %s ..." % target_pcd_file)
                 np.savetxt(
                     target_pcd_file, np.column_stack((qvector, target_pcd))
                 )
                 target_function = target_pcd
             else:
                 target_function = target_iam
-            noise_bool = True
-            if noise_bool:
-                mu = 0  # normal distribution with mean of mu
-                sigma = noise
-                noise_array = sigma * np.random.randn(qlen) + mu
-                target_function += noise_array
-            print("Saving data to %s ..." % target_function_file)
-            np.savetxt(
-                target_function_file, np.column_stack((qvector, target_function))
-            )
-            ###
+        print("Saving data to %s ..." % target_function_file)
+        np.savetxt(
+            target_function_file, np.column_stack((qvector, target_function))
+        )
+        ###
 
         xyz_best = starting_xyz  # initialise
         #################################
