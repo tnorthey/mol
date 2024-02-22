@@ -120,6 +120,15 @@ class Wrapper:
         # save target IAM file before noise is added
         print("Saving data to %s ..." % target_iam_file)
         np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
+
+        if pcd_mode:
+            target_pcd = 100 * (target_iam / reference_iam - 1)
+            # Save PCD to file
+            print("Saving data to %s ..." % target_pcd_file)
+            np.savetxt(
+                target_pcd_file, np.column_stack((qvector, target_pcd))
+            )
+
         ### ADDITION OF RANDOM NOISE
         noise_bool = True
         if noise_bool:
@@ -135,13 +144,7 @@ class Wrapper:
             print(target_function)
         else:
             if pcd_mode:
-                target_pcd = 100 * (target_iam / reference_iam - 1)
-                # Save PCD to file
-                print("Saving data to %s ..." % target_pcd_file)
-                np.savetxt(
-                    target_pcd_file, np.column_stack((qvector, target_pcd))
-                )
-                target_function = target_pcd
+                target_function = 100 * (target_iam / reference_iam - 1)
             else:
                 target_function = target_iam
         print("Saving data to %s ..." % target_function_file)
