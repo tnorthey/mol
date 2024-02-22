@@ -145,8 +145,8 @@ class Wrapper:
                 target_function = 100 * (target_iam / reference_iam - 1)
             else:
                 target_function = target_iam
-        print("Saving data to %s ..." % target_function_file)
-        np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
+            print("Saving data to %s ..." % target_function_file)
+            np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
         ###
         # calculate target_f_signal for noise data compared to clean data
         if noise != 0:

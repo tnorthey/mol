@@ -1,4 +1,5 @@
 
+test larger C-C HO terms; the first step uses this and works well.. So maybe it will continue.
 
 traj094: 10 20 32 35 37 40 44 50 55 60 65 70 75
 
