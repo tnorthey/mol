@@ -1,3 +1,11 @@
+add type annotations 
+
+wrap->chd_1d() unit test
+
+1 huge jump from start.xyz to step75 traj094 (fully stretched hexatriene)
+- It might be possible with strong C-C and C-H bonds...
+
+Implement backwards steps!
 
 test larger C-C HO terms; the first step uses this and works well.. So maybe it will continue.
 
@@ -24,5 +32,4 @@ fix 2D
 
 ... write the readme
 
-wrap unit test
 

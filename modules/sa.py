@@ -1,6 +1,7 @@
 import numpy as np
 from numpy.random import random_sample as random
 from numpy import linalg as LA
+from numpy.typing import NDArray, DTypeLike
 
 # my modules
 import modules.mol as mol
@@ -17,7 +18,7 @@ class Annealing:
     def __init__(self):
         pass
 
-    def read_nm_displacements(self, fname, natoms):
+    def read_nm_displacements(self, fname: str, natoms: int) -> NDArray:
         """read_nm_displacements: Reads displacement vector from file=fname e.g. 'normalmodes.txt'
         Inputs: 	natoms (int), total number of atoms
         Outputs:	displacements, array of displacements, size: (nmodes, natoms, 3)"""
@@ -88,7 +89,7 @@ class Annealing:
         return xyz_traj
 
     def atomic_pre_molecular(
-        self, atomic_numbers, qvector, aa, bb, cc, electron_mode=False
+        self, atomic_numbers, qvector: NDArray, aa, bb, cc, electron_mode=False
     ):
         """both parts of IAM equation that don't depend on atom-atom distances"""
         # compton factors for inelastic effect
@@ -133,12 +134,12 @@ class Annealing:
     def simulated_annealing_modes_ho(
         self,
         atomlist,
-        starting_xyz,
-        reference_xyz,
-        displacements,
+        starting_xyz: NDArray,
+        reference_xyz: NDArray,
+        displacements: NDArray,
         mode_indices,
-        target_data,
-        qvector,
+        target_data: NDArray,
+        qvector: NDArray,
         step_size_array,
         ho_indices1,
         ho_indices2,

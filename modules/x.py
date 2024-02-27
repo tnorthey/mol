@@ -1,12 +1,13 @@
 import numpy as np
 from scipy import interpolate
+from numpy.typing import NDArray, DTypeLike
 
 
 class Xray:
     def __init__(self):
         pass
 
-    def read_iam_coeffs(self):
+    def read_iam_coeffs(self) -> (NDArray, NDArray, NDArray):
         """returns the IAM coefficient arrays"""
         aa = np.array(
             [

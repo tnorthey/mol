@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.typing import NDArray, DTypeLike
 
 # only need for rmsd function:
 from scipy.spatial.transform import Rotation as R
@@ -10,14 +11,14 @@ class Xyz:
     def __init__(self):
         pass
 
-    def periodic_table(self, element):
+    def periodic_table(self, element: str):
         """Outputs atomic number for each element in the periodic table"""
         with open("_data/pt.txt") as pt_file:
             for line in pt_file:
                 if line.split()[0] == element:
                     return int(line.split()[1])
 
-    def atomic_mass(self, element):
+    def atomic_mass(self, element: str):
         """Outputs atomic mass for each element in the periodic table"""
         with open("_data/atomic_masses.txt") as am_file:
             for line in am_file:
@@ -26,7 +27,7 @@ class Xyz:
 
     # read/write xyz files
 
-    def read_xyz(self, fname):
+    def read_xyz(self, fname: str):
         """Read a .xyz file"""
         with open(fname, "r") as xyzfile:
             xyzheader = int(xyzfile.readline())
@@ -35,7 +36,7 @@ class Xyz:
         atomarray = np.loadtxt(fname, skiprows=2, dtype=str, usecols=[0])
         return xyzheader, comment, atomarray, xyzmatrix
 
-    def write_xyz(self, fname, comment, atoms, xyz):
+    def write_xyz(self, fname: str, comment: str, atoms, xyz):
         """Write .xyz file"""
         natom = len(atoms)
         xyz = xyz.astype("|S10")  # convert to string array (max length 10)
@@ -51,7 +52,7 @@ class Xyz:
         )
         return
 
-    def read_xyz_traj(self, fname, ntsteps):
+    def read_xyz_traj(self, fname: str, ntsteps: int):
         """Read a .xyz trajectory file"""
         with open(fname, "r") as xyzfile:
             natoms = int(xyzfile.readline())
