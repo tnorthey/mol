@@ -1,7 +1,10 @@
+import random
+import numba
 import numpy as np
-from numpy.random import random_sample as random
 from numpy import linalg as LA
 from numpy.typing import NDArray, DTypeLike
+
+from timeit import default_timer
 
 # my modules
 import modules.mol as mol
@@ -133,16 +136,17 @@ class Annealing:
 
     def simulated_annealing_modes_ho(
         self,
-        atomlist,
+        atomic_numbers: NDArray,
         starting_xyz: NDArray,
         reference_xyz: NDArray,
         displacements: NDArray,
-        mode_indices,
+        mode_indices: NDArray,
         target_data: NDArray,
         qvector: NDArray,
-        step_size_array,
-        ho_indices1,
-        ho_indices2,
+        compton_array: NDArray,
+        step_size_array: NDArray,
+        ho_indices1: NDArray,
+        ho_indices2: NDArray,
         starting_temp=0.2,
         nsteps=10000,
         inelastic=True,
@@ -154,32 +158,30 @@ class Annealing:
     ):
         """simulated annealing minimisation to target_data"""
         ##=#=#=# DEFINITIONS #=#=#=##
-        # initialise random number generator (with random seed)
-        rng = np.random.default_rng()
         ## start.xyz, reference.xyz ##
-        atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
-        compton_array = x.compton_spline(atomic_numbers, qvector)
+        #### NB With numba I can't call an outside class function so the x.iam_calc doesn't work.
+        #### I could hard code it here.  #### Reference signal not needed for now anyway!
         # reference signal (for percent difference)
-        if twod_mode:
-            (
-                reference_iam,
-                atomic_2d,
-                molecular_2d,
-                atomic_factor_array,
-                rotavg,
-                qx,
-                qy,
-                qz,
-            ) = x.iam_calc_2d(atomic_numbers, reference_xyz, qvector)
-        else:
-            reference_iam, _, _, _ = x.iam_calc(
-                atomic_numbers,
-                reference_xyz,
-                qvector,
-                electron_mode,
-                inelastic,
-                compton_array,
-            )
+        # if twod_mode:
+        #    (
+        #        reference_iam,
+        #        atomic_2d,
+        #        molecular_2d,
+        #        atomic_factor_array,
+        #        rotavg,
+        #        qx,
+        #        qy,
+        #        qz,
+        #    ) = x.iam_calc_2d(atomic_numbers, reference_xyz, qvector)
+        # else:
+        # reference_iam, _, _, _ = x.iam_calc(
+        #    atomic_numbers,
+        #    reference_xyz,
+        #    qvector,
+        #    electron_mode,
+        #    inelastic,
+        #    compton_array,
+        #    )
         natoms = starting_xyz.shape[0]  # number of atoms
         nmodes = displacements.shape[0]  # number of displacement vectors
         modes = list(range(nmodes))  # all modes
@@ -213,127 +215,155 @@ class Annealing:
                 starting_xyz[ho_indices2[0][i], :] - starting_xyz[ho_indices2[1][i], :]
             )
 
-        total_harmonic_contrib = 0
-        total_xray_contrib = 0
         print("HO factors: %4.3f %4.3f" % (harmonic_factor[0], harmonic_factor[1]))
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
 
-        ##=#=#=# INITIATE LOOP VARIABLES #=#=#=#=#
-        xyz = starting_xyz
-        i, c = 0, 0
-        f, f_best = 1e9, 1e10
-        f_array = np.zeros(nsteps)
-        xyz_array = np.zeros((natoms, 3, nsteps))
-        minimum_found = 0  # this counts unaccepted steps and if there is a large amount in a row it terminates
-        # mdisp = displacements * step_size  # array of molecular displacements
-        mdisp = displacements
-        ##=#=#=# END INITIATE LOOP VARIABLES #=#=#
-        while i < nsteps:
-            i += 1  # count steps
-            # print(i)
-            minimum_found += 1  # count unaccepted steps
-            if minimum_found == 1000:
-                print(
-                    '%i steps in a row did not improve the fit: terminating "minimum found"'
-                    % minimum_found
+        @numba.njit
+        def run_annealing(nsteps):
+
+            ##=#=#=# INITIATE LOOP VARIABLES #=#=#=#=#
+            xyz = starting_xyz
+            i, c = 0, 0
+            f, f_best = 1e9, 1e10
+            # f_array = np.zeros(nsteps)
+            xyz_array = np.zeros((natoms, 3, nsteps))
+            # mdisp = displacements * step_size  # array of molecular displacements
+            mdisp = displacements
+            total_harmonic_contrib = 0
+            total_xray_contrib = 0
+            ##=#=#=# END INITIATE LOOP VARIABLES #=#=#
+
+            for i in range(nsteps):
+
+                ##=#=#=#=# TEMPERATURE #=#=#=#=#=#=#=#=##
+                tmp = 1 - i / nsteps  # this is prop. to how far the molecule moves
+                temp = starting_temp * tmp  # this is the probability of going uphill
+                ##=#=#=# END TEMPERATURE #=#=#=#=#=#=#=##
+
+                ##=#=#=# DISPLACE XYZ RANDOMLY ALONG ALL DISPLACEMENT VECTORS #=#=#=##
+                summed_displacement = np.zeros(mdisp[0, :, :].shape)
+                for n in mode_indices:
+                    summed_displacement += (
+                        mdisp[n, :, :]
+                        * step_size_array[n]
+                        * tmp
+                        * (2 * random.random() - 1)
+                    )
+                xyz_ = xyz + summed_displacement  # save a temporary displaced xyz: xyz_
+                ##=#=#=# END DISPLACE XYZ RANDOMLY ALONG ALL DISPLACEMENT VECTORS #=#=#=##
+
+                ##=#=#=# IAM CALCULATION #=#=#=##
+                if twod_mode:  # 2D x-ray signal, q = q(theta, phi)
+                    molecular = np.zeros((qlen, qlen))  # total molecular factor
+                    for ii in range(natoms):
+                        for jj in range(ii + 1, natoms):  # j > i
+                            fij = np.multiply(
+                                atomic_factor_array[ii, :, :],
+                                atomic_factor_array[jj, :, :],
+                            )
+                            xij = xyz_[ii, 0] - xyz_[jj, 0]
+                            yij = xyz_[ii, 1] - xyz_[jj, 1]
+                            zij = xyz_[ii, 2] - xyz_[jj, 2]
+                            molecular += fij * np.cos(qx * xij + qy * yij + qz * zij)
+                    iam_ = atomic_2d + 2 * molecular
+                else:  # assumed to be isotropic 1D signal
+                    molecular = np.zeros(qlen)  # total molecular factor
+                    k = 0
+                    for ii in range(natoms):
+                        for jj in range(ii + 1, natoms):  # j > i
+                            qdij = qvector * LA.norm(xyz_[ii, :] - xyz_[jj, :])
+                            molecular += pre_molecular[k, :] * np.sin(qdij) / qdij
+                            k += 1
+                    iam_ = atomic_total + 2 * molecular
+                    if inelastic:
+                        iam_ += compton
+                ##=#=#=# END IAM CALCULATION #=#=#=##
+
+                ##=#=#=# PCD & CHI2 CALCULATIONS #=#=#=##
+                if pcd_mode:
+                    predicted_function_ = 100 * (iam_ / reference_iam - 1)
+                else:
+                    predicted_function_ = iam_
+
+                ### x-ray part of f
+                xray_contrib = (
+                    np.sum(
+                        (predicted_function_ - target_data) ** 2 / np.abs(target_data)
+                    )
+                    / qlen
                 )
-                nsteps = i
-                break  # end while loop
+                # xray_contrib = np.sum((predicted_function_ - target_data) ** 2) / qlen
 
-            ##=#=#=#=# TEMPERATURE #=#=#=#=#=#=#=#=##
-            tmp = 1 - i / nsteps  # this is prop. to how far the molecule moves
-            temp = starting_temp * tmp  # this is the probability of going uphill
-            ##=#=#=# END TEMPERATURE #=#=#=#=#=#=#=##
+                ### harmonic oscillator part of f
+                harmonic_contrib = 0
+                for iho in range(nho_indices1):
+                    r = LA.norm(
+                        xyz_[ho_indices1[0][iho], :] - xyz_[ho_indices1[1][iho], :]
+                    )
+                    harmonic_contrib += harmonic_factor[0] * (r - r0_arr1[iho]) ** 2
 
-            ##=#=#=# DISPLACE XYZ RANDOMLY ALONG ALL DISPLACEMENT VECTORS #=#=#=##
-            summed_displacement = np.zeros(mdisp[0, :, :].shape)
-            for n in mode_indices:
-                summed_displacement += (
-                    mdisp[n, :, :] * step_size_array[n] * tmp * (2 * rng.random() - 1)
-                )
-            xyz_ = xyz + summed_displacement  # save a temporary displaced xyz: xyz_
+                for iho in range(nho_indices2):
+                    r = LA.norm(
+                        xyz_[ho_indices2[0][iho], :] - xyz_[ho_indices2[1][iho], :]
+                    )
+                    harmonic_contrib += harmonic_factor[1] * (r - r0_arr2[iho]) ** 2
 
-            ##=#=#=# END DISPLACE XYZ RANDOMLY ALONG ALL DISPLACEMENT VECTORS #=#=#=##
+                ### combine x-ray and harmonic contributions
+                f_ = xray_contrib + harmonic_contrib
+                ##=#=#=# END PCD & CHI2 CALCULATIONS #=#=#=##
 
-            ##=#=#=# IAM CALCULATION #=#=#=##
-            if twod_mode:  # 2D x-ray signal, q = q(theta, phi)
-                molecular = np.zeros((qlen, qlen))  # total molecular factor
-                for ii in range(natoms):
-                    for jj in range(ii + 1, natoms):  # j > i
-                        fij = np.multiply(
-                            atomic_factor_array[ii, :, :], atomic_factor_array[jj, :, :]
-                        )
-                        xij = xyz_[ii, 0] - xyz_[jj, 0]
-                        yij = xyz_[ii, 1] - xyz_[jj, 1]
-                        zij = xyz_[ii, 2] - xyz_[jj, 2]
-                        molecular += fij * np.cos(qx * xij + qy * yij + qz * zij)
-                iam_ = atomic_2d + 2 * molecular
-            else:  # assumed to be isotropic 1D signal
-                molecular = np.zeros(qlen)  # total molecular factor
-                k = 0
-                for ii in range(natoms):
-                    for jj in range(ii + 1, natoms):  # j > i
-                        qdij = qvector * LA.norm(xyz_[ii, :] - xyz_[jj, :])
-                        molecular += pre_molecular[k, :] * np.sin(qdij) / qdij
-                        k += 1
-                iam_ = atomic_total + 2 * molecular
-                if inelastic:
-                    iam_ += compton
-            ##=#=#=# END IAM CALCULATION #=#=#=##
-
-            ##=#=#=# PCD & CHI2 CALCULATIONS #=#=#=##
-            if pcd_mode:
-                predicted_function_ = 100 * (iam_ / reference_iam - 1)
-            else:
-                predicted_function_ = iam_
-
-            ### x-ray part of f
-            xray_contrib = (
-                np.sum((predicted_function_ - target_data) ** 2 / np.abs(target_data))
-                / qlen
+                ##=#=#=# ACCEPTANCE CRITERIA #=#=#=##
+                if f_ / f < 1 - 1e-9 or temp > random.random():
+                    # if f_ / f < 1 - 1e-9 or temp > 0.5:
+                    minimum_found = 0
+                    c += 1  # count acceptances
+                    f, xyz = f_, xyz_  # update f and xyz
+                    # save f to graph
+                    # f_array[c - 1] = f
+                    if f < f_best:
+                        # store values corresponding to f_best
+                        f_best, xyz_best, predicted_best = f, xyz, predicted_function_
+                        f_xray_best = xray_contrib
+                    total_harmonic_contrib += harmonic_contrib
+                    total_xray_contrib += xray_contrib
+                    # optional save xyz to array
+                    if xyz_save:
+                        xyz_array[:, :, c - 1] = xyz_
+                ##=#=#=# END ACCEPTANCE CRITERIA #=#=#=##
+            # print ratio of contributions to f
+            total_contrib = total_xray_contrib + total_harmonic_contrib
+            xray_ratio = total_xray_contrib / total_contrib
+            harmonic_ratio = total_harmonic_contrib / total_contrib
+            return (
+                f_best,
+                f_xray_best,
+                predicted_best,
+                xyz_best,
+                xray_ratio,
+                harmonic_ratio,
+                c,
             )
-            # xray_contrib = np.sum((predicted_function_ - target_data) ** 2) / qlen
+            ### END run_annealing() function ###
 
-            ### harmonic oscillator part of f
-            harmonic_contrib = 0
-            for iho in range(nho_indices1):
-                r = LA.norm(xyz_[ho_indices1[0][iho], :] - xyz_[ho_indices1[1][iho], :])
-                harmonic_contrib += harmonic_factor[0] * (r - r0_arr1[iho]) ** 2
-
-            for iho in range(nho_indices2):
-                r = LA.norm(xyz_[ho_indices2[0][iho], :] - xyz_[ho_indices2[1][iho], :])
-                harmonic_contrib += harmonic_factor[1] * (r - r0_arr2[iho]) ** 2
-
-            ### combine x-ray and harmonic contributions
-            f_ = xray_contrib + harmonic_contrib
-            ##=#=#=# END PCD & CHI2 CALCULATIONS #=#=#=##
-
-            ##=#=#=# ACCEPTANCE CRITERIA #=#=#=##
-            if f_ / f < 1 - 1e-9 or temp > rng.random():
-                minimum_found = 0
-                c += 1  # count acceptances
-                f, xyz = f_, xyz_  # update f and xyz
-                # save f to graph
-                f_array[c - 1] = f
-                if f < f_best:
-                    # store values corresponding to f_best
-                    f_best, xyz_best, predicted_best = f, xyz, predicted_function_
-                    f_xray_best = xray_contrib
-                total_harmonic_contrib += harmonic_contrib
-                total_xray_contrib += xray_contrib
-                # optional save xyz to array
-                if xyz_save:
-                    xyz_array[:, :, c - 1] = xyz_
-            ##=#=#=# END ACCEPTANCE CRITERIA #=#=#=##
-        # remove ending zeros from arrays
-        f_array = f_array[:c]
-        xyz_array = xyz_array[:, :, :c] if xyz_save else 0
-        # print ratio of contributions to f
-        total_contrib = total_xray_contrib + total_harmonic_contrib
-        xray_ratio = total_xray_contrib / total_contrib
-        harmonic_ratio = total_harmonic_contrib / total_contrib
+        ### Call the run_annealing() function...
+        start = default_timer()
+        (
+            f_best,
+            f_xray_best,
+            predicted_best,
+            xyz_best,
+            xray_ratio,
+            harmonic_ratio,
+            c,
+        ) = run_annealing(nsteps)
+        print("run_annealing() time: %3.2f s" % float(default_timer() - start))
+        ###
         print("xray contrib ratio: %f" % xray_ratio)
         print("harmonic contrib ratio: %f" % harmonic_ratio)
         print("Accepted / Total steps: %i/%i" % (c, nsteps))
+        # remove ending zeros from arrays
+        # f_array = f_array[:c]
+        f_array = np.zeros(nsteps)
+        xyz_array = xyz_array[:, :, :c] if xyz_save else 0
         # end function
         return f_best, f_xray_best, predicted_best, xyz_best, f_array, xyz_array

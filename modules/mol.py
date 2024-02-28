@@ -98,7 +98,7 @@ class Xyz:
 
     ### distances array
 
-    def distances_array(self, xyz):
+    def distances_array(self, xyz: NDArray):
         """Computes matrix of distances from xyz"""
         natom = xyz.shape[0]  # number of atoms
         dist_array = np.zeros((natom, natom))  # the array of distances
@@ -110,12 +110,12 @@ class Xyz:
                 dist_array[j, i] = dist  # opposite elements are equal
         return dist_array
 
-    def rmsd_atoms(self, xyz, xyz_, indices):
+    def rmsd_atoms(self, xyz: NDArray, xyz_: NDArray, indices):
         """RMSD between xyz and xyz_ for atom indices"""
         natoms = len(indices)
         rmsd = 0.0
-        for i in range(natoms):
-            rmsd += np.sum((xyz[indices[i], :] - xyz_[indices[i], :]) ** 2)
+        for index in indices:
+            rmsd += np.sum((xyz[index, :] - xyz_[index, :]) ** 2)
         rmsd = (rmsd / natoms) ** 0.5
         return rmsd
 
@@ -167,7 +167,7 @@ class Xyz:
         mapd *= 100 / (nind * (nind - 1) / 2)
         return mapd
 
-    def new_dihedral(self, p):
+    def new_dihedral(self, p: tuple):
         """Praxeolitic formula
         1 sqrt, 1 cross product"""
         p0 = p[0]
