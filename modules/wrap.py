@@ -24,7 +24,6 @@ class Wrapper:
         self,
         run_id,
         start_xyz_file,
-        reference_xyz_file,
         target_xyz_file,
         qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
         noise=0,
@@ -68,21 +67,29 @@ class Wrapper:
         ### arguments             ###
         #############################
         _, _, atomlist, starting_xyz = m.read_xyz(start_xyz_file)
-        _, _, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
+        #_, _, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
         _, _, atomlist, target_xyz = m.read_xyz(target_xyz_file)
         atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
         compton_array = x.compton_spline(atomic_numbers, qvector)
         starting_iam = xyz2iam(starting_xyz, atomic_numbers, compton_array)
-        reference_iam = xyz2iam(reference_xyz, atomic_numbers, compton_array)
+        #reference_iam = xyz2iam(reference_xyz, atomic_numbers, compton_array)
         target_iam = xyz2iam(target_xyz, atomic_numbers, compton_array)
 
         natoms = starting_xyz.shape[0]
         nmfile = "nm/chd_normalmodes.txt"
         displacements = sa.read_nm_displacements(nmfile, natoms)
         nmodes = displacements.shape[0]
+        aa, bb, cc = x.read_iam_coeffs()
+        compton, atomic_total, pre_molecular = x.atomic_pre_molecular(
+            atomic_numbers,
+            qvector,
+            aa,
+            bb,
+            cc,
+            electron_mode,
+        )
 
-        xyz_save = False
-        f_save = True
+        #f_save = True
 
         # hydrogen modes damped
         hydrogen_modes = np.arange(28, nmodes)  # CHD hydrogen modes
@@ -197,17 +204,19 @@ class Wrapper:
                     f_xray_best,
                     predicted_best,
                     xyz_best,
-                    f_array,
-                    xyz_array,
                 ) = sa.simulated_annealing_modes_ho(
                     atomic_numbers,
                     starting_xyz,
-                    reference_xyz,
                     displacements,
                     mode_indices,
                     target_function,
                     qvector,
-                    compton_array,
+                    compton,
+                    atomic_total,
+                    pre_molecular,
+                    aa,
+                    bb,
+                    cc,
                     sa_step_size_array,
                     ho_indices1,
                     ho_indices2,
@@ -217,22 +226,21 @@ class Wrapper:
                     sa_harmonic_factor,
                     pcd_mode,
                     electron_mode,
-                    xyz_save,
                     twod_mode,
                 )
                 print("f_best (SA): %9.8f" % f_best)
 
                 ### save xyz_array as an xyz trajectory
-                if xyz_save:
-                    print("saving xyz array...")
-                    fname = "tmp_/save_array.xyz"
-                    m.write_xyz_traj(fname, atomlist, xyz_array)
+                #if xyz_save:
+                #    print("saving xyz array...")
+                #    fname = "tmp_/save_array.xyz"
+                #    m.write_xyz_traj(fname, atomlist, xyz_array)
 
                 ### save f_array
-                if f_save:
-                    print("saving f array...")
-                    fname = "tmp_/f_array_%i.dat" % i
-                    np.savetxt(fname, f_array)
+                #if f_save:
+                #    print("saving f array...")
+                #    fname = "tmp_/f_array_%i.dat" % i
+                #    np.savetxt(fname, f_array)
 
             # NB arbitrary multiply by 1000
             # f_xray_best *= 1000.0  # I do this just to avoid collisions in the filenames!
@@ -376,7 +384,6 @@ class Wrapper:
         print(mode_indices)
 
         pcd_mode = False
-        xyz_save = False
 
         # hydrogen modes damped
         hydrogen_modes = np.arange(28, nmodes)  # CHD hydrogen modes
@@ -432,8 +439,6 @@ class Wrapper:
                 f_xray_best,
                 predicted_best,
                 xyz_best,
-                f_array,
-                xyz_array,
             ) = sa.simulated_annealing_modes_ho(
                 atomlist,
                 starting_xyz,
@@ -450,15 +455,14 @@ class Wrapper:
                 sa_harmonic_factor,
                 pcd_mode,
                 electron_mode,
-                xyz_save,
                 twod_mode,
             )
             print("f_best (SA): %9.8f" % f_best)
             ### save xyz_array as an xyz trajectory
-            if xyz_save:
-                print("saving xyz array...")
-                fname = "tmp_/save_array.xyz"
-                m.write_xyz_traj(fname, atomlist, xyz_array)
+            #if xyz_save:
+            #    print("saving xyz array...")
+            #    fname = "tmp_/save_array.xyz"
+            #    m.write_xyz_traj(fname, atomlist, xyz_array)
 
             # store best values from the n_trials
             if f_best < f_best_:

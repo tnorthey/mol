@@ -104,6 +104,50 @@ class Xray:
             compton_array[i, :] = interpolate.splev(qvector, tck, der=0)
         return compton_array
 
+    def atomic_pre_molecular(
+        self, atomic_numbers, qvector: NDArray, aa, bb, cc, electron_mode=False
+    ):
+        """both parts of IAM equation that don't depend on atom-atom distances"""
+        # compton factors for inelastic effect
+        compton_array = self.compton_spline(atomic_numbers, qvector)
+        natoms = len(atomic_numbers)
+        qlen = len(qvector)
+        atomic_total = np.zeros(qlen)  # total atomic factor
+        atomic_factor_array = np.zeros((natoms, qlen))  # array of atomic factors
+        compton = np.zeros(qlen)
+        for k in range(natoms):
+            compton += compton_array[k, :]
+            atomfactor = np.zeros(qlen)
+            for j in range(qlen):
+                for i in range(4):
+                    atomfactor[j] += aa[atomic_numbers[k] - 1, i] * np.exp(
+                        -bb[atomic_numbers[k] - 1, i] * (0.25 * qvector[j] / np.pi) ** 2
+                    )
+            atomfactor += cc[atomic_numbers[k] - 1]
+            atomic_factor_array[k, :] = atomfactor
+            if electron_mode:
+                atomic_total += (atomic_numbers[k] - atomfactor) ** 2
+            else:
+                atomic_total += atomfactor ** 2
+        nij = int(natoms * (natoms - 1) / 2)
+        pre_molecular = np.zeros((nij, qlen))
+        k = 0
+        for i in range(natoms):
+            for j in range(i + 1, natoms):
+                if electron_mode:
+                    pre_molecular[k, :] = np.multiply(
+                        (atomic_numbers[i] - atomic_factor_array[i, :]),
+                        (atomic_numbers[j] - atomic_factor_array[j, :]),
+                    )
+                else:
+                    pre_molecular[k, :] = np.multiply(
+                        atomic_factor_array[i, :], atomic_factor_array[j, :]
+                    )
+
+                k += 1
+        return compton, atomic_total, pre_molecular
+
+
     def iam_calc(
         self,
         atomic_numbers,

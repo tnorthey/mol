@@ -1,4 +1,3 @@
-add type annotations 
 
 wrap->chd_1d() unit test
 
