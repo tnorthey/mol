@@ -38,22 +38,24 @@ stats "analysis_20_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t20"
 stats "analysis_32_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t32"
 stats "analysis_35_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t35"
 stats "analysis_37_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t37"
-#stats "analysis_40_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t40"
-#stats "analysis_44_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t44"
-#stats "analysis_50_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t50"
-#stats "analysis_60_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t60"
+stats "analysis_40_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t40"
+stats "analysis_44_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t44"
+stats "analysis_50_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t50"
+stats "analysis_55_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t55"
+stats "analysis_60_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t60"
 #stats "analysis_70_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t70"
 #stats "analysis_75_noise0_qmax8_traj094_laptoptest2.dat" u 3 prefix "t75"
 
-#t10_range = t10_max+1  # t10_median
-t20_range = t20_max+1  # t20_median 
-t32_range = t32_max+1  # t30_median 
-t35_range = t35_max+1  # t30_median 
-t37_range = t37_max+1  # t30_median 
-#t40_range = t40_max+1  # t40_median 
-#t44_range = t44_max+1  # t40_median 
-#t50_range = t50_max+1
-#t60_range = t60_max
+#t10_range = t10_up_quartile  # t10_median
+t20_range = t20_up_quartile  # t20_median 
+t32_range = t32_up_quartile  # t30_median 
+t35_range = t35_up_quartile  # t30_median 
+t37_range = t37_up_quartile  # t30_median 
+t40_range = t40_up_quartile  # t40_median 
+t44_range = t44_up_quartile  # t40_median 
+t50_range = t50_up_quartile
+t55_range = t55_up_quartile
+t60_range = t60_up_quartile
 #t70_range = t70_max
 #t75_range = t75_max
 
@@ -134,10 +136,13 @@ array point4[1]
 plot "analysis_20_noise0_qmax8_traj094_laptoptest2.dat" u 1:($3 < t20_range ? $5 : 1/0) t "20" w p pt 6 ps 2 lw 3 lc 8,\
      "analysis_32_noise0_qmax8_traj094_laptoptest2.dat" u 1:($3 < t32_range ? $5 : 1/0) t "32" w p pt 4 ps 2 lw 3 lc 1,\
      "analysis_35_noise0_qmax8_traj094_laptoptest2.dat" u 1:($3 < t35_range ? $5 : 1/0) t "35" w p pt 4 ps 2 lw 3 lc 2,\
-     "analysis_37_noise0_qmax8_traj094_laptoptest2.dat" u 1:($3 < t37_range ? $5 : 1/0) t "37" w p pt 1 ps 1 lw 3 lc 3,\
+     "analysis_37_noise0_qmax8_traj094_laptoptest2.dat" u 1:($3 < t37_range ? $5 : 1/0) t "37" w p pt 1 ps 2 lw 3 lc 3,\
+     "analysis_40_noise0_qmax8_traj094_laptoptest2.dat" u 1:($3 < t40_range ? $5 : 1/0) t "40" w p pt 3 ps 2 lw 3 lc 4,\
+     "analysis_44_noise0_qmax8_traj094_laptoptest2.dat" u 1:($3 < t44_range ? $5 : 1/0) t "44" w p pt 2 ps 2 lw 3 lc 6,\
+     "analysis_50_noise0_qmax8_traj094_laptoptest2.dat" u 1:($3 < t50_range ? $5 : 1/0) t "50" w p pt 1 ps 2 lw 3 lc 7,\
+     "analysis_55_noise0_qmax8_traj094_laptoptest2.dat" u 1:($3 < t55_range ? $5 : 1/0) t "55" w p pt 5 ps 2 lw 3 lc 0,\
+     "analysis_60_noise0_qmax8_traj094_laptoptest2.dat" u 1:($3 < t60_range ? $5 : 1/0) t "60" w p pt 6 ps 2 lw 4 lc 6,\
      "target_r05_dihedral_traj094_points_tdouble.dat" u 1:($1*0.0) t "" w p pt 1 ps 90 lw 3 lc 7,\
-     #"analysis_50_noise0_qmax8_traj094_laptoptest2.dat" u 1:($3 < t50_range ? $5 : 1/0) t "50" w p pt 1 ps 2 lw 3 lc 6,\
-     #"analysis_60_noise0_qmax8_traj094_laptoptest2.dat" u 1:($3 < t60_range ? $5 : 1/0) t "60" w p pt 6 ps 2 lw 4 lc 6,\
      #"analysis_70_noise0_qmax8_traj094_laptoptest2.dat" u 1:($3 < t70_range ? $5 : 1/0) t "70" w p pt 6 ps 2 lw 4 lc 0,\
      #"analysis_75_noise0_qmax8_traj094_laptoptest2.dat" u 1:($3 < t75_range ? $5 : 1/0) t "75" w p pt 5 ps 1 lw 1 lc 3,\
      #"target_r05_dihedral_traj094.dat" u 1:2 t "" w l lw 4 lc 7,\

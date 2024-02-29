@@ -16,6 +16,8 @@ csv/*.csv
 *.png # don't save images
 xyz/*.png
 tmp_/*.png
+tmp_/*.xyz
+tmp_/*
 notebooks/*.png
 notebooks/*.np[yz]
 data/*

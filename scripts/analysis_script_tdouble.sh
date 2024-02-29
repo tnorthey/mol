@@ -6,7 +6,7 @@ description=$2  # append a description to the .dat files
 #for step in 10 20 30 35 40 50 60
 #for step in 10 20 30 40 50 60 70 75
 #for step in 10 20 32 35 37 40 44 50 55 60 65 70 75
-for step in 20 32 35 37
+for step in 20 32 35 37 40 44 50 55 60
 do
 	file1=analysis_"$step"_"$description".dat
 	touch $file1 $file2
