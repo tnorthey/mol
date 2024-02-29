@@ -2,22 +2,17 @@
 nohup.out
 *.tar
 results_/
+results__/
 scripts/*.png
 MySerialJob-*.out
 MySerialJob-*.error
 ccv_start_??_*.sh
 ??_start_list_*.txt
 ??_full_list.txt
-results__/
 xyz/generated/*
 xyz/initconds*
 bagel/generated/*
 csv/*.csv
-distances*.npy
-chi*.np[yz]
-iam_arrays*.npz
-*.npy # not storing large data files
-*.npz
 *.png # don't save images
 xyz/*.png
 tmp_/*.png
@@ -27,7 +22,6 @@ data/*
 data_*
 slides/*
 chd_trajectories/
-*.xyz
 out
 *.mat
 *.dat
