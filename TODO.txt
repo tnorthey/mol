@@ -1,10 +1,17 @@
 
+-backtrack method
+20, 35, 40, 35, 40, 44, 40, 44, 50, 44, 50, 55, 50, 55, ...
+
+coding:
+- I could stay in python throughout the whole trajectory,
+- i.e. basically create a "run_trajectory_chd_1d.py"
+- and save everything to a massive array, (and .npz file as an option)
+- then optionally create xyz files at the very end in one step
+
+> even stronger C-H constraints?
+... > Run the "laptoptest2" on the cluster (so it starts from a set of previous calculations, not just one)
+
 wrap->chd_1d() unit test
-
-1 huge jump from start.xyz to step75 traj094 (fully stretched hexatriene)
-- It might be possible with strong C-C and C-H bonds...
-
-Implement backwards steps!
 
 test larger C-C HO terms; the first step uses this and works well.. So maybe it will continue.
 

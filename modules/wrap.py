@@ -186,49 +186,52 @@ class Wrapper:
             sa_harmonic_factor = sa_harmonic_factor_
             mode_indices = mode_indices_
             for i in range(nrestarts):
-                print(f"Run {i}: SA")
                 starting_xyz = xyz_best
-                if i == nrestarts - 1:  # last run parameters
-                    print(f"Run {i}: GA")
-                    sa_nsteps = ga_nsteps
-                    sa_starting_temp = 0
-                    sa_harmonic_factor = (0, 0)
-                    mode_indices = np.arange(0, nmodes)  # CHD, all modes
-                    # mode_indices = np.arange(28, nmodes)  # CHD, only "hydrogen" modes
-                print("including modes:")
-                print(mode_indices)
 
-                # Run simulated annealing
-                (
-                    f_best,
-                    f_xray_best,
-                    predicted_best,
-                    xyz_best,
-                ) = sa.simulated_annealing_modes_ho(
-                    atomic_numbers,
-                    starting_xyz,
-                    displacements,
-                    mode_indices,
-                    target_function,
-                    qvector,
-                    compton,
-                    atomic_total,
-                    pre_molecular,
-                    aa,
-                    bb,
-                    cc,
-                    sa_step_size_array,
-                    ho_indices1,
-                    ho_indices2,
-                    sa_starting_temp,
-                    sa_nsteps,
-                    inelastic,
-                    sa_harmonic_factor,
-                    pcd_mode,
-                    electron_mode,
-                    twod_mode,
-                )
-                print("f_best (SA): %9.8f" % f_best)
+                for k in range(2):
+                    if k % 2 == 0:  # annealing mode
+                        print(f"Run {i}: SA")
+                        nsteps = sa_nsteps
+                        starting_temp = sa_starting_temp
+                        harmonic_factor = sa_harmonic_factor
+                        mode_indices = np.arange(0, 28)  # CHD, non-hydrogen modes
+                    else:  # greedy mode
+                        print(f"Run {i}: GA")
+                        nsteps = ga_nsteps
+                        starting_temp = 0
+                        harmonic_factor = (0, 0)
+                        mode_indices = np.arange(0, nmodes)  # CHD, all modes
+                    # Run simulated annealing
+                    (
+                        f_best,
+                        f_xray_best,
+                        predicted_best,
+                        xyz_best,
+                    ) = sa.simulated_annealing_modes_ho(
+                        atomic_numbers,
+                        starting_xyz,
+                        displacements,
+                        mode_indices,
+                        target_function,
+                        qvector,
+                        compton,
+                        atomic_total,
+                        pre_molecular,
+                        aa,
+                        bb,
+                        cc,
+                        sa_step_size_array,
+                        ho_indices1,
+                        ho_indices2,
+                        starting_temp,
+                        nsteps,
+                        inelastic,
+                        harmonic_factor,
+                        pcd_mode,
+                        electron_mode,
+                        twod_mode,
+                    )
+                    print("f_best (SA): %9.8f" % f_best)
 
                 ### save xyz_array as an xyz trajectory
                 #if xyz_save:
@@ -242,77 +245,74 @@ class Wrapper:
                 #    fname = "tmp_/f_array_%i.dat" % i
                 #    np.savetxt(fname, f_array)
 
-            # NB arbitrary multiply by 1000
-            # f_xray_best *= 1000.0  # I do this just to avoid collisions in the filenames!
-
-            ### analysis on xyz_best
-            # 0145 dihedral that describes the ring-opening
-            p0 = np.array(xyz_best[0, :])
-            p1 = np.array(xyz_best[1, :])
-            p4 = np.array(xyz_best[4, :])
-            p5 = np.array(xyz_best[5, :])
-            dihedral = m.new_dihedral(np.array([p0, p1, p4, p5]))
-            # r05 ring-opening bond-length
-            r05 = np.linalg.norm(xyz_best[0, :] - xyz_best[5, :])
-            # rmsd compared to target
-            non_h_indices = np.array([0, 1, 2, 3, 4, 5])  # chd
-            # Kabsch rotation to target
-            rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, non_h_indices)
-            # MAPD compared to target
-            mapd = m.mapd_function(xyz_best, target_xyz, non_h_indices)
-            # f_signal / target_f_signal
-            signal_ratio = 0  # define as 0 if noise == 0
-            if noise != 0:
-                signal_ratio = f_xray_best / target_f_signal
-            # HF energy with PySCF
-            if hf_energy:
-                mol = gto.Mole()
-                arr = []
-                for i in range(len(atomlist)):
-                    arr.append((atomlist[i], xyz_best[i]))
-                mol.atom = arr
-                mol.basis = "6-31g*"
-                mol.build()
-                rhf_mol = scf.RHF(mol)  # run RHF
-                e_mol = rhf_mol.kernel()
-            # encode the analysis values into the xyz header
-            header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f" % (
-                f_xray_best,
-                rmsd,
-                r05,
-                dihedral,
-                e_mol,
-                mapd,
-                signal_ratio,
-            )
-            ### write best structure to xyz file
-            print("writing to xyz... (f: %10.8f)" % f_xray_best)
-            f_best_str = ("%10.8f" % f_xray_best).zfill(12)
-            m.write_xyz(
-                "tmp_/%s_%s.xyz" % (run_id, f_best_str),
-                header_str,
-                atomlist,
-                xyz_best,
-            )
-            ### Final save to files
-            # also write final xyz as "result.xyz"
-            m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
-            # target xyz
-            m.write_xyz(
-                "tmp_/%s_target.xyz" % run_id,
-                "run_id: %s" % run_id,
-                atomlist,
-                target_xyz,
-            )
-            # predicted data
-            if twod_mode:
-                np.savetxt("tmp_/%s_%s.dat" % (run_id, f_best_str), predicted_best)
-                np.savetxt("tmp_/%s_result.dat" % run_id, predicted_best)
-            else:
-                np.savetxt(
-                    "tmp_/%s_%s.dat" % (run_id, f_best_str),
-                    np.column_stack((qvector, predicted_best)),
+                ### analysis on xyz_best
+                # 0145 dihedral that describes the ring-opening
+                p0 = np.array(xyz_best[0, :])
+                p1 = np.array(xyz_best[1, :])
+                p4 = np.array(xyz_best[4, :])
+                p5 = np.array(xyz_best[5, :])
+                dihedral = m.new_dihedral(np.array([p0, p1, p4, p5]))
+                # r05 ring-opening bond-length
+                r05 = np.linalg.norm(xyz_best[0, :] - xyz_best[5, :])
+                # rmsd compared to target
+                non_h_indices = np.array([0, 1, 2, 3, 4, 5])  # chd
+                # Kabsch rotation to target
+                rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, non_h_indices)
+                # MAPD compared to target
+                mapd = m.mapd_function(xyz_best, target_xyz, non_h_indices)
+                # f_signal / target_f_signal
+                signal_ratio = 0  # define as 0 if noise == 0
+                if noise != 0:
+                    signal_ratio = f_xray_best / target_f_signal
+                # HF energy with PySCF
+                if hf_energy:
+                    mol = gto.Mole()
+                    arr = []
+                    for i in range(len(atomlist)):
+                        arr.append((atomlist[i], xyz_best[i]))
+                    mol.atom = arr
+                    mol.basis = "6-31g*"
+                    mol.build()
+                    rhf_mol = scf.RHF(mol)  # run RHF
+                    e_mol = rhf_mol.kernel()
+                # encode the analysis values into the xyz header
+                header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f" % (
+                    f_xray_best,
+                    rmsd,
+                    r05,
+                    dihedral,
+                    e_mol,
+                    mapd,
+                    signal_ratio,
                 )
+                ### write best structure to xyz file
+                print("writing to xyz... (f: %10.8f)" % f_xray_best)
+                f_best_str = ("%10.8f" % f_xray_best).zfill(12)
+                m.write_xyz(
+                    "tmp_/%s_%s.xyz" % (run_id, f_best_str),
+                    header_str,
+                    atomlist,
+                    xyz_best,
+                )
+                ### Final save to files
+                # also write final xyz as "result.xyz"
+                m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
+                # target xyz
+                m.write_xyz(
+                    "tmp_/%s_target.xyz" % run_id,
+                    "run_id: %s" % run_id,
+                    atomlist,
+                    target_xyz,
+                )
+                # predicted data
+                if twod_mode:
+                    np.savetxt("tmp_/%s_%s.dat" % (run_id, f_best_str), predicted_best)
+                    np.savetxt("tmp_/%s_result.dat" % run_id, predicted_best)
+                else:
+                    np.savetxt(
+                        "tmp_/%s_%s.dat" % (run_id, f_best_str),
+                        np.column_stack((qvector, predicted_best)),
+                    )
         return  # end function
 
     def chd_2D(
