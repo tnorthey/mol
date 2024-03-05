@@ -34,7 +34,7 @@ def xyz2iam(xyz, atomic_numbers, compton_array):
     )
     return iam
 
-npoints = 10
+npoints = 1000
 for n in range(npoints + 1):
     #ratio = n / npoints + 0.5 / npoints
     ratio = n / npoints
