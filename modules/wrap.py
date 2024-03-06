@@ -32,6 +32,7 @@ class Wrapper:
         sa_step_size=0.01,
         sa_starting_temp=0.2,
         sa_harmonic_factor=(0.01, 0.01),
+        sa_angular_factor=0.1,
         nrestarts=10,
         ntrials=1,
         non_h_modes_only=False,  # only include "non-hydrogen" modes
@@ -108,6 +109,8 @@ class Wrapper:
             [6, 12, 5, 5, 0, 0, 1, 2, 3, 4],
             [7, 13, 12, 13, 6, 7, 8, 9, 10, 11],
         ])  # chd (C-H bonds, and H-H "bonds" for the CH2 carbons)
+
+        angular_indices = np.array([[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5]])  # chd (C-C-C angles)
 
         mode_indices = np.arange(0, 28)  # CHD, "non-hydrogen" modes
 
@@ -224,10 +227,12 @@ class Wrapper:
                         sa_step_size_array,
                         ho_indices1,
                         ho_indices2,
+                        angular_indices,
                         starting_temp,
                         nsteps,
                         inelastic,
                         harmonic_factor,
+                        sa_angular_factor,
                         pcd_mode,
                         electron_mode,
                         twod_mode,

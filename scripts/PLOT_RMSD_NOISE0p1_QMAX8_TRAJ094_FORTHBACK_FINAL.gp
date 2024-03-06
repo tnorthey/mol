@@ -33,17 +33,17 @@ set grid back ls 102
 # set border 3 back ls 80
 
 # STATS
-#stats "analysis_10_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 3 prefix "t10"
-stats "analysis_20_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 3 prefix "t20"
-stats "analysis_35_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 3 prefix "t35"
-stats "analysis_40_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 3 prefix "t40"
-stats "analysis_44_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 3 prefix "t44"
-stats "analysis_50_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 3 prefix "t50"
-stats "analysis_55_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 3 prefix "t55"
-stats "analysis_60_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 3 prefix "t60"
-stats "analysis_65_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 3 prefix "t65"
-stats "analysis_70_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 3 prefix "t70"
-stats "analysis_75_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 3 prefix "t75"
+#stats "analysis_10_noise0p1_qmax8_traj094_forthback_final.dat" u 3 prefix "t10"
+stats "analysis_20_noise0p1_qmax8_traj094_forthback_final.dat" u 3 prefix "t20"
+stats "analysis_35_noise0p1_qmax8_traj094_forthback_final.dat" u 3 prefix "t35"
+stats "analysis_40_noise0p1_qmax8_traj094_forthback_final.dat" u 3 prefix "t40"
+stats "analysis_44_noise0p1_qmax8_traj094_forthback_final.dat" u 3 prefix "t44"
+stats "analysis_50_noise0p1_qmax8_traj094_forthback_final.dat" u 3 prefix "t50"
+stats "analysis_55_noise0p1_qmax8_traj094_forthback_final.dat" u 3 prefix "t55"
+stats "analysis_60_noise0p1_qmax8_traj094_forthback_final.dat" u 3 prefix "t60"
+stats "analysis_65_noise0p1_qmax8_traj094_forthback_final.dat" u 3 prefix "t65"
+stats "analysis_70_noise0p1_qmax8_traj094_forthback_final.dat" u 3 prefix "t70"
+stats "analysis_75_noise0p1_qmax8_traj094_forthback_final.dat" u 3 prefix "t75"
 
 t20_range = t20_median  # t20_median 
 t35_range = t35_median  # t30_median 
@@ -55,6 +55,31 @@ t60_range = t60_median
 t65_range = t65_median
 t70_range = t70_median
 t75_range = t75_median
+
+# f_signal stats
+stats "analysis_20_noise0p1_qmax8_traj094_forthback_final.dat" u 4 prefix "f20"
+stats "analysis_35_noise0p1_qmax8_traj094_forthback_final.dat" u 4 prefix "f35"
+stats "analysis_40_noise0p1_qmax8_traj094_forthback_final.dat" u 4 prefix "f40"
+stats "analysis_44_noise0p1_qmax8_traj094_forthback_final.dat" u 4 prefix "f44"
+stats "analysis_50_noise0p1_qmax8_traj094_forthback_final.dat" u 4 prefix "f50"
+stats "analysis_55_noise0p1_qmax8_traj094_forthback_final.dat" u 4 prefix "f55"
+stats "analysis_60_noise0p1_qmax8_traj094_forthback_final.dat" u 4 prefix "f60"
+stats "analysis_65_noise0p1_qmax8_traj094_forthback_final.dat" u 4 prefix "f65"
+stats "analysis_70_noise0p1_qmax8_traj094_forthback_final.dat" u 4 prefix "f70"
+stats "analysis_75_noise0p1_qmax8_traj094_forthback_final.dat" u 4 prefix "f75"
+
+# look at the range of fsignal values...
+f20_range = f20_up_quartile 
+f35_range = f35_up_quartile
+f40_range = f40_up_quartile
+f44_range = f44_up_quartile
+f50_range = f50_up_quartile
+f55_range = f55_up_quartile
+f60_range = f60_up_quartile
+f65_range = f65_up_quartile
+f70_range = f70_up_quartile
+f75_range = f75_up_quartile
+
 
 # MACROS
 # x- and ytics for each row resp. column
@@ -98,7 +123,7 @@ POS3 = "at graph 0.55, 0.45 font 'helvetica, 40'"
 # Enable the use of macros
 set macros
 
-set output "PLOT_RMSD_NOISE0p1_QMAX8_TRAJ094_BACKSTEPS_FINAL_NRESTARTS2.png"
+set output "PLOT_RMSD_NOISE0p1_QMAX8_TRAJ094_FORTHBACK_FINAL.png"
 
 XMIN = 1.25
 XMAX = 6.25
@@ -130,19 +155,19 @@ array point3[1]
 array point4[1]
 
 # Plots the 100 with lowest energy (hard coded with values!)
-plot "analysis_20_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 1:($3 < t20_range ? $5 : 1/0) t "20" w p pt 6 ps 2 lw 3 lc 8,\
-     "analysis_35_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 1:($3 < t35_range ? $5 : 1/0) t "35" w p pt 4 ps 2 lw 3 lc 2,\
-     "analysis_40_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 1:($3 < t40_range ? $5 : 1/0) t "40" w p pt 1 ps 2 lw 3 lc 1,\
-     "analysis_44_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 1:($3 < t44_range ? $5 : 1/0) t "44" w p pt 7 ps 2 lw 3 lc 3,\
-     "analysis_50_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 1:($3 < t50_range ? $5 : 1/0) t "50" w p pt 5 ps 2 lw 3 lc 4,\
-     "analysis_55_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 1:($3 < t55_range ? $5 : 1/0) t "55" w p pt 1 ps 2 lw 3 lc 6,\
-     "analysis_60_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 1:($3 < t60_range ? $5 : 1/0) t "60" w p pt 3 ps 2 lw 4 lc 7,\
-     "analysis_65_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 1:($3 < t65_range ? $5 : 1/0) t "65" w p pt 2 ps 2 lw 4 lc 6,\
-     "analysis_70_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 1:($3 < t70_range ? $5 : 1/0) t "70" w p pt 6 ps 2 lw 4 lc 0,\
-     "analysis_75_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 1:($3 < t75_range ? $5 : 1/0) t "75" w p pt 5 ps 1 lw 1 lc 3,\
+plot "analysis_20_noise0p1_qmax8_traj094_forthback_final.dat" u 1:($3 < t20_range & $4 < f20_range ? $5 : 1/0) t "20" w p pt 6 ps 2 lw 3 lc 8,\
+     "analysis_35_noise0p1_qmax8_traj094_forthback_final.dat" u 1:($3 < t35_range & $4 < f35_range ? $5 : 1/0) t "35" w p pt 4 ps 2 lw 3 lc 2,\
+     "analysis_40_noise0p1_qmax8_traj094_forthback_final.dat" u 1:($3 < t40_range & $4 < f40_range ? $5 : 1/0) t "40" w p pt 1 ps 2 lw 3 lc 1,\
+     "analysis_44_noise0p1_qmax8_traj094_forthback_final.dat" u 1:($3 < t44_range & $4 < f44_range ? $5 : 1/0) t "44" w p pt 7 ps 2 lw 3 lc 3,\
+     "analysis_50_noise0p1_qmax8_traj094_forthback_final.dat" u 1:($3 < t50_range & $4 < f50_range ? $5 : 1/0) t "50" w p pt 5 ps 2 lw 3 lc 4,\
+     "analysis_55_noise0p1_qmax8_traj094_forthback_final.dat" u 1:($3 < t55_range & $4 < f55_range ? $5 : 1/0) t "55" w p pt 1 ps 2 lw 3 lc 6,\
+     "analysis_60_noise0p1_qmax8_traj094_forthback_final.dat" u 1:($3 < t60_range & $4 < f60_range ? $5 : 1/0) t "60" w p pt 3 ps 2 lw 4 lc 7,\
+     "analysis_65_noise0p1_qmax8_traj094_forthback_final.dat" u 1:($3 < t65_range & $4 < f65_range ? $5 : 1/0) t "65" w p pt 2 ps 2 lw 4 lc 6,\
+     "analysis_70_noise0p1_qmax8_traj094_forthback_final.dat" u 1:($3 < t70_range & $4 < f70_range ? $5 : 1/0) t "70" w p pt 6 ps 2 lw 4 lc 0,\
+     "analysis_75_noise0p1_qmax8_traj094_forthback_final.dat" u 1:($3 < t75_range & $4 < f75_range ? $5 : 1/0) t "75" w p pt 5 ps 1 lw 1 lc 3,\
      "target_r05_dihedral_traj094_points.dat" u 1:($1*0.0) t "" w p pt 1 ps 90 lw 3 lc 7,\
-     #"analysis_70_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 1:($3 < t70_range ? $5 : 1/0) t "70" w p pt 6 ps 2 lw 4 lc 0,\
-     #"analysis_75_noise0p1_qmax8_traj094_backsteps_final_nrestarts2.dat" u 1:($3 < t75_range ? $5 : 1/0) t "75" w p pt 5 ps 1 lw 1 lc 3,\
+     #"analysis_70_noise0p1_qmax8_traj094_forthback_final.dat" u 1:($3 < t70_range ? $5 : 1/0) t "70" w p pt 6 ps 2 lw 4 lc 0,\
+     #"analysis_75_noise0p1_qmax8_traj094_forthback_final.dat" u 1:($3 < t75_range ? $5 : 1/0) t "75" w p pt 5 ps 1 lw 1 lc 3,\
      #"target_r05_dihedral_traj094.dat" u 1:2 t "" w l lw 4 lc 7,\
 
 

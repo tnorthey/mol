@@ -40,10 +40,12 @@ class Annealing:
         step_size_array: NDArray,
         ho_indices1: NDArray,
         ho_indices2: NDArray,
+        angular_indices: NDArray,
         starting_temp=0.2,
         nsteps=10000,
         inelastic=True,
-        harmonic_factor=(0.1, 0.1),
+        bonding_factor=(0.1, 0.1),
+        angular_factor=0.1,
         pcd_mode=False,
         electron_mode=False,
         twod_mode=False,
@@ -65,12 +67,23 @@ class Annealing:
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
         nho_indices1 = len(ho_indices1[0])  # number of HO indices
         nho_indices2 = len(ho_indices2[0])  # number of HO indices
+        nangular_indices = len(angular_indices[0])  # number of angular indices
         # Calculate distance arrays for starting_xyz
         diff = starting_xyz[ho_indices1[0]] - starting_xyz[ho_indices1[1]]
         r0_arr1 = LA.norm(diff, axis=1)
         diff = starting_xyz[ho_indices2[0]] - starting_xyz[ho_indices2[1]]
         r0_arr2 = LA.norm(diff, axis=1)
-        #print("HO factors: %4.3f %4.3f" % (harmonic_factor[0], harmonic_factor[1]))
+        theta0_arr = np.zeros((nangular_indices))
+        for i_ang in range(nangular_indices):
+            p0 = starting_xyz[angular_indices[0][i_ang], :]
+            p1 = starting_xyz[angular_indices[1][i_ang], :]
+            p2 = starting_xyz[angular_indices[2][i_ang], :]
+            ba = p1 - p0
+            bc = p1 - p2
+            cosine_theta = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
+            theta0_arr[i_ang] = np.arccos(cosine_theta)
+        print(np.degrees(theta0_arr))
+        #print("HO factors: %4.3f %4.3f" % (bonding_factor[0], bonding_factor[1]))
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
 
         @njit(nogil=True)
@@ -81,7 +94,7 @@ class Annealing:
             c = 0
             f, f_best = 1e9, 1e10
             mdisp = displacements
-            total_harmonic_contrib = 0
+            total_bonding_contrib = 0
             total_xray_contrib = 0
             ##=#=#=# END INITIATE LOOP VARIABLES #=#=#
 
@@ -94,6 +107,7 @@ class Annealing:
 
                 ##=#=#=# DISPLACE XYZ RANDOMLY ALONG ALL DISPLACEMENT VECTORS #=#=#=##
                 # this is faster in numba than the vectorised version...
+                # numba likes loops (not vectors apparently)
                 summed_displacement = np.zeros(mdisp[0, :, :].shape)
                 for n in mode_indices:
                     summed_displacement += (
@@ -144,20 +158,31 @@ class Annealing:
 
                 ### harmonic oscillator part of f
                 # somehow this is faster in numba than the vectorised version
-                harmonic_contrib = 0
+                bonding_contrib = 0
                 for iho in range(nho_indices1):
                     r = LA.norm(
                         xyz_[ho_indices1[0][iho], :] - xyz_[ho_indices1[1][iho], :]
                     )
-                    harmonic_contrib += harmonic_factor[0] * (r - r0_arr1[iho]) ** 2
+                    bonding_contrib += bonding_factor[0] * (r - r0_arr1[iho]) ** 2
                 for iho in range(nho_indices2):
                     r = LA.norm(
                         xyz_[ho_indices2[0][iho], :] - xyz_[ho_indices2[1][iho], :]
                     )
-                    harmonic_contrib += harmonic_factor[1] * (r - r0_arr2[iho]) ** 2
+                    bonding_contrib += bonding_factor[1] * (r - r0_arr2[iho]) ** 2
 
-                ### combine x-ray and harmonic contributions
-                f_ = xray_contrib + harmonic_contrib
+                angular_contrib = 0
+                for i_ang in range(nangular_indices):
+                    p0 = starting_xyz[angular_indices[0][i_ang], :]
+                    p1 = starting_xyz[angular_indices[1][i_ang], :]
+                    p2 = starting_xyz[angular_indices[2][i_ang], :]
+                    ba = p1 - p0
+                    bc = p1 - p2
+                    cosine_theta = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
+                    theta = np.arccos(cosine_theta)
+                    angular_contrib += angular_factor * (theta - theta0_arr[i_ang]) ** 2
+
+                ### combine x-ray and bonding, angular contributions
+                f_ = xray_contrib + bonding_contrib + angular_contrib
                 ##=#=#=# END PCD & CHI2 CALCULATIONS #=#=#=##
 
                 ##=#=#=# ACCEPTANCE CRITERIA #=#=#=##
@@ -168,13 +193,13 @@ class Annealing:
                         # store values corresponding to f_best
                         f_best, xyz_best, predicted_best = f, xyz, predicted_function_
                         f_xray_best = xray_contrib
-                    total_harmonic_contrib += harmonic_contrib
+                    total_bonding_contrib += bonding_contrib
                     total_xray_contrib += xray_contrib
                 ##=#=#=# END ACCEPTANCE CRITERIA #=#=#=##
             # print ratio of contributions to f
-            total_contrib = total_xray_contrib + total_harmonic_contrib
+            total_contrib = total_xray_contrib + total_bonding_contrib
             xray_ratio = total_xray_contrib / total_contrib
-            harmonic_ratio = total_harmonic_contrib / total_contrib
+            harmonic_ratio = total_bonding_contrib / total_contrib
             return (
                 f_best,
                 f_xray_best,

@@ -1,3 +1,9 @@
+- backtrack is slow.....
+cycle:
+  - "seeding" run; runs whole traj a low number of times
+  - then back over whole thing a low number of times
+
+- add angular HO terms!
 
 -backtrack method
 20, 35, 40, 35, 40, 44, 40, 44, 50, 44, 50, 55, 50, 55, ...
