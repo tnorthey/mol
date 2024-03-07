@@ -54,6 +54,7 @@ class Wrapper:
         inelastic, electron_mode = True, False
         twod_mode = False
 
+        angular_bool = False   # use HO terms on the angles
         # debugging....
         print(sa_harmonic_factor)
 
@@ -243,6 +244,7 @@ class Wrapper:
                         pcd_mode,
                         electron_mode,
                         twod_mode,
+                        angular_bool,
                     )
                     print("f_best (SA): %9.8f" % f_best)
 

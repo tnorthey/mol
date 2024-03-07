@@ -33,21 +33,21 @@ set grid back ls 102
 # set border 3 back ls 80
 
 # STATS
-#stats "analysis_10_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 3 prefix "t10"
-stats "analysis_20_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 3 prefix "t20"
-stats "analysis_35_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 3 prefix "t35"
-stats "analysis_40_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 3 prefix "t40"
-stats "analysis_44_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 3 prefix "t44"
-stats "analysis_50_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 3 prefix "t50"
-stats "analysis_55_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 3 prefix "t55"
-stats "analysis_60_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 3 prefix "t60"
-stats "analysis_65_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 3 prefix "t65"
-stats "analysis_70_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 3 prefix "t70"
-stats "analysis_75_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 3 prefix "t75"
+#stats "analysis_10_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 3 prefix "t10"
+stats "analysis_20_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 3 prefix "t20"
+stats "analysis_35_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 3 prefix "t35"
+stats "analysis_40_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 3 prefix "t40"
+stats "analysis_44_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 3 prefix "t44"
+stats "analysis_50_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 3 prefix "t50"
+stats "analysis_55_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 3 prefix "t55"
+stats "analysis_60_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 3 prefix "t60"
+stats "analysis_65_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 3 prefix "t65"
+stats "analysis_70_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 3 prefix "t70"
+stats "analysis_75_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 3 prefix "t75"
 
 t20_range = t20_median  # t20_median 
 t35_range = t35_median  # t30_median 
-t40_range = t40_median  # t30_median 
+t40_range = t40_median  # t40_median 
 t44_range = t44_median  # t40_median 
 t50_range = t50_median
 t55_range = t55_median
@@ -57,16 +57,16 @@ t70_range = t70_median
 t75_range = t75_median
 
 # f_signal stats
-stats "analysis_20_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 4 prefix "f20"
-stats "analysis_35_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 4 prefix "f35"
-stats "analysis_40_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 4 prefix "f40"
-stats "analysis_44_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 4 prefix "f44"
-stats "analysis_50_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 4 prefix "f50"
-stats "analysis_55_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 4 prefix "f55"
-stats "analysis_60_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 4 prefix "f60"
-stats "analysis_65_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 4 prefix "f65"
-stats "analysis_70_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 4 prefix "f70"
-stats "analysis_75_noise0p1_qmax8_traj094_forthback_angular_final.dat" u 4 prefix "f75"
+stats "analysis_20_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 4 prefix "f20"
+stats "analysis_35_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 4 prefix "f35"
+stats "analysis_40_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 4 prefix "f40"
+stats "analysis_44_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 4 prefix "f44"
+stats "analysis_50_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 4 prefix "f50"
+stats "analysis_55_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 4 prefix "f55"
+stats "analysis_60_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 4 prefix "f60"
+stats "analysis_65_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 4 prefix "f65"
+stats "analysis_70_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 4 prefix "f70"
+stats "analysis_75_noise0_qmax8_traj094_forward_backward_angular_final.dat" u 4 prefix "f75"
 
 # look at the range of fsignal values...
 f20_range = f20_max 
@@ -88,13 +88,13 @@ NOXTICS = "set xtics ('' 0, '' 8, '' 16, '' 24); \
           set mxtics 2 "
 XTICS = "set xtics 0, 1.0, 24; \
           set xlabel 'time-step' offset 0,0.4; \
-          set mxtics 2"
+          set mxtics 1"
 NOYTICS = " set ytics add ('' 10, '1' 1, '' 0.1, '10^{-2}' 0.01, '' 0.001, '10^{-4}' 0.0001); \
            set mytics 2 ; \
            unset ylabel"
-YTICS = " set ytics add ('' 10, '1' 1, '' 0.1, '10^{-2}' 0.01, '' 0.001, '10^{-4}' 0.0001, '' 0.00001, '10^{-6}' 0.000001, '' 0.0000001); \
-           set mytics 10 ; \
-           set ylabel 'f_{signal}' offset 7.0,0"
+YTICS = "set ytics 0, 0.2, 24; \
+           set mytics 2 ; \
+           set ylabel 'RMSD (Å)' offset 1.5,0"
 
 NOKEY = "unset key"
 KEY = "set key bottom right font ',35'"
@@ -123,12 +123,12 @@ POS3 = "at graph 0.55, 0.45 font 'helvetica, 40'"
 # Enable the use of macros
 set macros
 
-set output "BOXPLOTS_FSIGNAL_NOISE0p1_QMAX8_TRAJ094_FORTHBACK_ANGULAR_FINAL.png"
+set output "BOXPLOTS_RMSD_NOISE0_QMAX8_TRAJ094_FORWARD_BACKWARD_ANGULAR_FINAL.png"
 
 XMIN = 0.1
 XMAX = 10.9
-YMIN = 0.00000002
-YMAX = 0.002
+YMIN = 0.0
+YMAX = 0.58
 set yrange [YMIN : YMAX]
 set xrange [XMIN : XMAX]
 
@@ -143,7 +143,7 @@ set multiplot layout 3,1 rowsfirst
 #set label 2 'CHD ^↗' @POS2
 #set label 3 '_↙ Naphthalene' @POS3
 #set logscale x 10
-set logscale y 10
+#set logscale y 10
 LW = 4
 LW2 = 1
 DT1 = 1
@@ -162,16 +162,16 @@ set boxwidth  0.5
 set pointsize 0.5
 ###By default the whiskers extend from the ends of the box to the most distant point whose y value lies within 1.5 times the interquartile range. By default outliers are drawn as circles (point type 7). The width of the bars at the end of the whiskers may be controlled using set bars or set errorbars. 
 
-plot "analysis_20_noise0p1_qmax8_traj094_forthback_angular_final.dat" u (1.0):($3 < t20_range & $4 < f20_range ? $4 : 1/0) t "20",\
-     "analysis_35_noise0p1_qmax8_traj094_forthback_angular_final.dat" u (2.0):($3 < t35_range & $4 < f35_range ? $4 : 1/0) t "35",\
-     "analysis_40_noise0p1_qmax8_traj094_forthback_angular_final.dat" u (3.0):($3 < t40_range & $4 < f40_range ? $4 : 1/0) t "40",\
-     "analysis_44_noise0p1_qmax8_traj094_forthback_angular_final.dat" u (4.0):($3 < t44_range & $4 < f44_range ? $4 : 1/0) t "44",\
-     "analysis_50_noise0p1_qmax8_traj094_forthback_angular_final.dat" u (5.0):($3 < t50_range & $4 < f50_range ? $4 : 1/0) t "50",\
-     "analysis_55_noise0p1_qmax8_traj094_forthback_angular_final.dat" u (6.0):($3 < t55_range & $4 < f55_range ? $4 : 1/0) t "55",\
-     "analysis_60_noise0p1_qmax8_traj094_forthback_angular_final.dat" u (7.0):($3 < t60_range & $4 < f60_range ? $4 : 1/0) t "60",\
-     "analysis_65_noise0p1_qmax8_traj094_forthback_angular_final.dat" u (8.0):($3 < t65_range & $4 < f65_range ? $4 : 1/0) t "65",\
-     "analysis_70_noise0p1_qmax8_traj094_forthback_angular_final.dat" u (9.0):($3 < t70_range & $4 < f70_range ? $4 : 1/0) t "70",\
-     "analysis_75_noise0p1_qmax8_traj094_forthback_angular_final.dat" u (10.0):($3 < t75_range & $4 < f75_range ? $4 : 1/0) t "75",\
+plot "analysis_20_noise0_qmax8_traj094_forward_backward_angular_final.dat" u (1.0):($3 < t20_range & $4 < f20_range ? $5 : 1/0) t "20",\
+     "analysis_35_noise0_qmax8_traj094_forward_backward_angular_final.dat" u (2.0):($3 < t35_range & $4 < f35_range ? $5 : 1/0)  t "35",\
+     "analysis_40_noise0_qmax8_traj094_forward_backward_angular_final.dat" u (3.0):($3 < t40_range & $4 < f40_range ? $5 : 1/0)  t "40",\
+     "analysis_44_noise0_qmax8_traj094_forward_backward_angular_final.dat" u (4.0):($3 < t44_range & $4 < f44_range ? $5 : 1/0)  t "44",\
+     "analysis_50_noise0_qmax8_traj094_forward_backward_angular_final.dat" u (5.0):($3 < t50_range & $4 < f50_range ? $5 : 1/0)  t "50",\
+     "analysis_55_noise0_qmax8_traj094_forward_backward_angular_final.dat" u (6.0):($3 < t55_range & $4 < f55_range ? $5 : 1/0)  t "55",\
+     "analysis_60_noise0_qmax8_traj094_forward_backward_angular_final.dat" u (7.0):($3 < t60_range & $4 < f60_range ? $5 : 1/0)  t "60",\
+     "analysis_65_noise0_qmax8_traj094_forward_backward_angular_final.dat" u (8.0):($3 < t65_range & $4 < f65_range ? $5 : 1/0)  t "65",\
+     "analysis_70_noise0_qmax8_traj094_forward_backward_angular_final.dat" u (9.0):($3 < t70_range & $4 < f70_range ? $5 : 1/0)  t "70",\
+     "analysis_75_noise0_qmax8_traj094_forward_backward_angular_final.dat" u (10.0):($3 < t75_range & $4 < f75_range ? $5 : 1/0)  t "75",\
 
 unset multiplot
 ### End multiplot

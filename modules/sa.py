@@ -49,6 +49,7 @@ class Annealing:
         pcd_mode=False,
         electron_mode=False,
         twod_mode=False,
+        angular_bool=False,
     ):
         """simulated annealing minimisation to target_data"""
         ##=#=#=# DEFINITIONS #=#=#=##
@@ -172,15 +173,16 @@ class Annealing:
                     bonding_contrib += bonding_factor[1] * (r - r0_arr2[iho]) ** 2
 
                 angular_contrib = 0
-                for i_ang in range(nangular_indices):
-                    p0 = xyz_[angular_indices[0][i_ang], :]
-                    p1 = xyz_[angular_indices[1][i_ang], :]
-                    p2 = xyz_[angular_indices[2][i_ang], :]
-                    ba = p1 - p0
-                    bc = p1 - p2
-                    cosine_theta = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
-                    theta = np.arccos(cosine_theta)
-                    angular_contrib += angular_factor * (theta - theta0_arr[i_ang]) ** 2
+                if angular_bool:
+                    for i_ang in range(nangular_indices):
+                        p0 = xyz_[angular_indices[0][i_ang], :]
+                        p1 = xyz_[angular_indices[1][i_ang], :]
+                        p2 = xyz_[angular_indices[2][i_ang], :]
+                        ba = p1 - p0
+                        bc = p1 - p2
+                        cosine_theta = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
+                        theta = np.arccos(cosine_theta)
+                        angular_contrib += angular_factor * (theta - theta0_arr[i_ang]) ** 2
 
                 ### combine x-ray and bonding, angular contributions
                 f_ = xray_contrib + bonding_contrib + angular_contrib
