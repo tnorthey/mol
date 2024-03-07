@@ -95,6 +95,7 @@ class Annealing:
             f, f_best = 1e9, 1e10
             mdisp = displacements
             total_bonding_contrib = 0
+            total_angular_contrib = 0
             total_xray_contrib = 0
             ##=#=#=# END INITIATE LOOP VARIABLES #=#=#
 
@@ -172,9 +173,9 @@ class Annealing:
 
                 angular_contrib = 0
                 for i_ang in range(nangular_indices):
-                    p0 = starting_xyz[angular_indices[0][i_ang], :]
-                    p1 = starting_xyz[angular_indices[1][i_ang], :]
-                    p2 = starting_xyz[angular_indices[2][i_ang], :]
+                    p0 = xyz_[angular_indices[0][i_ang], :]
+                    p1 = xyz_[angular_indices[1][i_ang], :]
+                    p2 = xyz_[angular_indices[2][i_ang], :]
                     ba = p1 - p0
                     bc = p1 - p2
                     cosine_theta = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
@@ -194,19 +195,22 @@ class Annealing:
                         f_best, xyz_best, predicted_best = f, xyz, predicted_function_
                         f_xray_best = xray_contrib
                     total_bonding_contrib += bonding_contrib
+                    total_angular_contrib += angular_contrib
                     total_xray_contrib += xray_contrib
                 ##=#=#=# END ACCEPTANCE CRITERIA #=#=#=##
             # print ratio of contributions to f
-            total_contrib = total_xray_contrib + total_bonding_contrib
+            total_contrib = total_xray_contrib + total_bonding_contrib + total_angular_contrib
             xray_ratio = total_xray_contrib / total_contrib
-            harmonic_ratio = total_bonding_contrib / total_contrib
+            bonding_ratio = total_bonding_contrib / total_contrib
+            angular_ratio = total_angular_contrib / total_contrib
             return (
                 f_best,
                 f_xray_best,
                 predicted_best,
                 xyz_best,
                 xray_ratio,
-                harmonic_ratio,
+                bonding_ratio,
+                angular_ratio,
                 c,
             )
         ### END run_annealing() function ###
@@ -219,13 +223,15 @@ class Annealing:
             predicted_best,
             xyz_best,
             xray_ratio,
-            harmonic_ratio,
+            bonding_ratio,
+            angular_ratio,
             c,
         ) = run_annealing(nsteps)
         print("run_annealing() time: %3.2f s" % float(default_timer() - start))
         ###
         print("xray contrib ratio: %f" % xray_ratio)
-        print("harmonic contrib ratio: %f" % harmonic_ratio)
+        print("bonding contrib ratio: %f" % bonding_ratio)
+        print("angular contrib ratio: %f" % angular_ratio)
         print("Accepted / Total steps: %i/%i" % (c, nsteps))
         # end function
         return f_best, f_xray_best, predicted_best, xyz_best

@@ -110,7 +110,11 @@ class Wrapper:
             [7, 13, 12, 13, 6, 7, 8, 9, 10, 11],
         ])  # chd (C-H bonds, and H-H "bonds" for the CH2 carbons)
 
-        angular_indices = np.array([[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5]])  # chd (C-C-C angles)
+        #angular_indices = np.array([[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5]])  # chd (C-C-C angles)
+
+        angular_indices = np.array([[0, 1, 2, 3, 6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1], 
+                                    [1, 2, 3, 4, 0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
+                                    [2, 3, 4, 5, 7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]])  # chd (C-C-C angles, and all C-C-H, H-C-H angles)
 
         mode_indices = np.arange(0, 28)  # CHD, "non-hydrogen" modes
 
@@ -198,13 +202,16 @@ class Wrapper:
                         nsteps = sa_nsteps
                         starting_temp = sa_starting_temp
                         harmonic_factor = sa_harmonic_factor
+                        angular_factor = sa_angular_factor
                         mode_indices = np.arange(0, 28)  # CHD, non-hydrogen modes
                     else:  # greedy mode
                         print(f"Run {i}: GA")
                         nsteps = ga_nsteps
                         starting_temp = 0
                         harmonic_factor = (0, 0)
-                        mode_indices = np.arange(0, nmodes)  # CHD, all modes
+                        angular_factor = 0
+                        #mode_indices = np.arange(0, nmodes)  # CHD, all modes
+                        mode_indices = np.arange(0, 28)  # CHD, non-hydrogen modes
                     # Run simulated annealing
                     (
                         f_best,
@@ -232,7 +239,7 @@ class Wrapper:
                         nsteps,
                         inelastic,
                         harmonic_factor,
-                        sa_angular_factor,
+                        angular_factor,
                         pcd_mode,
                         electron_mode,
                         twod_mode,
