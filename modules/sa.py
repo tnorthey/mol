@@ -83,7 +83,7 @@ class Annealing:
             bc = p1 - p2
             cosine_theta = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
             theta0_arr[i_ang] = np.arccos(cosine_theta)
-        print(np.degrees(theta0_arr))
+        #print(np.degrees(theta0_arr))
         #print("HO factors: %4.3f %4.3f" % (bonding_factor[0], bonding_factor[1]))
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
 

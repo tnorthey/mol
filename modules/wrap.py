@@ -209,7 +209,7 @@ class Wrapper:
                         print(f"Run {i}: GA")
                         nsteps = ga_nsteps
                         starting_temp = 0
-                        harmonic_factor = (0, 0)
+                        harmonic_factor = (0, sa_harmonic_factor[1]) # switch off C-C bonding term
                         angular_factor = 0
                         #mode_indices = np.arange(0, nmodes)  # CHD, all modes
                         mode_indices = np.arange(0, 28)  # CHD, non-hydrogen modes
