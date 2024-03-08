@@ -31,7 +31,7 @@ ACH = 10.0
 if ringclosed == 'closed':
   ACC = 10.0  
 elif ringclosed == 'open':
-  ACC = 0.1
+  ACC = 1.0
 else:
   print("ringclosed must equal 'closed' or 'open'")
 
@@ -47,8 +47,10 @@ w.chd_1D(
     sa_starting_temp = 1.0,
     sa_harmonic_factor = (ACC, ACH),
     sa_angular_factor = 0.0,
+    ga_harmonic_factor = (0.1, ACH),
+    ga_angular_factor = 0.0,
     nrestarts = 5,
-    ntrials = 10,
+    ntrials = 5,
     non_h_modes_only=True,  # only include "non-hydrogen" modes
     hf_energy=True,   # calculate HF energy (PySCF) at the end
     pcd_mode=False,    # use percent difference instead of absolute signal

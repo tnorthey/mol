@@ -33,51 +33,51 @@ set grid back ls 102
 # set border 3 back ls 80
 
 # STATS
-stats "analysis_20_noise0p01_qmax8_traj094_laptop.dat" u 3 prefix "t20"
-stats "analysis_35_noise0p01_qmax8_traj094_laptop.dat" u 3 prefix "t35"
-stats "analysis_40_noise0p01_qmax8_traj094_laptop.dat" u 3 prefix "t40"
-stats "analysis_45_noise0p01_qmax8_traj094_laptop.dat" u 3 prefix "t45"
-stats "analysis_50_noise0p01_qmax8_traj094_laptop.dat" u 3 prefix "t50"
-#stats "analysis_55_noise0p01_qmax8_traj094_laptop.dat" u 3 prefix "t55"
-#stats "analysis_60_noise0p01_qmax8_traj094_laptop.dat" u 3 prefix "t60"
-#stats "analysis_65_noise0p01_qmax8_traj094_laptop.dat" u 3 prefix "t65"
-#stats "analysis_70_noise0p01_qmax8_traj094_laptop.dat" u 3 prefix "t70"
-#stats "analysis_75_noise0p01_qmax8_traj094_laptop.dat" u 3 prefix "t75"
+stats "analysis_20_noise0_qmax8_traj094_laptop.dat" u 3 prefix "t20"
+stats "analysis_35_noise0_qmax8_traj094_laptop.dat" u 3 prefix "t35"
+stats "analysis_40_noise0_qmax8_traj094_laptop.dat" u 3 prefix "t40"
+stats "analysis_45_noise0_qmax8_traj094_laptop.dat" u 3 prefix "t45"
+stats "analysis_50_noise0_qmax8_traj094_laptop.dat" u 3 prefix "t50"
+stats "analysis_55_noise0_qmax8_traj094_laptop.dat" u 3 prefix "t55"
+stats "analysis_60_noise0_qmax8_traj094_laptop.dat" u 3 prefix "t60"
+stats "analysis_65_noise0_qmax8_traj094_laptop.dat" u 3 prefix "t65"
+stats "analysis_70_noise0_qmax8_traj094_laptop.dat" u 3 prefix "t70"
+stats "analysis_75_noise0_qmax8_traj094_laptop.dat" u 3 prefix "t75"
 
 t20_range = t20_max+1  # t20_max+1 
 t35_range = t35_max+1  # t30_max+1 
 t40_range = t40_max+1  # t40_max+1 
 t45_range = t45_max+1  # t40_median 
 t50_range = t50_max+1
-#t55_range = t55_max+1
-#t60_range = t60_max+1
-#t65_range = t65_max+1
-#t70_range = t70_max+1
-#t75_range = t75_max+1
+t55_range = t55_max+1
+t60_range = t60_max+1
+t65_range = t65_max+1
+t70_range = t70_max+1
+t75_range = t75_max+1
 
 # f_signal stats
-stats "analysis_20_noise0p01_qmax8_traj094_laptop.dat" u 4 prefix "f20"
-stats "analysis_35_noise0p01_qmax8_traj094_laptop.dat" u 4 prefix "f35"
-stats "analysis_40_noise0p01_qmax8_traj094_laptop.dat" u 4 prefix "f40"
-stats "analysis_45_noise0p01_qmax8_traj094_laptop.dat" u 4 prefix "f45"
-stats "analysis_50_noise0p01_qmax8_traj094_laptop.dat" u 4 prefix "f50"
-#stats "analysis_55_noise0p01_qmax8_traj094_laptop.dat" u 4 prefix "f55"
-#stats "analysis_60_noise0p01_qmax8_traj094_laptop.dat" u 4 prefix "f60"
-#stats "analysis_65_noise0p01_qmax8_traj094_laptop.dat" u 4 prefix "f65"
-#stats "analysis_70_noise0p01_qmax8_traj094_laptop.dat" u 4 prefix "f70"
-#stats "analysis_75_noise0p01_qmax8_traj094_laptop.dat" u 4 prefix "f75"
+stats "analysis_20_noise0_qmax8_traj094_laptop.dat" u 4 prefix "f20"
+stats "analysis_35_noise0_qmax8_traj094_laptop.dat" u 4 prefix "f35"
+stats "analysis_40_noise0_qmax8_traj094_laptop.dat" u 4 prefix "f40"
+stats "analysis_45_noise0_qmax8_traj094_laptop.dat" u 4 prefix "f45"
+stats "analysis_50_noise0_qmax8_traj094_laptop.dat" u 4 prefix "f50"
+stats "analysis_55_noise0_qmax8_traj094_laptop.dat" u 4 prefix "f55"
+stats "analysis_60_noise0_qmax8_traj094_laptop.dat" u 4 prefix "f60"
+stats "analysis_65_noise0_qmax8_traj094_laptop.dat" u 4 prefix "f65"
+stats "analysis_70_noise0_qmax8_traj094_laptop.dat" u 4 prefix "f70"
+stats "analysis_75_noise0_qmax8_traj094_laptop.dat" u 4 prefix "f75"
 
 # look at the range of fsignal values...
-f20_range = f20_median    #max+1 
-f35_range = f35_median    #max+1
-f40_range = f40_median    #max+1
-f45_range = f45_median    #max+1
-f50_range = f50_median    #max+1
-#f55_range = f55_max+1
-#f60_range = f60_max+1
-#f65_range = f65_max+1
-#f70_range = f70_max+1
-#f75_range = f75_max+1
+f20_range = f20_max+1    #max+1 
+f35_range = f35_max+1    #max+1
+f40_range = f40_max+1    #max+1
+f45_range = f45_max+1    #max+1
+f50_range = f50_max+1    #max+1
+f55_range = f55_max+1
+f60_range = f60_max+1
+f65_range = f65_max+1
+f70_range = f70_max+1
+f75_range = f75_max+1
 
 
 # MACROS
@@ -127,7 +127,7 @@ set output "PLOT_RMSD_NOISE0_TRAJ094_LAPTOP.png"
 XMIN = 1.25
 XMAX = 6.25
 YMIN = 0
-YMAX = 1.59
+YMAX = 0.9
 set yrange [YMIN : YMAX]
 set xrange [XMIN : XMAX]
 
@@ -154,30 +154,18 @@ array point3[1]
 array point4[1]
 
 # Plots the 100 with lowest energy (hard coded with values!)
-plot "analysis_20_noise0p01_qmax8_traj094_laptop.dat" u 1:($3 < t20_range & $4 < f20_range ? $5 : 1/0) t "20" w p pt 6 ps 2 lw 3 lc 8,\
-     "analysis_35_noise0p01_qmax8_traj094_laptop.dat" u 1:($3 < t35_range & $4 < f35_range ? $5 : 1/0) t "35" w p pt 4 ps 2 lw 3 lc 2,\
-     "analysis_40_noise0p01_qmax8_traj094_laptop.dat" u 1:($3 < t40_range & $4 < f40_range ? $5 : 1/0) t "40" w p pt 1 ps 2 lw 3 lc 1,\
-     "analysis_45_noise0p01_qmax8_traj094_laptop.dat" u 1:($3 < t45_range & $4 < f45_range ? $5 : 1/0) t "45" w p pt 7 ps 2 lw 3 lc 3,\
-     "analysis_50_noise0p01_qmax8_traj094_laptop.dat" u 1:($3 < t50_range & $4 < f50_range ? $5 : 1/0) t "50" w p pt 5 ps 2 lw 3 lc 4,\
-     "analysis_55_noise0p01_qmax8_traj094_laptop.dat" u 1:($3 < t55_range & $4 < f55_range ? $5 : 1/0) t "55" w p pt 1 ps 2 lw 3 lc 6,\
-     "analysis_60_noise0p01_qmax8_traj094_laptop.dat" u 1:($3 < t60_range & $4 < f60_range ? $5 : 1/0) t "60" w p pt 3 ps 2 lw 4 lc 7,\
-     "analysis_65_noise0p01_qmax8_traj094_laptop.dat" u 1:($3 < t65_range & $4 < f65_range ? $5 : 1/0) t "65" w p pt 2 ps 2 lw 4 lc 6,\
-     "analysis_70_noise0p01_qmax8_traj094_laptop.dat" u 1:($3 < t70_range & $4 < f70_range ? $5 : 1/0) t "70" w p pt 6 ps 2 lw 4 lc 0,\
-     "analysis_75_noise0p01_qmax8_traj094_laptop.dat" u 1:($3 < t75_range & $4 < f75_range ? $5 : 1/0) t "75" w p pt 5 ps 1 lw 1 lc 3,\
-     "target_r05_dihedral_traj094_points.dat" u 1:($1*0.0) t "" w p pt 1 ps 90 lw 3 lc 7,\
-     #"analysis_70_noise0p01_qmax8_traj094_laptop.dat" u 1:($3 < t70_range ? $5 : 1/0) t "70" w p pt 6 ps 2 lw 4 lc 0,\
-     #"analysis_75_noise0p01_qmax8_traj094_laptop.dat" u 1:($3 < t75_range ? $5 : 1/0) t "75" w p pt 5 ps 1 lw 1 lc 3,\
-     #"target_r05_dihedral_traj094.dat" u 1:2 t "" w l lw 4 lc 7,\
+plot "analysis_20_noise0_qmax8_traj094_laptop.dat" u 1:($3 < t20_range & $4 < f20_range ? $5 : 1/0) t "20" w p pt 6 ps 2 lw 3 lc 8,\
+     "analysis_35_noise0_qmax8_traj094_laptop.dat" u 1:($3 < t35_range & $4 < f35_range ? $5 : 1/0) t "35" w p pt 4 ps 2 lw 3 lc 2,\
+     "analysis_40_noise0_qmax8_traj094_laptop.dat" u 1:($3 < t40_range & $4 < f40_range ? $5 : 1/0) t "40" w p pt 1 ps 2 lw 3 lc 1,\
+     "analysis_45_noise0_qmax8_traj094_laptop.dat" u 1:($3 < t45_range & $4 < f45_range ? $5 : 1/0) t "45" w p pt 7 ps 2 lw 3 lc 3,\
+     "analysis_50_noise0_qmax8_traj094_laptop.dat" u 1:($3 < t50_range & $4 < f50_range ? $5 : 1/0) t "50" w p pt 5 ps 2 lw 3 lc 4,\
+     "analysis_55_noise0_qmax8_traj094_laptop.dat" u 1:($3 < t55_range & $4 < f55_range ? $5 : 1/0) t "55" w p pt 1 ps 2 lw 3 lc 6,\
+     "analysis_60_noise0_qmax8_traj094_laptop.dat" u 1:($3 < t60_range & $4 < f60_range ? $5 : 1/0) t "60" w p pt 3 ps 2 lw 4 lc 7,\
+     "analysis_65_noise0_qmax8_traj094_laptop.dat" u 1:($3 < t65_range & $4 < f65_range ? $5 : 1/0) t "65" w p pt 2 ps 2 lw 4 lc 6,\
+     "analysis_70_noise0_qmax8_traj094_laptop.dat" u 1:($3 < t70_range & $4 < f70_range ? $5 : 1/0) t "70" w p pt 6 ps 2 lw 4 lc 0,\
+     "analysis_75_noise0_qmax8_traj094_laptop.dat" u 1:($3 < t75_range & $4 < f75_range ? $5 : 1/0) t "75" w p pt 5 ps 1 lw 1 lc 3,\
+     "target_r05_dihedral_traj094_points.dat" u 1:($1*0.0) t "" w p pt 1 ps 180 lw 3 lc 7,\
 
-
-#plot "analysis_10_noise0p01_qmax8.dat" u 1:($3 < -231.73190 ? $2 : 1/0) t "10" w p pt 3 ps 2 lw 4 lc 6,\
-     #"analysis_20_noise0p01_qmax8.dat" u 1:($3 < -231.64213 ? $2 : 1/0) t "20" w p pt 6 ps 2 lw 4 lc 1,\
-     #"analysis_30_noise0p01_qmax8.dat" u 1:($3 < -231.58000 ? $2 : 1/0) t "30" w p pt 6 ps 2 lw 4 lc 2,\
-     #"analysis_35_noise0p01_qmax8.dat" u 1:($3 < -231.59450 ? $2 : 1/0) t "35" w p pt 6 ps 2 lw 4 lc 3,\
-     #"analysis_40_noise0p01_qmax8.dat" u 1:($3 < -231.57030 ? $2 : 1/0) t "40" w p pt 6 ps 2 lw 4 lc 4,\
-     #"analysis_50_noise0p01_qmax8.dat" u 1:($3 < -231.54275 ? $2 : 1/0) t "50" w p pt 6 ps 2 lw 4 lc 0,\
-     #"analysis_60_noise0p01_qmax8.dat" u 1:($3 < -231.49180 ? $2 : 1/0) t "60" w p pt 6 ps 2 lw 4 lc 6,\
-     #"target_r05_dihedral.dat" u 1:2 t "target" w lp pt 6 ps 3 lw 8 lc 7,\
 
 unset multiplot
 ### End multiplot

@@ -1,12 +1,8 @@
-- backtrack is slow.....
-cycle:
-  - "seeding" run; runs whole traj a low number of times
-  - then back over whole thing a low number of times
+try: 100k GA steps at end + stronger C-C term
 
-- add angular HO terms!
-
--backtrack method
-20, 35, 40, 35, 40, 44, 40, 44, 50, 44, 50, 55, 50, 55, ...
+code timestep loop in python (?)
+ - probably faster, better for server etc.
+ - except then it makes it so n loop step depends on n-1 (so not GPU parellisable)
 
 coding:
 - I could stay in python throughout the whole trajectory,

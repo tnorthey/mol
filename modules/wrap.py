@@ -27,13 +27,15 @@ class Wrapper:
         target_xyz_file,
         qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
         noise=0,
-        sa_nsteps=2000,
-        ga_nsteps=2000,
+        sa_nsteps=8000,
+        ga_nsteps=20000,
         sa_step_size=0.01,
         sa_starting_temp=0.2,
         sa_harmonic_factor=(0.01, 0.01),
         sa_angular_factor=0.1,
-        nrestarts=10,
+        ga_harmonic_factor=(0.01, 0.01),
+        ga_angular_factor=0.1,
+        nrestarts=5,
         ntrials=1,
         non_h_modes_only=False,  # only include "non-hydrogen" modes
         hf_energy=True,
@@ -209,10 +211,10 @@ class Wrapper:
                         print(f"Run {i}: GA")
                         nsteps = ga_nsteps
                         starting_temp = 0
-                        harmonic_factor = (0, sa_harmonic_factor[1]) # switch off C-C bonding term
-                        angular_factor = 0
-                        #mode_indices = np.arange(0, nmodes)  # CHD, all modes
-                        mode_indices = np.arange(0, 28)  # CHD, non-hydrogen modes
+                        harmonic_factor = ga_harmonic_factor
+                        angular_factor = ga_angular_factor
+                        mode_indices = np.arange(0, nmodes)  # CHD, all modes
+                        #mode_indices = np.arange(0, 28)  # CHD, non-hydrogen modes
                     # Run simulated annealing
                     (
                         f_best,
