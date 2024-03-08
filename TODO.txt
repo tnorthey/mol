@@ -1,4 +1,6 @@
-try: 100k GA steps at end + stronger C-C term
+try: what I have on cluster
+ - starting from best 100 should help a lot
+
 
 code timestep loop in python (?)
  - probably faster, better for server etc.

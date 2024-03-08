@@ -56,7 +56,7 @@ class Wrapper:
         inelastic, electron_mode = True, False
         twod_mode = False
 
-        angular_bool = False   # use HO terms on the angles
+        angular_bool = True # use HO terms on the angles
         # debugging....
         print(sa_harmonic_factor)
 
@@ -115,9 +115,12 @@ class Wrapper:
 
         #angular_indices = np.array([[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5]])  # chd (C-C-C angles)
 
-        angular_indices = np.array([[0, 1, 2, 3, 6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1], 
-                                    [1, 2, 3, 4, 0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
-                                    [2, 3, 4, 5, 7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]])  # chd (C-C-C angles, and all C-C-H, H-C-H angles)
+        #angular_indices = np.array([[0, 1, 2, 3, 6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1], 
+        #                            [1, 2, 3, 4, 0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
+        #                            [2, 3, 4, 5, 7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]])  # chd (C-C-C angles, and all C-C-H, H-C-H angles)
+        angular_indices = np.array([[6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1], 
+                                    [0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
+                                    [7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]])  # chd (C-C-C angles, and all C-C-H, H-C-H angles)
 
         mode_indices = np.arange(0, 28)  # CHD, "non-hydrogen" modes
 
