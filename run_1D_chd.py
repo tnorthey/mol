@@ -24,12 +24,15 @@ w = wrap.Wrapper()
 run_id = str(sys.argv[1])  # define a string to label the start of the output filenames
 start_xyz_file = str(sys.argv[2])
 target_xyz_files_string = str(sys.argv[3])
-ringclosed = str(sys.argv[4])
+target_order_string = str(sys.argv[4])
+ringclosed = str(sys.argv[5])
 reference_xyz_file = "xyz/chd_reference.xyz"
 ###################################
 # split target xyz files into list
 target_xyz_files = target_xyz_files_string.split(',')
 print(target_xyz_files)
+target_order = target_order_string.split(',')
+print(target_order)
 
 ACH = 10.0
 if ringclosed == 'closed':
@@ -55,7 +58,7 @@ w.chd_1D(
     ga_angular_factor = 1.0,
     nrestarts = 2,
     ntrials = 2,
-    timesteps = np.array([20, 35, 40, 45, 50, 55, 60, 65, 70, 75]),
+    timesteps = target_order,
     non_h_modes_only=True,  # only include "non-hydrogen" modes
     hf_energy=True,   # calculate HF energy (PySCF) at the end
     pcd_mode=False,    # use percent difference instead of absolute signal
