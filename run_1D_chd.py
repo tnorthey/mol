@@ -56,8 +56,8 @@ w.chd_1D(
     sa_angular_factor = 1.0,
     ga_harmonic_factor = (ACC, ACH),
     ga_angular_factor = 1.0,
-    nrestarts = 2,
-    ntrials = 2,
+    nrestarts = 5,
+    ntrials = 5,
     timesteps = target_order,
     non_h_modes_only=True,  # only include "non-hydrogen" modes
     hf_energy=True,   # calculate HF energy (PySCF) at the end

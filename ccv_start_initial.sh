@@ -25,4 +25,4 @@
 module load python
 source .venv/bin/activate
 
-./go_1D_chd.sh "xyz/start.xyz" 10 "closed"
+./go_1D_chd.sh "xyz/start.xyz" "closed"
