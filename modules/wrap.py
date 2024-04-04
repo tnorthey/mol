@@ -37,7 +37,7 @@ class Wrapper:
         ga_angular_factor=0.1,
         nrestarts=5,
         ntrials=1,
-        timesteps = np.array([20, 35, 40, 45, 50, 55, 60, 65, 70, 75]),
+        timesteps = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),
         non_h_modes_only=False,  # only include "non-hydrogen" modes
         hf_energy=True,
         pcd_mode=False,
@@ -132,17 +132,25 @@ class Wrapper:
         ### Initialise some stuff ###
         #############################
 
+        # map target_xyz_files to indices
+        ntimesteps = len(target_xyz_files)
+        #print('ntimesteps: %i' % ntimesteps)
+        timestep_dict = {}
+        for k in range(ntimesteps):
+            timestep_dict[target_xyz_files[k]] = k
+        #print(timestep_dict)
+
         xyz_best = starting_xyz  # initialise
-        ntimesteps = len(timesteps)
         #### timestep loop ####
-        for t in range(ntimesteps):
+        for t in timesteps:
 
-            timestep = timesteps[t]
-            print(f"Time-step {timestep}")
+            t = int(t)
+            target_xyz_file = target_xyz_files[t]
+            print(f"Target: {target_xyz_file}")
 
-            run_id_ = (str(timestep) + '_' + run_id).zfill(2)  # pad with zeros
+            run_id_ = (str(t) + '_' + run_id).zfill(2)  # pad with zeros
             # read from target xyz file
-            _, _, atomlist, target_xyz = m.read_xyz(target_xyz_files[t])
+            _, _, atomlist, target_xyz = m.read_xyz(target_xyz_file)
             target_iam = xyz2iam(target_xyz, atomic_numbers, compton_array)
 
             target_function_file = "tmp_/TARGET_FUNCTION_%s.dat" % run_id_
