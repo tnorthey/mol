@@ -56,12 +56,11 @@ w.chd_1D(
     sa_angular_factor = 1.0,
     ga_harmonic_factor = (ACC, ACH),
     ga_angular_factor = 1.0,
-    nrestarts = 1,
-    ntrials = 1,
+    nrestarts = 2,
+    ntrials = 2,
     timesteps = target_indices,
     non_h_modes_only=True,  # only include "non-hydrogen" modes
     hf_energy=True,   # calculate HF energy (PySCF) at the end
-    pcd_mode=False,    # use percent difference instead of absolute signal
 )
 
 print("Total time: %3.2f s" % float(default_timer() - start))
