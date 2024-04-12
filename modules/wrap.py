@@ -188,7 +188,7 @@ class Wrapper:
             for j in range(ntrials):
                 print(f"Trial {j}")
                 # reinitialise values for each trial
-                #xyz_best = starting_xyz_     # each trial starts from the original starting_xyz
+                xyz_best = starting_xyz_     # each trial starts from the original starting_xyz
                 sa_nsteps = sa_nsteps_
                 sa_starting_temp = sa_starting_temp_
                 sa_harmonic_factor = sa_harmonic_factor_

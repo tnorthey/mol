@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Request an hour of runtime:
-#SBATCH --time=1:00:00
+#SBATCH --time=12:00:00
 
 
 # Controls the minimum/maximum number of nodes allocated to the job

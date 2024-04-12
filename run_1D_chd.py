@@ -39,6 +39,8 @@ if ringclosed == 'closed':
   ACC = 10.0  
 elif ringclosed == 'open':
   ACC = 1.0
+elif ringclosed == 'unrestrained':
+  ACC = 0.0
 else:
   print("ringclosed must equal 'closed' or 'open'")
 
@@ -48,16 +50,17 @@ w.chd_1D(
     target_xyz_files,
     qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
     noise = 0.00,
-    sa_nsteps = 800,
-    ga_nsteps = 800,
+    sa_nsteps = 8000,
+    ga_nsteps = 40000,
     sa_step_size = 0.018,
-    sa_starting_temp = 1.0,
+    #sa_starting_temp = 1.0,
+    sa_starting_temp = 0.5,
     sa_harmonic_factor = (ACC, ACH),
     sa_angular_factor = 1.0,
     ga_harmonic_factor = (ACC, ACH),
     ga_angular_factor = 1.0,
-    nrestarts = 2,
-    ntrials = 2,
+    nrestarts = 5,
+    ntrials = 1,
     timesteps = target_indices,
     non_h_modes_only=True,  # only include "non-hydrogen" modes
     hf_energy=True,   # calculate HF energy (PySCF) at the end

@@ -1,8 +1,7 @@
 #!/bin/bash
 
-fname=ccv_start_??_*.sh
-rm $fname
+rm ccv_start_?_*.sh
 rm MySerialJob-*
-rm ??_full_list.txt
-rm ??_start_list_*.txt
+rm ?_full_list.txt
+rm ?_start_list_*.txt
 
