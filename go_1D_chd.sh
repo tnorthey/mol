@@ -6,6 +6,9 @@ ringclosed=$3  		# "closed", "open", "unrestrained"
 run_id=""$step"_1d"	# run ID
 target_xyz_file="xyz/target_traj094/target_$step.xyz"  # target xyz filename
 
+echo "go script: starting_xyz_file $starting_xyz_file"
+echo "go script: target_xyz_file $target_xyz_file"
+
 python3 run_1D_chd.py $run_id $starting_xyz_file $target_xyz_file $ringclosed
 
 bestxyz=$(ls -1 tmp_/"$run_id"_???.????????.xyz | head -n 1) 

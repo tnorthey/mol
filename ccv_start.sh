@@ -3,7 +3,6 @@
 # Request an hour of runtime:
 #SBATCH --time=1:00:00
 
-
 # Controls the minimum/maximum number of nodes allocated to the job
 #SBATCH -N 1
 
@@ -25,13 +24,17 @@
 module load python
 source .venv/bin/activate
 
-previous_step=$(echo "0,1" | awk -F',' '{print $1}')  # take the FIRST step in the ZZ list as the "previous step"
+#previous_step=$(echo "ZZ" | awk -F',' '{print $1}')  # take the FIRST step in the ZZ list as the "previous step"
+#next_step=$(echo "ZZ" | awk -F',' '{print $NF}')  # second step after the comma is next step
+previous_step=
+next_step=75
 
-# simply take the best 20 fits as the start list
-start_list=$(ls -1 tmp_/"$previous_step"_1d_???.*xyz | head -n 20)
+# take the best 10 fits as the starting list
+start_list=$(ls -1 tmp_/"$previous_step"_1d_???.*xyz | head -n 10)
 
-#./go_1D_chd_qmax8_20.sh
-for i in $start_list ; do ./go_1D_chd_tdense.sh $i "closed" "0,1"; done
-#for i in $(cat XX_start_list_YY.txt) ; do ./go_1D_chd_tdense.sh $i "open"; done
-#for i in $(cat XX_start_list_YY.txt) ; do ./go_1D_chd_tdense.sh $i "unrestrained"; done
+# run
+for i in $start_list
+do 
+	./go_1D_chd.sh $i $next_step "closed"
+done
 

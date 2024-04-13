@@ -26,7 +26,7 @@ module load python
 source .venv/bin/activate
 
 #./go_1D_chd.sh "xyz/start.xyz" "closed"
-ntrials=1
+ntrials=10
 step=10
 for i in $(seq 1 $ntrials); do
 	./go_1D_chd.sh "xyz/start.xyz" $step "closed" 
