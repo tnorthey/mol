@@ -25,9 +25,13 @@
 module load python
 source .venv/bin/activate
 
-#./go_1D_chd.sh "xyz/start.xyz" "closed"
-ntrials=1
-step=10
-for i in $(seq 1 $ntrials); do
-	./go_1D_chd.sh "xyz/start.xyz" $step "closed" 
-done
+previous_step=$(echo "0,1" | awk -F',' '{print $1}')  # take the FIRST step in the ZZ list as the "previous step"
+
+# simply take the best 20 fits as the start list
+start_list=$(ls -1 tmp_/"$previous_step"_1d_???.*xyz | head -n 20)
+
+#./go_1D_chd_qmax8_20.sh
+for i in $start_list ; do ./go_1D_chd_tdense.sh $i "closed" "0,1"; done
+#for i in $(cat XX_start_list_YY.txt) ; do ./go_1D_chd_tdense.sh $i "open"; done
+#for i in $(cat XX_start_list_YY.txt) ; do ./go_1D_chd_tdense.sh $i "unrestrained"; done
+

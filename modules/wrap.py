@@ -24,20 +24,21 @@ class Wrapper:
         self,
         run_id,
         start_xyz_file,
-        target_xyz_files,
+        target_xyz_file,
         qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
         noise=0,
+        sa_starting_temp=0.2,
+        sa_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
+        ga_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
         sa_nsteps=8000,
         ga_nsteps=20000,
         sa_step_size=0.01,
-        sa_starting_temp=0.2,
+        ga_step_size=0.01,
         sa_harmonic_factor=(0.01, 0.01),
-        sa_angular_factor=0.1,
         ga_harmonic_factor=(0.01, 0.01),
+        sa_angular_factor=0.1,
         ga_angular_factor=0.1,
         nrestarts=5,
-        ntrials=1,
-        timesteps = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),
         non_h_modes_only=False,  # only include "non-hydrogen" modes
         hf_energy=True,
     ):
@@ -46,9 +47,10 @@ class Wrapper:
         """
         #############################
         ######### Inputs ############
-        # run_id_ : define a number to label the start of the output filenames
+        # run_id : define a number to label the start of the output filenames
         # start_xyz_file : xyz file containing starting positions of the atoms
         # target_xyz_file : xyz file containing target positions of the atoms
+        #
         #############################
 
         qlen = len(qvector)
@@ -114,8 +116,6 @@ class Wrapper:
                                     [0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
                                     [7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]])  # chd (C-C-C angles, and all C-C-H, H-C-H angles)
 
-        mode_indices = np.arange(0, 28)  # CHD, "non-hydrogen" modes
-
         #############################
         ### end arguments         ###
         #############################
@@ -126,209 +126,178 @@ class Wrapper:
         ### Initialise some stuff ###
         #############################
 
-        ntimesteps = len(target_xyz_files)
+        print(f"Target: {target_xyz_file}")
 
+        # read from target xyz file
+        _, _, atomlist, target_xyz = m.read_xyz(target_xyz_file)
+        target_iam = xyz2iam(target_xyz, atomic_numbers, compton_array)
+
+        target_function_file = "tmp_/TARGET_FUNCTION_%s.dat" % run_id
+        #target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id
+
+        # save target IAM file before noise is added
+        #print("Saving data to %s ..." % target_iam_file)
+        #np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
+
+        ### ADDITION OF RANDOM NOISE
+        noise_bool = True
+        if noise_bool:
+            mu = 0  # normal distribution with mean of mu
+            sigma = noise
+            noise_array = sigma * np.random.randn(qlen) + mu
+            target_iam += noise_array
+
+        # define target_function
+        if os.path.exists(target_function_file):
+            print("Loading data from %s ..." % target_function_file)
+            target_function = np.loadtxt(target_function_file)[:, 1]
+            print(target_function)
+        else:
+            target_function = target_iam
+            print("Saving data to %s ..." % target_function_file)
+            np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
+        ###
+        # calculate target_f_signal for noise data compared to clean data
+        if noise != 0:
+            clean_data = target_iam
+            target_f_signal = (
+                np.sum((clean_data - target_function) ** 2 / np.abs(target_function))
+                / qlen
+            )
+
+        #################################
+        ### End Initialise some stuff ###
+        #################################
+        # start
         xyz_best = starting_xyz  # initialise xyz_best
-        #### timestep loop ####
-        for t in timesteps:
+        for i in range(nrestarts):
+            starting_xyz = xyz_best  # each restart starts at the previous xyz_best
+            if i < nrestarts - 1:  # annealing mode
+                print(f"Run {i}: SA")
+                nsteps = sa_nsteps
+                starting_temp = sa_starting_temp
+                harmonic_factor = sa_harmonic_factor
+                angular_factor = sa_angular_factor
+                mode_indices = sa_mode_indices
+            else:  # greedy algorithm mode
+                print(f"Run {i}: GA")
+                nsteps = ga_nsteps
+                starting_temp = 0
+                harmonic_factor = ga_harmonic_factor
+                angular_factor = ga_angular_factor
+                mode_indices = ga_mode_indices
+            # Run simulated annealing
+            (
+                f_best,
+                f_xray_best,
+                predicted_best,
+                xyz_best,
+            ) = sa.simulated_annealing_modes_ho(
+                atomic_numbers,
+                starting_xyz,
+                displacements,
+                mode_indices,
+                target_function,
+                qvector,
+                compton,
+                atomic_total,
+                pre_molecular,
+                aa,
+                bb,
+                cc,
+                sa_step_size_array,
+                ho_indices1,
+                ho_indices2,
+                angular_indices,
+                starting_temp,
+                nsteps,
+                inelastic,
+                harmonic_factor,
+                angular_factor,
+                pcd_mode,
+                electron_mode,
+                twod_mode,
+                angular_bool,
+            )
+            print("f_best (SA): %9.8f" % f_best)
 
-            print(f"Time-step {t}")
-            t = int(t)
-            target_xyz_file = target_xyz_files[t]
-            print(f"Target: {target_xyz_file}")
-
-            run_id_ = (str(t) + '_' + run_id).zfill(2)  # pad with zeros
-            # read from target xyz file
-            _, _, atomlist, target_xyz = m.read_xyz(target_xyz_file)
-            target_iam = xyz2iam(target_xyz, atomic_numbers, compton_array)
-
-            target_function_file = "tmp_/TARGET_FUNCTION_%s.dat" % run_id_
-            target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id_
-
-            # save target IAM file before noise is added
-            print("Saving data to %s ..." % target_iam_file)
-            np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
-
-            ### ADDITION OF RANDOM NOISE
-            noise_bool = True
-            if noise_bool:
-                mu = 0  # normal distribution with mean of mu
-                sigma = noise
-                noise_array = sigma * np.random.randn(qlen) + mu
-                target_iam += noise_array
-
-            # define target_function
-            if os.path.exists(target_function_file):
-                print("Loading data from %s ..." % target_function_file)
-                target_function = np.loadtxt(target_function_file)[:, 1]
-                print(target_function)
-            else:
-                target_function = target_iam
-                print("Saving data to %s ..." % target_function_file)
-                np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
-            ###
-            # calculate target_f_signal for noise data compared to clean data
-            if noise != 0:
-                clean_data = target_iam
-                target_f_signal = (
-                    np.sum((clean_data - target_function) ** 2 / np.abs(target_function))
-                    / qlen
-                )
-
-            # Store values for reinitialising at each trial
-            starting_xyz = xyz_best
-            starting_xyz_ = starting_xyz  # store the starting xyz
-            sa_nsteps_ = sa_nsteps
-            sa_starting_temp_ = sa_starting_temp
-            sa_harmonic_factor_ = sa_harmonic_factor
-            mode_indices_ = mode_indices
-            #################################
-            ### End Initialise some stuff ###
-            #################################
-            for j in range(ntrials):
-                print(f"Trial {j}")
-                # reinitialise values for each trial
-                xyz_best = starting_xyz_     # each trial starts from the original starting_xyz
-                sa_nsteps = sa_nsteps_
-                sa_starting_temp = sa_starting_temp_
-                sa_harmonic_factor = sa_harmonic_factor_
-                mode_indices = mode_indices_
-                for i in range(nrestarts):
-                    starting_xyz = xyz_best  # each restart starts at the previous xyz_best
-
-                    if i < nrestarts - 1:  # annealing mode
-                        print(f"Run {i}: SA")
-                        nsteps = sa_nsteps
-                        starting_temp = sa_starting_temp
-                        harmonic_factor = sa_harmonic_factor
-                        angular_factor = sa_angular_factor
-                        mode_indices = np.arange(0, 28)  # CHD, non-hydrogen modes
-                    else:  # greedy mode
-                        print(f"Run {i}: GA")
-                        nsteps = ga_nsteps
-                        starting_temp = 0
-                        harmonic_factor = ga_harmonic_factor
-                        angular_factor = ga_angular_factor
-                        mode_indices = np.arange(0, nmodes)  # CHD, all modes
-                        #mode_indices = np.arange(0, 28)  # CHD, non-hydrogen modes
-                    # Run simulated annealing
-                    (
-                        f_best,
-                        f_xray_best,
-                        predicted_best,
-                        xyz_best,
-                    ) = sa.simulated_annealing_modes_ho(
-                        atomic_numbers,
-                        starting_xyz,
-                        displacements,
-                        mode_indices,
-                        target_function,
-                        qvector,
-                        compton,
-                        atomic_total,
-                        pre_molecular,
-                        aa,
-                        bb,
-                        cc,
-                        sa_step_size_array,
-                        ho_indices1,
-                        ho_indices2,
-                        angular_indices,
-                        starting_temp,
-                        nsteps,
-                        inelastic,
-                        harmonic_factor,
-                        angular_factor,
-                        pcd_mode,
-                        electron_mode,
-                        twod_mode,
-                        angular_bool,
-                    )
-                    print("f_best (SA): %9.8f" % f_best)
-
-                ### save xyz_array as an xyz trajectory
-                #if xyz_save:
-                #    print("saving xyz array...")
-                #    fname = "tmp_/save_array.xyz"
-                #    m.write_xyz_traj(fname, atomlist, xyz_array)
-
-                ### save f_array
-                #if f_save:
-                #    print("saving f array...")
-                #    fname = "tmp_/f_array_%i.dat" % i
-                #    np.savetxt(fname, f_array)
-
-                ### analysis on xyz_best
-                # 0145 dihedral that describes the ring-opening
-                p0 = np.array(xyz_best[0, :])
-                p1 = np.array(xyz_best[1, :])
-                p4 = np.array(xyz_best[4, :])
-                p5 = np.array(xyz_best[5, :])
-                dihedral = m.new_dihedral(np.array([p0, p1, p4, p5]))
-                # r05 ring-opening bond-length
-                r05 = np.linalg.norm(xyz_best[0, :] - xyz_best[5, :])
-                # rmsd compared to target
-                non_h_indices = np.array([0, 1, 2, 3, 4, 5])  # chd
-                # Kabsch rotation to target
-                rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, non_h_indices)
-                # MAPD compared to target
-                mapd = m.mapd_function(xyz_best, target_xyz, non_h_indices)
-                # f_signal / target_f_signal
-                signal_ratio = 0  # define as 0 if noise == 0
-                if noise != 0:
-                    signal_ratio = f_xray_best / target_f_signal
-                # HF energy with PySCF
-                if hf_energy:
-                    mol = gto.Mole()
-                    arr = []
-                    for i in range(len(atomlist)):
-                        arr.append((atomlist[i], xyz_best[i]))
-                    mol.atom = arr
-                    mol.basis = "6-31g*"
-                    mol.build()
-                    rhf_mol = scf.RHF(mol)  # run RHF
-                    e_mol = rhf_mol.kernel()
-                # encode the analysis values into the xyz header
-                header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f" % (
-                    f_xray_best,
-                    rmsd,
-                    r05,
-                    dihedral,
-                    e_mol,
-                    mapd,
-                    signal_ratio,
-                )
-                ### write best structure to xyz file
-                print("writing to xyz... (f: %10.8f)" % f_xray_best)
-                f_best_str = ("%10.8f" % f_xray_best).zfill(12)
-                m.write_xyz(
-                    "tmp_/%s_%s.xyz" % (run_id_, f_best_str),
-                    header_str,
-                    atomlist,
-                    xyz_best,
-                )
-                ### Final save to files
-                # also write final xyz as "result.xyz"
-                m.write_xyz("tmp_/%s_result.xyz" % run_id_, "result", atomlist, xyz_best)
-                # target xyz
-                m.write_xyz(
-                    "tmp_/%s_target.xyz" % run_id_,
-                    "run_id: %s" % run_id_,
-                    atomlist,
-                    target_xyz,
-                )
-                # predicted data
-                if twod_mode:
-                    np.savetxt("tmp_/%s_%s.dat" % (run_id_, f_best_str), predicted_best)
-                    np.savetxt("tmp_/%s_result.dat" % run_id_, predicted_best)
-                else:
-                    np.savetxt(
-                        "tmp_/%s_%s.dat" % (run_id_, f_best_str),
-                        np.column_stack((qvector, predicted_best)),
-                    )
+        ### analysis on xyz_best
+        # 0145 dihedral that describes the ring-opening
+        p0 = np.array(xyz_best[0, :])
+        p1 = np.array(xyz_best[1, :])
+        p4 = np.array(xyz_best[4, :])
+        p5 = np.array(xyz_best[5, :])
+        dihedral = m.new_dihedral(np.array([p0, p1, p4, p5]))
+        # r05 ring-opening bond-length
+        r05 = np.linalg.norm(xyz_best[0, :] - xyz_best[5, :])
+        # rmsd compared to target
+        non_h_indices = np.array([0, 1, 2, 3, 4, 5])  # chd
+        # Kabsch rotation to target
+        rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, non_h_indices)
+        # MAPD compared to target
+        mapd = m.mapd_function(xyz_best, target_xyz, non_h_indices)
+        # f_signal / target_f_signal
+        signal_ratio = 0  # define as 0 if noise == 0
+        if noise != 0:
+            signal_ratio = f_xray_best / target_f_signal
+        # HF energy with PySCF
+        if hf_energy:
+            mol = gto.Mole()
+            arr = []
+            for i in range(len(atomlist)):
+                arr.append((atomlist[i], xyz_best[i]))
+            mol.atom = arr
+            mol.basis = "6-31g*"
+            mol.build()
+            rhf_mol = scf.RHF(mol)  # run RHF
+            e_mol = rhf_mol.kernel()
+        # encode the analysis values into the xyz header
+        header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f" % (
+            f_xray_best,
+            rmsd,
+            r05,
+            dihedral,
+            e_mol,
+            mapd,
+            signal_ratio,
+        )
+        ### write best structure to xyz file
+        print("writing to xyz... (f: %10.8f)" % f_xray_best)
+        f_best_str = ("%10.8f" % f_xray_best).zfill(12)
+        m.write_xyz(
+            "tmp_/%s_%s.xyz" % (run_id, f_best_str),
+            header_str,
+            atomlist,
+            xyz_best,
+        )
+        ### Final save to files
+        # also write final xyz as "result.xyz"
+        #m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
+        # target xyz
+        m.write_xyz(
+            "tmp_/%s_target.xyz" % run_id,
+            "run_id: %s" % run_id,
+            atomlist,
+            target_xyz,
+        )
+        # predicted data
+        if twod_mode:
+            np.savetxt("tmp_/%s_%s.dat" % (run_id, f_best_str), predicted_best)
+            np.savetxt("tmp_/%s_result.dat" % run_id, predicted_best)
+        else:
+            np.savetxt(
+                "tmp_/%s_%s.dat" % (run_id, f_best_str),
+                np.column_stack((qvector, predicted_best)),
+            )
         return  # end function
 
 
+#####################################
+#####################################
+#####################################
+#####################################
+#####################################
+#####################################
 
     def chd_1D_old(
         self,

@@ -23,16 +23,9 @@ w = wrap.Wrapper()
 # command line arguments
 run_id = str(sys.argv[1])  # define a string to label the start of the output filenames
 start_xyz_file = str(sys.argv[2])
-target_xyz_files_string = str(sys.argv[3])
-target_indices_string = str(sys.argv[4])
-ringclosed = str(sys.argv[5])
-reference_xyz_file = "xyz/chd_reference.xyz"
+target_xyz_file = str(sys.argv[3])
+ringclosed = str(sys.argv[4])
 ###################################
-# split target xyz files into list
-target_xyz_files = target_xyz_files_string.split(',')
-print(target_xyz_files)
-target_indices = target_indices_string.split(',')
-print(target_indices)
 
 ACH = 10.0
 if ringclosed == 'closed':
@@ -42,26 +35,26 @@ elif ringclosed == 'open':
 elif ringclosed == 'unrestrained':
   ACC = 0.0
 else:
-  print("ringclosed must equal 'closed' or 'open'")
+  print("ringclosed must equal 'closed', 'open', or 'unrestrained'")
 
 w.chd_1D(
     run_id,
     start_xyz_file,
-    target_xyz_files,
+    target_xyz_file,
     qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
     noise = 0.00,
+    sa_starting_temp = 1.0,
+    sa_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
+    ga_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
     sa_nsteps = 8000,
     ga_nsteps = 40000,
     sa_step_size = 0.018,
-    #sa_starting_temp = 1.0,
-    sa_starting_temp = 0.5,
+    ga_step_size = 0.018,
     sa_harmonic_factor = (ACC, ACH),
-    sa_angular_factor = 1.0,
     ga_harmonic_factor = (ACC, ACH),
+    sa_angular_factor = 1.0,
     ga_angular_factor = 1.0,
-    nrestarts = 5,
-    ntrials = 1,
-    timesteps = target_indices,
+    nrestarts = 5,    # it restarts from the xyz_best of the previous restart
     non_h_modes_only=True,  # only include "non-hydrogen" modes
     hf_energy=True,   # calculate HF energy (PySCF) at the end
 )
