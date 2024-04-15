@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Request an hour of runtime:
-#SBATCH --time=1:00:00
+#SBATCH --time=0:00:10
 
 
 # Controls the minimum/maximum number of nodes allocated to the job
@@ -9,11 +9,11 @@
 
 # Default resources are 1 core with 2.8GB of memory.
 
-# Use more memory (4GB):
-#SBATCH --mem=4G
+# Use more memory (1GB):
+#SBATCH --mem=1G
 
 # Specify a job name:
-#SBATCH -J chd_sa
+#SBATCH -J dummy
 
 # Specify an output file
 #SBATCH -o MySerialJob-%j.out
@@ -22,11 +22,6 @@
 # Run a command
 #module load mpi/openmpi_4.0.5_gcc_10.2_slurm20 eigen/3.4.0 gcc/10.2 intel/2020.2
 #module load python/3.7.4
-module load python
-source .venv/bin/activate
 
-ntrials=1
-step=10
-for i in $(seq 1 $ntrials); do
-	./go_1D_chd.sh "xyz/start.xyz" $step
-done
+echo "dummy job"
+sleep 1s

@@ -29,12 +29,13 @@ source .venv/bin/activate
 previous_step=XX
 next_step=YY
 
-# take the best 10 fits as the starting list
-start_list=$(ls -1 tmp_/"$previous_step"_1d_???.*xyz | head -n 10)
+# take the best n fits as the starting list
+nfits=20
+start_list=$(ls -1 tmp_/"$previous_step"_1d_???.*xyz | head -n $nfits)
 
 # run
 for i in $start_list
 do 
-	./go_1D_chd.sh $i $next_step "closed"
+	./go_1D_chd.sh $i $next_step
 done
 

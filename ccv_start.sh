@@ -26,15 +26,16 @@ source .venv/bin/activate
 
 #previous_step=$(echo "ZZ" | awk -F',' '{print $1}')  # take the FIRST step in the ZZ list as the "previous step"
 #next_step=$(echo "ZZ" | awk -F',' '{print $NF}')  # second step after the comma is next step
-previous_step=
-next_step=75
+previous_step=20
+next_step=10
 
-# take the best 10 fits as the starting list
-start_list=$(ls -1 tmp_/"$previous_step"_1d_???.*xyz | head -n 10)
+# take the best n fits as the starting list
+nfits=20
+start_list=$(ls -1 tmp_/"$previous_step"_1d_???.*xyz | head -n $nfits)
 
 # run
 for i in $start_list
 do 
-	./go_1D_chd.sh $i $next_step "closed"
+	./go_1D_chd.sh $i $next_step
 done
 
