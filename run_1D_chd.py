@@ -26,14 +26,14 @@ start_xyz_file = str(sys.argv[2])
 target_xyz_file = str(sys.argv[3])
 ###################################
 
-#ACH = 10.0
-ACH = 1.0
+ACH = 10.0
 
 w.chd_1D(
     run_id,
     start_xyz_file,
     target_xyz_file,
     qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
+    #qvector=np.linspace(1e-9, 4.0, 41, endpoint=True),
     noise = 0.00,
     sa_starting_temp = 1.0,
     #sa_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
@@ -46,10 +46,12 @@ w.chd_1D(
     ga_step_size = 0.012,
     #sa_harmonic_factor = (10.0, ACH),
     #ga_harmonic_factor = (1.0, ACH),
-    sa_harmonic_factor = (0.0, ACH),
-    ga_harmonic_factor = (0.0, ACH),
-    sa_angular_factor = 1.0,
-    ga_angular_factor = 1.0,
+    sa_harmonic_factor = (0.0, 1.0),
+    ga_harmonic_factor = (0.0, 1.0),
+    #sa_angular_factor = 1.0,
+    #ga_angular_factor = 1.0,
+    sa_angular_factor = 0.1,
+    ga_angular_factor = 0.1,
     nrestarts = 5,    # it restarts from the xyz_best of the previous restart
     non_h_modes_only=True,  # only include "non-hydrogen" modes
     hf_energy=True,   # calculate HF energy (PySCF) at the end

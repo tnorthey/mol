@@ -1,0 +1,22 @@
+
+First I ran a loop of 10 ccv_start_initial.sh
+I ran submission_script_0.sh 0 0 
+Then, submission_script_1.sh 
+
+(which will take hours / overnight)
+It takes ~7 mins per time-step and does 59 steps (hence 7 hours)
+Finally, I probably will manually improve the fitting by lots of submission_script_0 X Y going back and forth over the run indices
+- I want to compare this to the already done "newnew" runs which went back over
+- What exactly does submission_script_0 do? Add this to the paper...`
+
+What I did:
+
+
+
+TO DO:
+wrap.py change "tmp_/" to a target directory
+- gives the ability to run simultaneous fittings (e.g. different molecules)
+
+- run same but qmax=4
+- same but with noise
+- same but qmax=4 and noise

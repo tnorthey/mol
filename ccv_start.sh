@@ -27,7 +27,7 @@ source .venv/bin/activate
 #previous_step=$(echo "ZZ" | awk -F',' '{print $1}')  # take the FIRST step in the ZZ list as the "previous step"
 #next_step=$(echo "ZZ" | awk -F',' '{print $NF}')  # second step after the comma is next step
 previous_step=20
-next_step=10
+next_step=20
 
 # take the best n fits as the starting list
 nfits=20
