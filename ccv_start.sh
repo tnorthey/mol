@@ -26,16 +26,25 @@ source .venv/bin/activate
 
 #previous_step=$(echo "ZZ" | awk -F',' '{print $1}')  # take the FIRST step in the ZZ list as the "previous step"
 #next_step=$(echo "ZZ" | awk -F',' '{print $NF}')  # second step after the comma is next step
-previous_step=20
-next_step=20
+previous_step=70
+next_step=75
+
+# define run variables
+noise=0.1
+qmax=8
+qlen=81
+nrestarts=5
+results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj094_newnewnew"
+# create directory if not exists
+mkdir -p $results_dir
 
 # take the best n fits as the starting list
 nfits=20
-start_list=$(ls -1 tmp_/"$previous_step"_1d_???.*xyz | head -n $nfits)
+start_list=$(ls -1 "$results_dir/$previous_step"_1d_???.*xyz | head -n $nfits)
 
 # run
 for i in $start_list
 do 
-	./go_1D_chd.sh $i $next_step
+	./go_1D_chd.sh $i $next_step $noise $qmax $qlen $nrestarts $results_dir
 done
 

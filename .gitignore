@@ -1,4 +1,6 @@
 # custom
+ccv_start_results_*
+ccv_start_initial_results_*
 results_*
 nohup.out
 *.tar

@@ -14,8 +14,10 @@ What I did:
 
 
 TO DO:
-wrap.py change "tmp_/" to a target directory
-- gives the ability to run simultaneous fittings (e.g. different molecules)
+DONE - wrap.py change "tmp_/" to a target directory
+DONE - gives the ability to run simultaneous fittings (e.g. different molecules)
+- problem (?): run_1d_chd will run when dependency of previous run, clashes with the new run...
+  - cannot run simultaneous fittings currently...
 
 - run same but qmax=4
 - same but with noise

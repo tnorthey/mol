@@ -25,8 +25,17 @@
 module load python
 source .venv/bin/activate
 
-ntrials=1
+# define run variables
+noise=NOISE
+qmax=QMAX
+qlen=QLEN
+nrestarts=NRESTARTS
+results_dir=RESULTS_DIR
+# create directory if not exists
+mkdir -p $results_dir
+
+ntrials=25
 step=10
 for i in $(seq 1 $ntrials); do
-	./go_1D_chd.sh "xyz/start.xyz" $step
+	./go_1D_chd.sh "xyz/start.xyz" $step $noise $qmax $qlen $nrestarts $results_dir
 done

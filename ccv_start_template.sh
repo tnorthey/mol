@@ -29,13 +29,22 @@ source .venv/bin/activate
 previous_step=XX
 next_step=YY
 
+# define run variables
+noise=NOISE
+qmax=QMAX
+qlen=QLEN
+nrestarts=NRESTARTS
+results_dir=RESULTS_DIR
+# create directory if not exists
+mkdir -p $results_dir
+
 # take the best n fits as the starting list
 nfits=20
-start_list=$(ls -1 tmp_/"$previous_step"_1d_???.*xyz | head -n $nfits)
+start_list=$(ls -1 "$results_dir/$previous_step"_1d_???.*xyz | head -n $nfits)
 
 # run
 for i in $start_list
 do 
-	./go_1D_chd.sh $i $next_step
+	./go_1D_chd.sh $i $next_step $noise $qmax $qlen $nrestarts $results_dir
 done
 

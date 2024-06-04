@@ -5,6 +5,8 @@ Strategy 1: Generate a lot of initial conditions via short "hot" SA runs,
     - This should find a reasonably close starting point from the ICs,
     then optimise it further with the subsequent longer runs
 """
+# run example: python3 run_1D_chd.py $run_id $starting_xyz_file $target_xyz_file $noise $qmax $qlen $nrestarts $results_dir
+
 import os
 import sys
 import numpy as np
@@ -25,16 +27,12 @@ w = wrap.Wrapper()
 run_id = str(sys.argv[1])  # define a string to label the start of the output filenames
 start_xyz_file = str(sys.argv[2])
 target_xyz_file = str(sys.argv[3])
+noise = float(sys.argv[4])
+qmax = int(sys.argv[5])
+qlen = int(sys.argv[6])
+nrestarts = int(sys.argv[7])
+results_dir = str(sys.argv[8])
 ###################################
-# define a descriptive string for the run directory
-noise = 0.0
-qmax = 8.0
-nrestarts = 5
-description = "traj094_newnewnew"
-results_dir = "noise%3.2f_qmax%2.1f_nrestarts%s_%s" % (noise, qmax, nrestarts, description)
-# create results directory
-if not os.path.exists(results_dir): 
-    os.makedirs(results_dir) 
 
 ACH = 10.0
 
@@ -42,8 +40,7 @@ w.chd_1D(
     run_id,
     start_xyz_file,
     target_xyz_file,
-    qvector=np.linspace(1e-9, qmax, 81, endpoint=True),
-    #qvector=np.linspace(1e-9, qmax, 41, endpoint=True),
+    qvector=np.linspace(1e-9, qmax, qlen, endpoint=True),
     noise = 0.00,
     sa_starting_temp = 1.0,
     #sa_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
