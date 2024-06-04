@@ -27,7 +27,7 @@ start_xyz_file = str(sys.argv[2])
 target_xyz_file = str(sys.argv[3])
 ###################################
 # define a descriptive string for the run directory
-noise = 0.0
+noise = 0.1
 qmax = 8.0
 nrestarts = 5
 description = "traj094_newnewnew"
