@@ -1,4 +1,5 @@
 # custom
+results_*
 nohup.out
 *.tar
 results_/
