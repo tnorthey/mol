@@ -65,7 +65,7 @@ w.chd_1D(
     nrestarts = nrestarts,    # it restarts from the xyz_best of the previous restart
     non_h_modes_only=True,  # only include "non-hydrogen" modes
     hf_energy=True,   # calculate HF energy (PySCF) at the end
-    results_dir=descriptive_string,
+    results_dir=results_dir,
 )
 
 print("Total time: %3.2f s" % float(default_timer() - start))
