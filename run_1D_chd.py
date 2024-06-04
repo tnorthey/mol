@@ -5,8 +5,9 @@ Strategy 1: Generate a lot of initial conditions via short "hot" SA runs,
     - This should find a reasonably close starting point from the ICs,
     then optimise it further with the subsequent longer runs
 """
-import numpy as np
+import os
 import sys
+import numpy as np
 from timeit import default_timer
 
 # my modules
@@ -25,6 +26,15 @@ run_id = str(sys.argv[1])  # define a string to label the start of the output fi
 start_xyz_file = str(sys.argv[2])
 target_xyz_file = str(sys.argv[3])
 ###################################
+# define a descriptive string for the run directory
+noise = 0.0
+qmax = 8.0
+nrestarts = 5
+description = "traj094_newnewnew"
+results_dir = "noise%3.2f_qmax%2.1f_nrestarts%s_%s" % (noise, qmax, nrestarts, description)
+# create results directory
+if not os.path.exists(results_dir): 
+    os.makedirs(results_dir) 
 
 ACH = 10.0
 
@@ -32,8 +42,8 @@ w.chd_1D(
     run_id,
     start_xyz_file,
     target_xyz_file,
-    qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
-    #qvector=np.linspace(1e-9, 4.0, 41, endpoint=True),
+    qvector=np.linspace(1e-9, qmax, 81, endpoint=True),
+    #qvector=np.linspace(1e-9, qmax, 41, endpoint=True),
     noise = 0.00,
     sa_starting_temp = 1.0,
     #sa_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
@@ -52,9 +62,10 @@ w.chd_1D(
     #ga_angular_factor = 1.0,
     sa_angular_factor = 0.1,
     ga_angular_factor = 0.1,
-    nrestarts = 5,    # it restarts from the xyz_best of the previous restart
+    nrestarts = nrestarts,    # it restarts from the xyz_best of the previous restart
     non_h_modes_only=True,  # only include "non-hydrogen" modes
     hf_energy=True,   # calculate HF energy (PySCF) at the end
+    results_dir=descriptive_string,
 )
 
 print("Total time: %3.2f s" % float(default_timer() - start))

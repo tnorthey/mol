@@ -41,6 +41,7 @@ class Wrapper:
         nrestarts=5,
         non_h_modes_only=False,  # only include "non-hydrogen" modes
         hf_energy=True,
+        results_dir="tmp_",
     ):
         """
         simple fitting to CHD 1D data
@@ -132,7 +133,7 @@ class Wrapper:
         _, _, atomlist, target_xyz = m.read_xyz(target_xyz_file)
         target_iam = xyz2iam(target_xyz, atomic_numbers, compton_array)
 
-        target_function_file = "tmp_/TARGET_FUNCTION_%s.dat" % run_id
+        target_function_file = "%s/TARGET_FUNCTION_%s.dat" % (results_dir, run_id)
         #target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id
 
         # save target IAM file before noise is added
@@ -265,7 +266,7 @@ class Wrapper:
         print("writing to xyz... (f: %10.8f)" % f_xray_best)
         f_best_str = ("%10.8f" % f_xray_best).zfill(12)
         m.write_xyz(
-            "tmp_/%s_%s.xyz" % (run_id, f_best_str),
+            "%s/%s_%s.xyz" % (results_dir, run_id, f_best_str),
             header_str,
             atomlist,
             xyz_best,
@@ -275,18 +276,18 @@ class Wrapper:
         #m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
         # target xyz
         m.write_xyz(
-            "tmp_/%s_target.xyz" % run_id,
+            "%s/%s_target.xyz" % (results_dir, run_id),
             "run_id: %s" % run_id,
             atomlist,
             target_xyz,
         )
         # predicted data
         if twod_mode:
-            np.savetxt("tmp_/%s_%s.dat" % (run_id, f_best_str), predicted_best)
-            np.savetxt("tmp_/%s_result.dat" % run_id, predicted_best)
+            np.savetxt("%s/%s_%s.dat" % (results_dir, run_id, f_best_str), predicted_best)
+            np.savetxt("%s/%s_result.dat" % (results_dir, run_id), predicted_best)
         else:
             np.savetxt(
-                "tmp_/%s_%s.dat" % (run_id, f_best_str),
+                "%s/%s_%s.dat" % (results_dir, run_id, f_best_str),
                 np.column_stack((qvector, predicted_best)),
             )
         return  # end function

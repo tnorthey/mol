@@ -10,7 +10,7 @@ echo "go script: target_xyz_file $target_xyz_file"
 
 python3 run_1D_chd.py $run_id $starting_xyz_file $target_xyz_file
 
-bestxyz=$(ls -1 tmp_/"$run_id"_???.????????.xyz | head -n 1) 
-bestdat=$(ls -1 tmp_/"$run_id"_???.????????.dat | head -n 1) 
-cp $bestxyz tmp_/"$run_id"_best.xyz
-cp $bestdat tmp_/"$run_id"_best.dat
+#bestxyz=$(ls -1 tmp_/"$run_id"_???.????????.xyz | head -n 1) 
+#bestdat=$(ls -1 tmp_/"$run_id"_???.????????.dat | head -n 1) 
+#cp $bestxyz tmp_/"$run_id"_best.xyz
+#cp $bestdat tmp_/"$run_id"_best.dat
