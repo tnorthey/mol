@@ -4,7 +4,7 @@
 # It loops N (20) times  check/edit ccv_start_initial.sh
 
 # define run variables
-noise=1.0
+noise=2.0
 qmax=8
 qlen=81
 nrestarts=5
