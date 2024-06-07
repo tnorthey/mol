@@ -41,7 +41,7 @@ w.chd_1D(
     start_xyz_file,
     target_xyz_file,
     qvector=np.linspace(1e-9, qmax, qlen, endpoint=True),
-    noise = 0.00,
+    noise = noise,
     sa_starting_temp = 1.0,
     #sa_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
     #ga_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
