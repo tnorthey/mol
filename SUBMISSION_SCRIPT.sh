@@ -14,7 +14,7 @@ mkdir -p $results_dir
 
 # RUN CCV_START_INITIAL
 fname=ccv_start_initial_"$results_dir".sh
-cp ccv_start_initial.sh $fname
+cp ccv_start_initial_template.sh $fname
 sed -i "s/NOISE/$noise/" $fname
 sed -i "s/QMAX/$qmax/" $fname
 sed -i "s/QLEN/$qlen/" $fname
