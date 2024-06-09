@@ -47,19 +47,19 @@ stats "analysis_65_results_noise0.01_qmax4_nrestarts5_traj094.dat" u 3 prefix "t
 stats "analysis_70_results_noise0.01_qmax4_nrestarts5_traj094.dat" u 3 prefix "t70"
 stats "analysis_75_results_noise0.01_qmax4_nrestarts5_traj094.dat" u 3 prefix "t75"
 
-t10_range = t10_median  # t20_median 
-t20_range = t20_median  # t20_median 
-t32_range = t32_median  # t30_median 
-t35_range = t35_median  # t30_median 
-t37_range = t37_median  # t30_median 
-t40_range = t40_median  # t40_median 
-t45_range = t45_median  # t40_median 
-t50_range = t50_median
-t55_range = t55_median
-t60_range = t60_median
-t65_range = t65_median
-t70_range = t70_median
-t75_range = t75_median
+t10_range = t10_max+1  # t20_median 
+t20_range = t20_max+1  # t20_median 
+t32_range = t32_max+1  # t30_median 
+t35_range = t35_max+1  # t30_median 
+t37_range = t37_max+1  # t30_median 
+t40_range = t40_max+1  # t40_median 
+t45_range = t45_max+1  # t40_median 
+t50_range = t50_max+1
+t55_range = t55_max+1
+t60_range = t60_max+1
+t65_range = t65_max+1
+t70_range = t70_max+1
+t75_range = t75_max+1
 
 # f_signal stats
 stats "analysis_10_results_noise0.01_qmax4_nrestarts5_traj094.dat" u 4 prefix "f10"
