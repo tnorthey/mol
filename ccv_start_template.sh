@@ -30,6 +30,7 @@ previous_step=XX
 next_step=YY
 
 # define run variables
+traj=TRAJ
 noise=NOISE
 qmax=QMAX
 qlen=QLEN
@@ -45,6 +46,6 @@ start_list=$(ls -1 "$results_dir/$previous_step"_1d_???.*xyz | head -n $nfits)
 # run
 for i in $start_list
 do 
-	./go_1D_chd.sh $i $next_step $noise $qmax $qlen $nrestarts $results_dir
+	./go_1D_chd.sh $i $next_step $traj $noise $qmax $qlen $nrestarts $results_dir
 done
 

@@ -4,17 +4,19 @@
 # It loops N (20) times  check/edit ccv_start_initial.sh
 
 # define run variables
-noise=2.0
-qmax=8
-qlen=81
+noise=0.0
+qmax=4
+qlen=41
 nrestarts=5
-results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj094"
+traj=099
+results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj$traj"
 # create directory if not exists
 mkdir -p $results_dir
 
 # RUN CCV_START_INITIAL
 fname=ccv_start_initial_"$results_dir".sh
 cp ccv_start_initial_template.sh $fname
+sed -i "s/TRAJ/$traj/" $fname
 sed -i "s/NOISE/$noise/" $fname
 sed -i "s/QMAX/$qmax/" $fname
 sed -i "s/QLEN/$qlen/" $fname
@@ -50,6 +52,7 @@ do
 	cp ccv_start_template.sh $fname
 	sed -i "s/XX/$prev_step/" $fname
 	sed -i "s/YY/$next_step/" $fname
+        sed -i "s/TRAJ/$traj/" $fname
 	sed -i "s/NOISE/$noise/" $fname
 	sed -i "s/QMAX/$qmax/" $fname
 	sed -i "s/QLEN/$qlen/" $fname

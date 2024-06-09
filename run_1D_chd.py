@@ -27,11 +27,12 @@ w = wrap.Wrapper()
 run_id = str(sys.argv[1])  # define a string to label the start of the output filenames
 start_xyz_file = str(sys.argv[2])
 target_xyz_file = str(sys.argv[3])
-noise = float(sys.argv[4])
-qmax = int(sys.argv[5])
-qlen = int(sys.argv[6])
-nrestarts = int(sys.argv[7])
-results_dir = str(sys.argv[8])
+traj = str(sys.argv[4])
+noise = float(sys.argv[5])
+qmax = int(sys.argv[6])
+qlen = int(sys.argv[7])
+nrestarts = int(sys.argv[8])
+results_dir = str(sys.argv[9])
 ###################################
 
 ACH = 10.0
