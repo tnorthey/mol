@@ -56,7 +56,7 @@ NOYTICS = "set ytics 0, 100, 20000; \
            unset ylabel"
 YTICS = "set ytics 0, 0.1, 20; \
            set mytics 2 ; \
-           set ylabel '<<RMSD>> (Å)' offset 1.5,0"
+           set ylabel '〈〈RMSD〉〉 (Å)' offset 1.5,0"
 
 NOKEY = "unset key"
 KEY = "set key top left"
@@ -86,15 +86,15 @@ POS3 = "at graph 0.55, 0.45 font 'helvetica, 40'"
 # Enable the use of macros
 set macros
 
-set output "PLOT_RMSD_LOWEST_QUARTILE.png"
+set output "PLOT_RMSD_LOWEST_QUARTILE_ADD_TRAJECTORIES.png"
 
 XMIN = 0
 XMAX = 4
-YMIN = 0.1
-YMAX = 0.42
+YMIN = 0.14
+YMAX = 0.52
 set yrange [YMIN : YMAX]
 set xrange [XMIN : XMAX]
-set key font ",20"
+set key font ",40"
 
 # Start multiplot
 set multiplot layout 3,1 rowsfirst
@@ -108,42 +108,23 @@ set multiplot layout 3,1 rowsfirst
 #set logscale x 10
 #set logscale y 10
 LW1= 15
-LW2 = 5
+LW2 = 10
 DT1 = 1
 DT2 = 2
 DT3 = 3
 PS1 = 8
-PS2 = 8
+PS2 = 4
 PT1 = 2
 PT2 = 6
 c1 = "#0025ad"  # dark-blue
 #c2 = "#007cad"  # turquoise
 c2 = "#09ad00"  # green
 c3 = "#7f0000" 
-# matlab palette
-set palette defined ( 0 '#000090',\
-                      1 '#000fff',\
-                      2 '#0090ff',\
-                      3 '#0fffee',\
-                      4 '#90ff70',\
-                      5 '#ffee00',\
-                      6 '#ff7000',\
-                      7 '#ee0000',\
-                      8 '#7f0000')
 
-
-p    "rmsd_lowest_quartile_qmax4_traj090.dat"                 u 2 t "non-opening qmax=4"     w lp lc rgb c1 lw LW1 dt 1 pt PT1 ps PS1, \
-     "rmsd_lowest_quartile_qmax8_traj090.dat"                 u 2 t "qmax=8"                 w lp lc rgb c1 lw LW1 dt 1 pt PT2 ps PS1, \
-     "rmsd_lowest_quartile_qmax4_traj090_low_constraints.dat" u 2 t "low constraints qmax=4" w lp lc rgb c1 lw LW2 dt 4 pt PT1 ps PS2, \
-     "rmsd_lowest_quartile_qmax8_traj090_low_constraints.dat" u 2 t "lc qmax=8"              w lp lc rgb c1 lw LW2 dt 4 pt PT2 ps PS2, \
-     "rmsd_lowest_quartile_qmax4_traj099.dat"                 u 2 t "slow-opening qmax=8"    w lp lc rgb c2 lw LW1 dt 1 pt PT1 ps PS1, \
-     "rmsd_lowest_quartile_qmax8_traj099.dat"                 u 2 t "qmax=4"                 w lp lc rgb c2 lw LW1 dt 1 pt PT2 ps PS1, \
-     "rmsd_lowest_quartile_qmax4_traj099_low_constraints.dat" u 2 t "lc qmax=4"              w lp lc rgb c2 lw LW2 dt 4 pt PT1 ps PS2, \
-     "rmsd_lowest_quartile_qmax8_traj099_low_constraints.dat" u 2 t "lc qmax=8"              w lp lc rgb c2 lw LW2 dt 4 pt PT2 ps PS2, \
-     "rmsd_lowest_quartile_qmax4_traj094.dat"                 u 2 t "fast-opening qmax=8"    w lp lc rgb c3 lw LW1 dt 1 pt PT1 ps PS1, \
-     "rmsd_lowest_quartile_qmax8_traj094.dat"                 u 2 t "qmax=4"                 w lp lc rgb c3 lw LW1 dt 1 pt PT2 ps PS1, \
-     "rmsd_lowest_quartile_qmax4_traj094_low_constraints.dat" u 2 t "lc qmax=4"              w lp lc rgb c3 lw LW2 dt 4 pt PT1 ps PS2, \
-     "rmsd_lowest_quartile_qmax8_traj094_low_constraints.dat" u 2 t "lc qmax=8"              w lp lc rgb c3 lw LW2 dt 4 pt PT2 ps PS2, \
+p    "<paste rmsd_lowest_quartile_qmax4_traj090.dat rmsd_lowest_quartile_qmax4_traj099.dat rmsd_lowest_quartile_qmax4_traj094.dat"                 u (($2+$5+$8)/3) t "q_{max} = 4 Å^{-1}"     w lp lc rgb c1 lw LW1 dt DT1 pt PT1 ps PS1, \
+     "<paste rmsd_lowest_quartile_qmax8_traj090.dat rmsd_lowest_quartile_qmax8_traj099.dat rmsd_lowest_quartile_qmax8_traj094.dat"                 u (($2+$5+$8)/3) t " = 8 Å^{-1}"     w lp lc rgb c2 lw LW1 dt DT1 pt PT2 ps PS1, \
+     "<paste rmsd_lowest_quartile_qmax4_traj090_low_constraints.dat rmsd_lowest_quartile_qmax4_traj099_low_constraints.dat rmsd_lowest_quartile_qmax4_traj094_low_constraints.dat"                 u (($2+$5+$8)/3) t ""     w lp lc rgb c1 lw LW2 dt DT2 pt PT1 ps PS2, \
+     "<paste rmsd_lowest_quartile_qmax8_traj090_low_constraints.dat rmsd_lowest_quartile_qmax8_traj099_low_constraints.dat rmsd_lowest_quartile_qmax8_traj094_low_constraints.dat"                 u (($2+$5+$8)/3) t ""     w lp lc rgb c2 lw LW2 dt DT2 pt PT2 ps PS2, \
 
 # color definitions
 #set style line 2  lc rgb '#0025ad' lt 1 lw 2

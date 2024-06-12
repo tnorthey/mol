@@ -86,7 +86,7 @@ POS3 = "at graph 0.55, 0.45 font 'helvetica, 40'"
 # Enable the use of macros
 set macros
 
-set output "PLOT_RMSD_LOWEST_QUARTILE.png"
+set output "PLOT_RMSD_LOWEST_QUARTILE_ADD_QMAX.png"
 
 XMIN = 0
 XMAX = 4
@@ -132,18 +132,12 @@ set palette defined ( 0 '#000090',\
                       8 '#7f0000')
 
 
-p    "rmsd_lowest_quartile_qmax4_traj090.dat"                 u 2 t "non-opening qmax=4"     w lp lc rgb c1 lw LW1 dt 1 pt PT1 ps PS1, \
-     "rmsd_lowest_quartile_qmax8_traj090.dat"                 u 2 t "qmax=8"                 w lp lc rgb c1 lw LW1 dt 1 pt PT2 ps PS1, \
-     "rmsd_lowest_quartile_qmax4_traj090_low_constraints.dat" u 2 t "low constraints qmax=4" w lp lc rgb c1 lw LW2 dt 4 pt PT1 ps PS2, \
-     "rmsd_lowest_quartile_qmax8_traj090_low_constraints.dat" u 2 t "lc qmax=8"              w lp lc rgb c1 lw LW2 dt 4 pt PT2 ps PS2, \
-     "rmsd_lowest_quartile_qmax4_traj099.dat"                 u 2 t "slow-opening qmax=8"    w lp lc rgb c2 lw LW1 dt 1 pt PT1 ps PS1, \
-     "rmsd_lowest_quartile_qmax8_traj099.dat"                 u 2 t "qmax=4"                 w lp lc rgb c2 lw LW1 dt 1 pt PT2 ps PS1, \
-     "rmsd_lowest_quartile_qmax4_traj099_low_constraints.dat" u 2 t "lc qmax=4"              w lp lc rgb c2 lw LW2 dt 4 pt PT1 ps PS2, \
-     "rmsd_lowest_quartile_qmax8_traj099_low_constraints.dat" u 2 t "lc qmax=8"              w lp lc rgb c2 lw LW2 dt 4 pt PT2 ps PS2, \
-     "rmsd_lowest_quartile_qmax4_traj094.dat"                 u 2 t "fast-opening qmax=8"    w lp lc rgb c3 lw LW1 dt 1 pt PT1 ps PS1, \
-     "rmsd_lowest_quartile_qmax8_traj094.dat"                 u 2 t "qmax=4"                 w lp lc rgb c3 lw LW1 dt 1 pt PT2 ps PS1, \
-     "rmsd_lowest_quartile_qmax4_traj094_low_constraints.dat" u 2 t "lc qmax=4"              w lp lc rgb c3 lw LW2 dt 4 pt PT1 ps PS2, \
-     "rmsd_lowest_quartile_qmax8_traj094_low_constraints.dat" u 2 t "lc qmax=8"              w lp lc rgb c3 lw LW2 dt 4 pt PT2 ps PS2, \
+p    "<paste rmsd_lowest_quartile_qmax4_traj090.dat rmsd_lowest_quartile_qmax8_traj090.dat"                 u 2 t "non-opening"     w lp lc rgb c1 lw LW1 dt 1 pt PT1 ps PS1, \
+     "<paste rmsd_lowest_quartile_qmax4_traj099.dat rmsd_lowest_quartile_qmax8_traj099.dat"                 u 2 t "slow-opening"     w lp lc rgb c2 lw LW1 dt 1 pt PT1 ps PS1, \
+     "<paste rmsd_lowest_quartile_qmax4_traj094.dat rmsd_lowest_quartile_qmax8_traj094.dat"                 u 2 t "fast-opening"     w lp lc rgb c3 lw LW1 dt 1 pt PT1 ps PS1, \
+     "<paste rmsd_lowest_quartile_qmax4_traj090_low_constraints.dat rmsd_lowest_quartile_qmax8_traj090_low_constraints.dat"                 u 2 t "lc non-opening"      w lp lc rgb c1 lw LW2 dt DT2 pt PT2 ps PS1, \
+     "<paste rmsd_lowest_quartile_qmax4_traj099_low_constraints.dat rmsd_lowest_quartile_qmax8_traj099_low_constraints.dat"                 u 2 t "lc slow-opening"     w lp lc rgb c2 lw LW2 dt DT2 pt PT2 ps PS1, \
+     "<paste rmsd_lowest_quartile_qmax4_traj094_low_constraints.dat rmsd_lowest_quartile_qmax8_traj094_low_constraints.dat"                 u 2 t "lc fast-opening"     w lp lc rgb c3 lw LW2 dt DT2 pt PT2 ps PS1, \
 
 # color definitions
 #set style line 2  lc rgb '#0025ad' lt 1 lw 2
