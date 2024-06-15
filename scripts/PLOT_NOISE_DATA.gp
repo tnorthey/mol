@@ -1,7 +1,7 @@
 reset
 
 # png
-set terminal pngcairo dashed size 2000,1600 enhanced font "Verdana,60"
+set terminal pngcairo dashed size 2000,800 enhanced font "Verdana,60"
 #set terminal pngcairo dashed size 1000,800 enhanced font "Verdana,30"
 #set terminal pngcairo dashed size 2500,1750 enhanced font "Verdana,50"
 # dashed option enables dashed linestyle in pngcairo
@@ -48,15 +48,18 @@ set palette defined ( 0 '#000090',\
 NOXTICS = "set xtics ('' 0, '' 8, '' 16, '' 24); \
           unset xlabel; \
           set mxtics 2 "
-XTICS = "set xtics ('0' 0, '0.1' 1, '1' 2, '2' 3, '4' 4); \
-          set xlabel 'noise (σ)' offset 0,0.4; \
+XTICS = "set xtics ('0' 0, '2' 20, '4' 40, '6' 60, '8' 80); \
+          set xlabel 'q (Å^{-1})' offset 0,0.4; \
           set mxtics 2"
-NOYTICS = "set ytics 0, 100, 20000; \
+XTICS2 = "set xtics 0, 10, 20; \
+          set xlabel 'Counts' offset 0,0.4; \
+          set mxtics 2"
+NOYTICS = "set ytics ('' -2, '' 0, '' 2); \
            set mytics 2 ; \
            unset ylabel"
-YTICS = "set ytics 0, 0.1, 20; \
+YTICS = "set ytics -20, 2.0, 20; \
            set mytics 2 ; \
-           set ylabel '<<RMSD>> (Å)' offset 1.5,0"
+           set ylabel 'N(1)' offset 0,0"
 
 NOKEY = "unset key"
 KEY = "set key top left"
@@ -71,12 +74,12 @@ KEY = "set key top left"
 # ---- 0.20
 
 #TMARGIN = "set tmargin at screen 0.95; set bmargin at screen 0.75"
-TMARGIN = "set tmargin at screen 0.95; set bmargin at screen 0.15"
+TMARGIN = "set tmargin at screen 0.95; set bmargin at screen 0.31"
 MMARGIN = "set tmargin at screen 0.75; set bmargin at screen 0.55"
 MMARGIN2 = "set tmargin at screen 0.55; set bmargin at screen 0.35"
 BMARGIN = "set tmargin at screen 0.35; set bmargin at screen 0.15"
-LMARGIN = "set lmargin at screen 0.18; set rmargin at screen 0.97"
-#RMARGIN = "set lmargin at screen 0.55; set rmargin at screen 0.95"
+LMARGIN = "set lmargin at screen 0.18; set rmargin at screen 0.67"
+RMARGIN = "set lmargin at screen 0.72; set rmargin at screen 0.95"
 
 # Placement of the a,b,c,d labels in the graphs
 POS = "at graph 0.70, 0.16 font 'helvetica, 40'"
@@ -86,18 +89,18 @@ POS3 = "at graph 0.55, 0.45 font 'helvetica, 40'"
 # Enable the use of macros
 set macros
 
-set output "PLOT_RMSD_LOWEST_QUARTILE_ADD_QMAX.png"
+set output "PLOT_NOISE_DATA.png"
 
 XMIN = 0
-XMAX = 4
-YMIN = 0.1
-YMAX = 0.63
+XMAX = 80
+YMIN = -2.5
+YMAX = 2.5
 set yrange [YMIN : YMAX]
 set xrange [XMIN : XMAX]
-set key font ",20"
+set key font ",40"
 
 # Start multiplot
-set multiplot layout 3,1 rowsfirst
+set multiplot layout 1,2 rowsfirst
 # --- GRAPH a
 @TMARGIN; @LMARGIN
 @XTICS; @YTICS
@@ -107,13 +110,13 @@ set multiplot layout 3,1 rowsfirst
 #set label 3 '_↙ Naphthalene' @POS3
 #set logscale x 10
 #set logscale y 10
-LW1= 15
-LW2 = 5
+LW1= 5
+LW2 = 3
 DT1 = 1
-DT2 = 2
+DT2 = 4
 DT3 = 3
-PS1 = 8
-PS2 = 8
+PS1 = 0
+PS2 = 5
 PT1 = 2
 PT2 = 6
 c1 = "#0025ad"  # dark-blue
@@ -121,12 +124,19 @@ c1 = "#0025ad"  # dark-blue
 c2 = "#09ad00"  # green
 c3 = "#7f0000" 
 
-p    "<paste rmsd_lowest_quartile_qmax4_traj090.dat rmsd_lowest_quartile_qmax8_traj090.dat"                 u (($2+$5)/2) t "non-opening"     w lp lc rgb c1 lw LW1 dt 1 pt PT1 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj099.dat rmsd_lowest_quartile_qmax8_traj099.dat"                 u (($2+$5)/2) t "slow-opening"     w lp lc rgb c2 lw LW1 dt 1 pt PT1 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj094.dat rmsd_lowest_quartile_qmax8_traj094.dat"                 u (($2+$5)/2) t "fast-opening"     w lp lc rgb c3 lw LW1 dt 1 pt PT1 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj090_low_constraints.dat rmsd_lowest_quartile_qmax8_traj090_low_constraints.dat"                 u (($2+$5)/2) t "lc non-opening"      w lp lc rgb c1 lw LW2 dt DT2 pt PT2 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj099_low_constraints.dat rmsd_lowest_quartile_qmax8_traj099_low_constraints.dat"                 u (($2+$5)/2) t "lc slow-opening"     w lp lc rgb c2 lw LW2 dt DT2 pt PT2 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj094_low_constraints.dat rmsd_lowest_quartile_qmax8_traj094_low_constraints.dat"                 u (($2+$5)/2) t "lc fast-opening"     w lp lc rgb c3 lw LW2 dt DT2 pt PT2 ps PS1, \
+p "../noise/noise.dat" t "" w lp lc rgb c1 lw LW1 dt DT1 pt PT1 ps PS1, \
+
+@TMARGIN; @RMARGIN
+@NOYTICS; @XTICS2
+XMIN = 0
+XMAX = 16
+YMIN = -2.5
+YMAX = 2.5
+set yrange [YMIN : YMAX]
+set xrange [XMIN : XMAX]
+p "../noise/h10.dat" u 2:1 t "" w p lc rgb c1 lw LW1 dt DT1 pt PT1 ps PS2, \
+  "../noise/normaldist.dat" u (81*$2*0.4):1 t "" w lp lc rgb c1 lw LW2 dt DT2 pt PT1 ps PS1, \
+
 
 # color definitions
 #set style line 2  lc rgb '#0025ad' lt 1 lw 2

@@ -1,7 +1,7 @@
 reset
 
 # png
-set terminal pngcairo dashed size 2000,1600 enhanced font "Verdana,60"
+set terminal pngcairo dashed size 2000,800 enhanced font "Verdana,60"
 #set terminal pngcairo dashed size 1000,800 enhanced font "Verdana,30"
 #set terminal pngcairo dashed size 2500,1750 enhanced font "Verdana,50"
 # dashed option enables dashed linestyle in pngcairo
@@ -54,9 +54,9 @@ XTICS = "set xtics ('0' 0, '0.1' 1, '1' 2, '2' 3, '4' 4); \
 NOYTICS = "set ytics 0, 100, 20000; \
            set mytics 2 ; \
            unset ylabel"
-YTICS = "set ytics 0, 0.1, 20; \
+YTICS = "set ytics 0, 0.05, 20; \
            set mytics 2 ; \
-           set ylabel '<<RMSD>> (Å)' offset 1.5,0"
+           set ylabel '〈〈RMSD〉〉 (Å)' offset 1.5,0"
 
 NOKEY = "unset key"
 KEY = "set key top left"
@@ -71,7 +71,7 @@ KEY = "set key top left"
 # ---- 0.20
 
 #TMARGIN = "set tmargin at screen 0.95; set bmargin at screen 0.75"
-TMARGIN = "set tmargin at screen 0.95; set bmargin at screen 0.15"
+TMARGIN = "set tmargin at screen 0.95; set bmargin at screen 0.3"
 MMARGIN = "set tmargin at screen 0.75; set bmargin at screen 0.55"
 MMARGIN2 = "set tmargin at screen 0.55; set bmargin at screen 0.35"
 BMARGIN = "set tmargin at screen 0.35; set bmargin at screen 0.15"
@@ -86,15 +86,15 @@ POS3 = "at graph 0.55, 0.45 font 'helvetica, 40'"
 # Enable the use of macros
 set macros
 
-set output "PLOT_RMSD_LOWEST_QUARTILE_ADD_QMAX.png"
+set output "PLOT_RMSD_LOWEST_QUARTILE_ADD_TRAJECTORIES_QMAX.png"
 
 XMIN = 0
 XMAX = 4
-YMIN = 0.1
-YMAX = 0.63
+YMIN = 0.2
+YMAX = 0.29
 set yrange [YMIN : YMAX]
 set xrange [XMIN : XMAX]
-set key font ",20"
+set key font ",40"
 
 # Start multiplot
 set multiplot layout 3,1 rowsfirst
@@ -108,12 +108,12 @@ set multiplot layout 3,1 rowsfirst
 #set logscale x 10
 #set logscale y 10
 LW1= 15
-LW2 = 5
+LW2 = 10
 DT1 = 1
 DT2 = 2
 DT3 = 3
 PS1 = 8
-PS2 = 8
+PS2 = 4
 PT1 = 2
 PT2 = 6
 c1 = "#0025ad"  # dark-blue
@@ -121,12 +121,8 @@ c1 = "#0025ad"  # dark-blue
 c2 = "#09ad00"  # green
 c3 = "#7f0000" 
 
-p    "<paste rmsd_lowest_quartile_qmax4_traj090.dat rmsd_lowest_quartile_qmax8_traj090.dat"                 u (($2+$5)/2) t "non-opening"     w lp lc rgb c1 lw LW1 dt 1 pt PT1 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj099.dat rmsd_lowest_quartile_qmax8_traj099.dat"                 u (($2+$5)/2) t "slow-opening"     w lp lc rgb c2 lw LW1 dt 1 pt PT1 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj094.dat rmsd_lowest_quartile_qmax8_traj094.dat"                 u (($2+$5)/2) t "fast-opening"     w lp lc rgb c3 lw LW1 dt 1 pt PT1 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj090_low_constraints.dat rmsd_lowest_quartile_qmax8_traj090_low_constraints.dat"                 u (($2+$5)/2) t "lc non-opening"      w lp lc rgb c1 lw LW2 dt DT2 pt PT2 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj099_low_constraints.dat rmsd_lowest_quartile_qmax8_traj099_low_constraints.dat"                 u (($2+$5)/2) t "lc slow-opening"     w lp lc rgb c2 lw LW2 dt DT2 pt PT2 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj094_low_constraints.dat rmsd_lowest_quartile_qmax8_traj094_low_constraints.dat"                 u (($2+$5)/2) t "lc fast-opening"     w lp lc rgb c3 lw LW2 dt DT2 pt PT2 ps PS1, \
+p    "<paste rmsd_lowest_quartile_qmax4_traj090.dat rmsd_lowest_quartile_qmax4_traj099.dat rmsd_lowest_quartile_qmax4_traj094.dat rmsd_lowest_quartile_qmax8_traj090.dat rmsd_lowest_quartile_qmax8_traj099.dat rmsd_lowest_quartile_qmax8_traj094.dat"                 u (($2+$5+$8+$11+$14+$17)/6) t ""     w lp lc rgb c1 lw LW1 dt DT1 pt PT1 ps PS1, \
+#     "<paste rmsd_lowest_quartile_qmax4_traj090_low_constraints.dat rmsd_lowest_quartile_qmax4_traj099_low_constraints.dat rmsd_lowest_quartile_qmax4_traj094_low_constraints.dat  rmsd_lowest_quartile_qmax8_traj090_low_constraints.dat rmsd_lowest_quartile_qmax8_traj099_low_constraints.dat rmsd_lowest_quartile_qmax8_traj094_low_constraints.dat"                 u  (($2+$5+$8+$11+$14+$17)/6) t "weak"     w lp lc rgb c1 lw LW2 dt DT2 pt PT1 ps PS2, \
 
 # color definitions
 #set style line 2  lc rgb '#0025ad' lt 1 lw 2
