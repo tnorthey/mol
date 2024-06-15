@@ -48,7 +48,7 @@ set palette defined ( 0 '#000090',\
 NOXTICS = "set xtics ('' 0, '' 8, '' 16, '' 24); \
           unset xlabel; \
           set mxtics 2 "
-XTICS = "set xtics ('0' 0, '0.1' 1, '1' 2, '2' 3, '4' 4); \
+XTICS = "set xtics ('0' 0, '0.1' 1, '1' 2, '2' 3, '4' 4, '8' 5, '16' 6); \
           set xlabel 'noise (σ)' offset 0,0.4; \
           set mxtics 2"
 NOYTICS = "set ytics 0, 100, 20000; \
@@ -89,7 +89,7 @@ set macros
 set output "PLOT_RMSD_LOWEST_QUARTILE_ADD_TRAJECTORIES.png"
 
 XMIN = 0
-XMAX = 4
+XMAX = 6
 YMIN = 0.14
 YMAX = 0.52
 set yrange [YMIN : YMAX]
