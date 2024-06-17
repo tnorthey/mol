@@ -4,12 +4,14 @@
 # It loops N (20) times  check/edit ccv_start_initial.sh
 
 # define run variables
-noise=0.0
-qmax=4
-qlen=41
+noise=_NOISE_
+qmax=8
+qlen=81
 nrestarts=5
-traj=090
-results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj"$traj"_low_constraints"
+traj=099
+### NB switch to low constraints in the run.py file
+#results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj"$traj"_low_constraints"
+results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj"$traj""
 # create directory if not exists
 mkdir -p $results_dir
 
