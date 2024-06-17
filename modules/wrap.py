@@ -59,7 +59,7 @@ class Wrapper:
         electron_mode = False
         twod_mode = False
         pcd_mode = False
-        angular_bool = True # use HO terms on the angles
+        angular_bool = False # use HO terms on the angles
 
         def xyz2iam(xyz, atomic_numbers, compton_array):
             """convert xyz file to IAM signal"""
@@ -141,8 +141,8 @@ class Wrapper:
         #np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
 
         ### ADDITION OF RANDOM NOISE
-        noise_bool = True
-        if noise_bool:
+        constant_noise_bool = False
+        if constant_noise_bool:
             noise_data_file = "noise/noise.dat"
             if os.path.exists(noise_data_file):
                 # read the noise from a file

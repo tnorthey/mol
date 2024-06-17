@@ -48,13 +48,13 @@ set palette defined ( 0 '#000090',\
 NOXTICS = "set xtics ('' 0, '' 8, '' 16, '' 24); \
           unset xlabel; \
           set mxtics 2 "
-XTICS = "set xtics ('0' 0, '0.1' 1, '1' 2, '2' 3, '4' 4); \
+XTICS = "set xtics ('0' 0, '0.1' 1, '1' 2, '2' 3, '4' 4, '8' 5, '16' 6); \
           set xlabel 'noise (σ)' offset 0,0.4; \
           set mxtics 2"
 NOYTICS = "set ytics 0, 100, 20000; \
            set mytics 2 ; \
            unset ylabel"
-YTICS = "set ytics 0, 0.05, 20; \
+YTICS = "set ytics 0, 0.1, 20; \
            set mytics 2 ; \
            set ylabel '〈〈RMSD〉〉 (Å)' offset 1.5,0"
 
@@ -89,9 +89,9 @@ set macros
 set output "PLOT_RMSD_LOWEST_QUARTILE_ADD_TRAJECTORIES_QMAX.png"
 
 XMIN = 0
-XMAX = 4
-YMIN = 0.2
-YMAX = 0.29
+XMAX = 6
+YMIN = 0.19
+YMAX = 0.45
 set yrange [YMIN : YMAX]
 set xrange [XMIN : XMAX]
 set key font ",40"
@@ -121,7 +121,7 @@ c1 = "#0025ad"  # dark-blue
 c2 = "#09ad00"  # green
 c3 = "#7f0000" 
 
-p    "<paste rmsd_lowest_quartile_qmax4_traj090.dat rmsd_lowest_quartile_qmax4_traj099.dat rmsd_lowest_quartile_qmax4_traj094.dat rmsd_lowest_quartile_qmax8_traj090.dat rmsd_lowest_quartile_qmax8_traj099.dat rmsd_lowest_quartile_qmax8_traj094.dat"                 u (($2+$5+$8+$11+$14+$17)/6) t ""     w lp lc rgb c1 lw LW1 dt DT1 pt PT1 ps PS1, \
+p    "<paste rmsd_lowest_quartile_qmax4_traj090.dat rmsd_lowest_quartile_qmax4_traj099.dat rmsd_lowest_quartile_qmax4_traj094.dat rmsd_lowest_quartile_qmax8_traj090.dat rmsd_lowest_quartile_qmax8_traj099.dat rmsd_lowest_quartile_qmax8_traj094.dat"                 u (($2+$5+$8+$11+$14+$17)/6) t ""     w lp lc rgb c1 lw LW1 dt DT1 pt PT2 ps PS1, \
 #     "<paste rmsd_lowest_quartile_qmax4_traj090_low_constraints.dat rmsd_lowest_quartile_qmax4_traj099_low_constraints.dat rmsd_lowest_quartile_qmax4_traj094_low_constraints.dat  rmsd_lowest_quartile_qmax8_traj090_low_constraints.dat rmsd_lowest_quartile_qmax8_traj099_low_constraints.dat rmsd_lowest_quartile_qmax8_traj094_low_constraints.dat"                 u  (($2+$5+$8+$11+$14+$17)/6) t "weak"     w lp lc rgb c1 lw LW2 dt DT2 pt PT1 ps PS2, \
 
 # color definitions
