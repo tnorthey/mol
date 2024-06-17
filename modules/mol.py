@@ -13,14 +13,14 @@ class Xyz:
 
     def periodic_table(self, element: str):
         """Outputs atomic number for each element in the periodic table"""
-        with open("_data/pt.txt") as pt_file:
+        with open("data_/pt.txt") as pt_file:
             for line in pt_file:
                 if line.split()[0] == element:
                     return int(line.split()[1])
 
     def atomic_mass(self, element: str):
         """Outputs atomic mass for each element in the periodic table"""
-        with open("_data/atomic_masses.txt") as am_file:
+        with open("data_/atomic_masses.txt") as am_file:
             for line in am_file:
                 if line.split()[0] == element:
                     return float(line.split()[1])

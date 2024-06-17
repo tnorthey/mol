@@ -23,10 +23,6 @@ tmp_/*.xyz
 tmp_/*
 notebooks/*.png
 notebooks/*.np[yz]
-data/*
-data_*
-slides/*
-chd_trajectories/
 out
 *.mat
 *.dat
