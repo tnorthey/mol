@@ -24,6 +24,7 @@ class Wrapper:
         self,
         run_id,
         start_xyz_file,
+        reference_xyz_file,
         target_xyz_file,
         qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
         noise=0,
@@ -75,6 +76,7 @@ class Wrapper:
         atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
         compton_array = x.compton_spline(atomic_numbers, qvector)
         starting_iam = xyz2iam(starting_xyz, atomic_numbers, compton_array)
+        reference_iam = xyz2iam(reference_xyz, atomic_numbers, compton_array)
 
         natoms = starting_xyz.shape[0]
         nmfile = "nm/chd_normalmodes.txt"
@@ -225,6 +227,7 @@ class Wrapper:
                 harmonic_factor,
                 angular_factor,
                 pcd_mode,
+                reference_iam,
                 electron_mode,
                 twod_mode,
                 angular_bool,

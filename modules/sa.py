@@ -47,6 +47,7 @@ class Annealing:
         bonding_factor=(0.1, 0.1),
         angular_factor=0.1,
         pcd_mode=False,
+        reference_iam: NDArray,
         electron_mode=False,
         twod_mode=False,
         angular_bool=False,
@@ -87,7 +88,7 @@ class Annealing:
         #print("HO factors: %4.3f %4.3f" % (bonding_factor[0], bonding_factor[1]))
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
 
-        @njit(nogil=True)
+        @njit(nogil=True)  # numba decorator to compile to machine code
         def run_annealing(nsteps):
 
             ##=#=#=# INITIATE LOOP VARIABLES #=#=#=#=#
@@ -144,19 +145,19 @@ class Annealing:
                 ##=#=#=# END IAM CALCULATION #=#=#=##
 
                 ##=#=#=# PCD & CHI2 CALCULATIONS #=#=#=##
-                #if pcd_mode:
-                #    predicted_function_ = 100 * (iam_ / reference_iam - 1)
-                #else:
-                predicted_function_ = iam_
-
-                ### x-ray part of f
-                xray_contrib = (
-                    np.sum(
-                        (predicted_function_ - target_data) ** 2 / np.abs(target_data)
+                if pcd_mode:
+                    predicted_function_ = 100 * (iam_ / reference_iam - 1)
+                    ### x-ray part of objective function
+                    xray_contrib = np.sum((predicted_function_ - target_data) ** 2) / qlen
+                else:
+                    predicted_function_ = iam_
+                    ### x-ray part of objective function
+                    xray_contrib = (
+                        np.sum(
+                            (predicted_function_ - target_data) ** 2 / np.abs(target_data)
+                        )
+                        / qlen
                     )
-                    / qlen
-                )
-                # xray_contrib = np.sum((predicted_function_ - target_data) ** 2) / qlen
 
                 ### harmonic oscillator part of f
                 # somehow this is faster in numba than the vectorised version

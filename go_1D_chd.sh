@@ -11,11 +11,12 @@ qmax=$5
 qlen=$6
 nrestarts=$7
 results_dir=$8
+reference_xyz_file="xyz/chd_reference.xyz"
 
 echo "go script: starting_xyz_file $starting_xyz_file"
 echo "go script: target_xyz_file $target_xyz_file"
 
-python3 run_1D_chd.py $run_id $starting_xyz_file $target_xyz_file $traj $noise $qmax $qlen $nrestarts $results_dir
+python3 run_1D_chd.py $run_id $starting_xyz_file $target_xyz_file $traj $noise $qmax $qlen $nrestarts $results_dir $reference_xyz_file
 
 #bestxyz=$(ls -1 tmp_/"$run_id"_???.????????.xyz | head -n 1) 
 #bestdat=$(ls -1 tmp_/"$run_id"_???.????????.dat | head -n 1) 

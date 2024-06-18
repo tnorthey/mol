@@ -33,6 +33,7 @@ qmax = int(sys.argv[6])
 qlen = int(sys.argv[7])
 nrestarts = int(sys.argv[8])
 results_dir = str(sys.argv[9])
+reference_xyz_file = str(sys.argv[10])
 ###################################
 
 ACH = 10.0
@@ -40,6 +41,7 @@ ACH = 10.0
 w.chd_1D(
     run_id,
     start_xyz_file,
+    reference_xyz_file,
     target_xyz_file,
     qvector=np.linspace(1e-9, qmax, qlen, endpoint=True),
     noise = noise,
