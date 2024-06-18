@@ -9,7 +9,7 @@ qmax=4
 qlen=41
 nrestarts=5
 traj=090
-results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj"$traj"_low_constraints"
+results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj"$traj"_b"
 # create directory if not exists
 mkdir -p $results_dir
 

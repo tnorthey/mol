@@ -5,13 +5,13 @@
 
 # define run variables
 noise=_NOISE_
-qmax=8
-qlen=81
+qmax=_QMAX_
+qlen=_QMAX_1
 nrestarts=5
-traj=099
+traj=_TRAJ_
 ### NB switch to low constraints in the run.py file
-#results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj"$traj"_low_constraints"
-results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj"$traj""
+results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj"$traj"_low_constraints_b"
+#results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj"$traj"_b"
 # create directory if not exists
 mkdir -p $results_dir
 
