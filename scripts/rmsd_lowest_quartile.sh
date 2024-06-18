@@ -21,10 +21,10 @@ for step in 10 20 32 35 37 40 45 50 55 60 65 70 75
 do
     if [[ $low_constraints == 1 ]]
     then
-        filename=analysis_"$step"_results_noise"$noise"_qmax"$qmax"_nrestarts5_traj"$traj"_low_constraints.dat
+        filename=analysis_"$step"_results_noise"$noise"_qmax"$qmax"_nrestarts5_traj"$traj"_low_constraints_b.dat
     elif [[ $low_constraints == 0 ]]
     then
-        filename=analysis_"$step"_results_noise"$noise"_qmax"$qmax"_nrestarts5_traj"$traj".dat
+        filename=analysis_"$step"_results_noise"$noise"_qmax"$qmax"_nrestarts5_traj"$traj"_b.dat
     else
         echo "Error with low_constraints value: set to 0 or 1"
     fi
