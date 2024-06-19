@@ -64,11 +64,11 @@ w.run_1D(
     ga_nsteps=40000,
     ho_indices1 = np.array([
                     [3, 3, 3, 0, 0, 10, 5], 
-                    [6, 5, 1, 1, 12, 12, 10]])  # nmm (C-C, C-N, or C-O bonds): 3-6, 3-5, 3-1, 0-1, 0-12, 10-12, 5-10
+                    [6, 5, 1, 1, 12, 12, 10]]),  # nmm (C-C, C-N, or C-O bonds): 3-6, 3-5, 3-1, 0-1, 0-12, 10-12, 5-10
     ho_indices2 = np.array([
                     [6, 6, 6, 1, 1, 0,  0,  10, 10, 5,  5 ],
                     [7, 8, 9, 2, 4, 14, 15, 11, 13, 16, 17],
-    ])  # nmm (C-H bonds)
+    ]),  # nmm (C-H bonds)
     angular_bool=False,   # use HO terms on the angles
     angular_indices = np.array([0]),
     sa_step_size=0.012,
@@ -81,9 +81,10 @@ w.run_1D(
     non_h_modes_only=False,  # only include "non-hydrogen" modes
     hf_energy=True,  # run PySCF HF energy
     results_dir=results_dir,
-    rmsd_indices = np.array([3, 5, 6, 10, 12, 0, 1])  # nmm
-    dihedral_indices = np.array([0, 1, 4, 5]),    # chd ring-opening dihedral
-    bond_indices = np.array([0, 5]),    # chd ring-opening bond
+    rmsd_indices = np.array([3, 5, 6, 10, 12, 0, 1]),  # nmm
+    bond_indices = np.array([0, 5]),   # chd ring-opening bond
+    angle_indices = np.array([6, 3, 12]),   # nmm methyl group angle
+    dihedral_indices = np.array([0, 1, 4, 5]),  # chd ring-opening dihedral
 )
 
 print("Total time: %3.2f s" % float(default_timer() - start))
