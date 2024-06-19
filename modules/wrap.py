@@ -42,12 +42,6 @@ class Wrapper:
             [6, 12, 5, 5, 0, 0, 1, 2, 3, 4],
             [7, 13, 12, 13, 6, 7, 8, 9, 10, 11],
         ]),  # chd (C-H bonds, and H-H "bonds" for the CH2 carbons)
-        #angular_indices = np.array([[0, 1, 2, 3], 
-        #                            [1, 2, 3, 4], 
-        #                            [2, 3, 4, 5]])  # chd (C-C-C angles)
-        #angular_indices = np.array([[0, 1, 2, 3, 6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1], 
-        #                            [1, 2, 3, 4, 0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
-        #                            [2, 3, 4, 5, 7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]])  # chd (C-C-C angles, and all C-C-H, H-C-H angles)
         angular_bool=False,   # use HO terms on the angles
         angular_indices = np.array([[6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1], 
                                     [0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
@@ -62,9 +56,10 @@ class Wrapper:
         non_h_modes_only=False,  # only include "non-hydrogen" modes
         hf_energy=True,  # run PySCF HF energy
         results_dir="tmp_",
-        rmsd_indices = np.array([0, 1, 2, 3, 4, 5]),  # chd
-        dihedral_indices = np.array([0, 1, 4, 5]),    # chd ring-opening dihedral
-        bond_indices = np.array([0, 5]),    # chd ring-opening bond
+        rmsd_indices = np.array([0, 1, 2, 3, 4, 5]), # chd non-hydrogen atoms
+        bond_indices = np.array([0, 5]),     # e.g. chd ring-opening bond
+        angle_indices = np.array([6, 3, 12]), # e.g. NMM methyl group motion angle
+        dihedral_indices = np.array([0, 1, 4, 5]), # e.g. chd ring-opening dihedral
     ):
         """
         simple fitting to CHD 1D data
@@ -240,6 +235,13 @@ class Wrapper:
         dihedral = m.new_dihedral(np.array([p0, p1, p4, p5]))
         # r05 ring-opening bond-length
         bond_distance = np.linalg.norm(xyz_best[bond_indices[0], :] - xyz_best[bond_indices[1], :])
+        # angle of interest
+        # 6-3-12
+        p1 = np.array(xyz_best[angle_indices[0], :])
+        p2 = np.array(xyz_best[angle_indices[1], :])  # central point
+        p3 = np.array(xyz_best[angle_indices[2], :])
+        print(p1)
+        angle_degrees = m.angle_2p_3d(p1, p2, p3)
         # rmsd compared to target
         # Kabsch rotation to target
         rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, rmsd_indices)
@@ -259,10 +261,11 @@ class Wrapper:
         else:
             e_mol = 0
         # encode the analysis values into the xyz header
-        header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f" % (
+        header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f" % (
             f_xray_best,
             rmsd,
             bond_distance,
+            angle_degrees,
             dihedral,
             e_mol,
             mapd,
@@ -516,12 +519,6 @@ class Wrapper:
         p4 = np.array(xyz_best[4, :])
         p5 = np.array(xyz_best[5, :])
         dihedral = m.new_dihedral(np.array([p0, p1, p4, p5]))
-        # angle of interest
-        # 6-3-12
-        p1 = np.array(xyz_best[6, :])
-        p2 = np.array(xyz_best[3, :])  # central point
-        p3 = np.array(xyz_best[12, :])
-        angle_degrees = angle_2p_3d(p1, p2, p3)
         # r05 ring-opening bond-length
         r05 = np.linalg.norm(xyz_best[6, :] - xyz_best[12, :])
         # rmsd compared to target

@@ -145,7 +145,7 @@ class Xyz:
                 if bond_print:
                     print("r_{%i, %i}^' : %10.9f" % (i, j, rij))
                     print("r_{%i, %i}^0 : %10.9f" % (i, j, rij_))
-                    print("  |\delta_{%i, %i}|  : %10.9f" % (i, j, delta))
+                    print("  |delta_{%i, %i}|  : %10.9f" % (i, j, delta))
                 mapd += delta / rij_
         mapd *= 100 / (nind * (nind - 1) / 2)
         return mapd
@@ -163,7 +163,7 @@ class Xyz:
                 if bond_print:
                     print("r_{%i, %i}^' : %10.9f" % (i, j, r1))
                     print("r_{%i, %i}^0 : %10.9f" % (i, j, r0))
-                    print("  |\delta_{%i, %i}|  : %10.9f" % (i, j, delta))
+                    print("  |delta_{%i, %i}|  : %10.9f" % (i, j, delta))
                 mapd += delta / r0
         mapd *= 100 / (nind * (nind - 1) / 2)
         return mapd
@@ -198,7 +198,7 @@ class Xyz:
         y = np.dot(np.cross(b1, v), w)
         return np.degrees(np.arctan2(y, x))
 
-    def angle_2p_3d(a, b, c):       
+    def angle_2p_3d(self, a, b, c):       
         '''angle between two points in 3D'''
         v1 = np.array([ a[0] - b[0], a[1] - b[1], a[2] - b[2] ])
         v2 = np.array([ c[0] - b[0], c[1] - b[1], c[2] - b[2] ])
@@ -210,7 +210,7 @@ class Xyz:
         v2norm = np.array([ v2[0] / v2mag, v2[1] / v2mag, v2[2] / v2mag ])
         res = v1norm[0] * v2norm[0] + v1norm[1] * v2norm[1] + v1norm[2] * v2norm[2]
         angle_rad = np.arccos(res)
-        return math.degrees(angle_rad)
+        return math.degrees(angle_rad[0])
 
 ### End Molecule class section
 

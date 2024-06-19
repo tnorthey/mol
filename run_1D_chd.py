@@ -90,8 +90,9 @@ w.run_1D(
     hf_energy=True,  # run PySCF HF energy
     results_dir=results_dir,
     rmsd_indices = np.array([0, 1, 2, 3, 4, 5]),  # chd
-    dihedral_indices = np.array([0, 1, 4, 5]),    # chd ring-opening dihedral
-    bond_indices = np.array([0, 5]),    # chd ring-opening bond
+    bond_indices = np.array([0, 5]),   # chd ring-opening bond
+    angle_indices = np.array([0, 3, 5]),   # angle, probably don't care about
+    dihedral_indices = np.array([0, 1, 4, 5]),  # chd ring-opening dihedral
 )
 
 print("Total time: %3.2f s" % float(default_timer() - start))

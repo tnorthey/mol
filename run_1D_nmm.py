@@ -33,37 +33,57 @@ qmax = int(sys.argv[6])
 qlen = int(sys.argv[7])
 nrestarts = int(sys.argv[8])
 results_dir = str(sys.argv[9])
+reference_xyz_file = str(sys.argv[10])
+constraints = str(sys.argv[11])  # "strong" or "weak"
 ###################################
 
-ACH = 10.0
+if constraints == "strong":
+    ACC = 10.0
+    ACH = 10.0 
+elif constraints == "weak":
+    ACC = 0.0
+    ACH = 1.0 
+else:
+    print('error: constraints = "strong" or "weak"')
 
-w.nmm_1D(
+w.run_1D(
     run_id,
     start_xyz_file,
+    reference_xyz_file,
     target_xyz_file,
-    qvector=np.linspace(1e-9, qmax, qlen, endpoint=True),
+    qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
+    inelastic=True,
+    pcd_mode=False,
     noise = noise,
     sa_starting_temp = 1.0,
-    #sa_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
-    #ga_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
-    sa_mode_indices = np.arange(0, 36),  # CHD, all modes
-    ga_mode_indices = np.arange(0, 36),  # CHD, all modes
-    sa_nsteps = 8000,
-    ga_nsteps = 40000,
-    sa_step_size = 0.012,
-    ga_step_size = 0.012,
-    sa_harmonic_factor = (10.0, ACH),
-    ga_harmonic_factor = (1.0, ACH),
-    #sa_harmonic_factor = (0.0, 1.0),
-    #ga_harmonic_factor = (0.0, 1.0),
-    #sa_angular_factor = 1.0,
-    #ga_angular_factor = 1.0,
-    sa_angular_factor = 0.1,
-    ga_angular_factor = 0.1,
+    nmfile = "nm/nmm_normalmodes.txt",
+    hydrogen_modes = np.arange(38, nmodes),  # CHD hydrogen modes
+    sa_mode_indices = np.arange(0, nmodes),  # CHD, all modes
+    ga_mode_indices = np.arange(0, nmodes),  # CHD, all modes
+    sa_nsteps=8000,
+    ga_nsteps=40000,
+    ho_indices1 = np.array([
+                    [3, 3, 3, 0, 0, 10, 5], 
+                    [6, 5, 1, 1, 12, 12, 10]])  # nmm (C-C, C-N, or C-O bonds): 3-6, 3-5, 3-1, 0-1, 0-12, 10-12, 5-10
+    ho_indices2 = np.array([
+                    [6, 6, 6, 1, 1, 0,  0,  10, 10, 5,  5 ],
+                    [7, 8, 9, 2, 4, 14, 15, 11, 13, 16, 17],
+    ])  # nmm (C-H bonds)
+    angular_bool=False,   # use HO terms on the angles
+    angular_indices = np.array([0]),
+    sa_step_size=0.012,
+    ga_step_size=0.012,
+    sa_harmonic_factor = (ACC, ACH),
+    ga_harmonic_factor = (0.1 * ACC, ACH),
+    sa_angular_factor=0.1,
+    ga_angular_factor=0.1,
     nrestarts = nrestarts,    # it restarts from the xyz_best of the previous restart
-    non_h_modes_only=True,  # only include "non-hydrogen" modes
-    hf_energy=True,   # calculate HF energy (PySCF) at the end
+    non_h_modes_only=False,  # only include "non-hydrogen" modes
+    hf_energy=True,  # run PySCF HF energy
     results_dir=results_dir,
+    rmsd_indices = np.array([3, 5, 6, 10, 12, 0, 1])  # nmm
+    dihedral_indices = np.array([0, 1, 4, 5]),    # chd ring-opening dihedral
+    bond_indices = np.array([0, 5]),    # chd ring-opening bond
 )
 
 print("Total time: %3.2f s" % float(default_timer() - start))

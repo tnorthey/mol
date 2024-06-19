@@ -65,8 +65,9 @@ def test_wrap():
         hf_energy=False,  # run PySCF HF energy
         results_dir=results_dir,
         rmsd_indices = np.array([0, 1, 2, 3, 4, 5]),  # chd
-        dihedral_indices = np.array([0, 1, 4, 5]),    # chd ring-opening dihedral
         bond_indices = np.array([0, 5]),    # chd ring-opening bond
+        angle_indices = np.array([0, 3, 5]),    # angle
+        dihedral_indices = np.array([0, 1, 4, 5]),    # chd ring-opening dihedral
     )
 
     target_file = "%s/TARGET_FUNCTION_%s.dat" % (results_dir, run_id)
