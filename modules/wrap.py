@@ -20,19 +20,38 @@ class Wrapper:
     def __init__(self):
         pass
 
-    def chd_1D(
+    def run_1D(
         self,
         run_id,
         start_xyz_file,
         reference_xyz_file,
         target_xyz_file,
         qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
+        inelastic=True,
+        pcd_mode=False,
         noise=0,
         sa_starting_temp=0.2,
+        nmfile = "nm/chd_normalmodes.txt",
+        hydrogen_modes = np.arange(28, 36),  # CHD hydrogen modes
         sa_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
         ga_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
         sa_nsteps=8000,
-        ga_nsteps=20000,
+        ga_nsteps=40000,
+        ho_indices1 = np.array([[0, 1, 2, 3, 4], [1, 2, 3, 4, 5]]),  # chd (C-C bonds)
+        ho_indices2 = np.array([
+            [6, 12, 5, 5, 0, 0, 1, 2, 3, 4],
+            [7, 13, 12, 13, 6, 7, 8, 9, 10, 11],
+        ]),  # chd (C-H bonds, and H-H "bonds" for the CH2 carbons)
+        #angular_indices = np.array([[0, 1, 2, 3], 
+        #                            [1, 2, 3, 4], 
+        #                            [2, 3, 4, 5]])  # chd (C-C-C angles)
+        #angular_indices = np.array([[0, 1, 2, 3, 6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1], 
+        #                            [1, 2, 3, 4, 0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
+        #                            [2, 3, 4, 5, 7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]])  # chd (C-C-C angles, and all C-C-H, H-C-H angles)
+        angular_bool=False,   # use HO terms on the angles
+        angular_indices = np.array([[6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1], 
+                                    [0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
+                                    [7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]]),  # chd (non-C-C-C angles: C-C-H, H-C-H angles)
         sa_step_size=0.01,
         ga_step_size=0.01,
         sa_harmonic_factor=(0.01, 0.01),
@@ -41,8 +60,11 @@ class Wrapper:
         ga_angular_factor=0.1,
         nrestarts=5,
         non_h_modes_only=False,  # only include "non-hydrogen" modes
-        hf_energy=True,
+        hf_energy=True,  # run PySCF HF energy
         results_dir="tmp_",
+        rmsd_indices = np.array([0, 1, 2, 3, 4, 5]),  # chd
+        dihedral_indices = np.array([0, 1, 4, 5]),    # chd ring-opening dihedral
+        bond_indices = np.array([0, 5]),    # chd ring-opening bond
     ):
         """
         simple fitting to CHD 1D data
@@ -56,11 +78,8 @@ class Wrapper:
         #############################
 
         qlen = len(qvector)
-        inelastic = True
         electron_mode = False
         twod_mode = False
-        pcd_mode = False
-        angular_bool = False # use HO terms on the angles
 
         def xyz2iam(xyz, atomic_numbers, compton_array):
             """convert xyz file to IAM signal"""
@@ -80,7 +99,6 @@ class Wrapper:
         reference_iam = xyz2iam(reference_xyz, atomic_numbers, compton_array)
 
         natoms = starting_xyz.shape[0]
-        nmfile = "nm/chd_normalmodes.txt"
         displacements = sa.read_nm_displacements(nmfile, natoms)
         nmodes = displacements.shape[0]
         aa, bb, cc = x.read_iam_coeffs()
@@ -94,31 +112,10 @@ class Wrapper:
         )
 
         # hydrogen modes damped
-        hydrogen_modes = np.arange(28, nmodes)  # CHD hydrogen modes
         sa_h_mode_modification = np.ones(nmodes)
         for i in hydrogen_modes:
             sa_h_mode_modification[i] = 0.2
         sa_step_size_array = sa_step_size * np.ones(nmodes) * sa_h_mode_modification
-
-        ho_indices1 = np.array([[0, 1, 2, 3, 4], [1, 2, 3, 4, 5]])  # chd (C-C bonds)
-        # ho_indices = [
-        #    [0, 1, 2, 3, 4, 6, 12, 5, 5, 0, 0, 1, 2, 3, 4],
-        #    [1, 2, 3, 4, 5, 7, 13, 12, 13, 6, 7, 8, 9, 10, 11],
-        # ]  # chd (C-C and C-H bonds)
-
-        ho_indices2 = np.array([
-            [6, 12, 5, 5, 0, 0, 1, 2, 3, 4],
-            [7, 13, 12, 13, 6, 7, 8, 9, 10, 11],
-        ])  # chd (C-H bonds, and H-H "bonds" for the CH2 carbons)
-
-        #angular_indices = np.array([[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5]])  # chd (C-C-C angles)
-
-        #angular_indices = np.array([[0, 1, 2, 3, 6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1], 
-        #                            [1, 2, 3, 4, 0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
-        #                            [2, 3, 4, 5, 7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]])  # chd (C-C-C angles, and all C-C-H, H-C-H angles)
-        angular_indices = np.array([[6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1], 
-                                    [0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
-                                    [7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]])  # chd (C-C-C angles, and all C-C-H, H-C-H angles)
 
         #############################
         ### end arguments         ###
@@ -236,23 +233,18 @@ class Wrapper:
 
         ### analysis on xyz_best
         # 0145 dihedral that describes the ring-opening
-        p0 = np.array(xyz_best[0, :])
-        p1 = np.array(xyz_best[1, :])
-        p4 = np.array(xyz_best[4, :])
-        p5 = np.array(xyz_best[5, :])
+        p0 = np.array(xyz_best[dihedral_indices[0], :])
+        p1 = np.array(xyz_best[dihedral_indices[1], :])
+        p4 = np.array(xyz_best[dihedral_indices[2], :])
+        p5 = np.array(xyz_best[dihedral_indices[3], :])
         dihedral = m.new_dihedral(np.array([p0, p1, p4, p5]))
         # r05 ring-opening bond-length
-        r05 = np.linalg.norm(xyz_best[0, :] - xyz_best[5, :])
+        bond_distance = np.linalg.norm(xyz_best[bond_indices[0], :] - xyz_best[bond_indices[1], :])
         # rmsd compared to target
-        non_h_indices = np.array([0, 1, 2, 3, 4, 5])  # chd
         # Kabsch rotation to target
-        rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, non_h_indices)
+        rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, rmsd_indices)
         # MAPD compared to target
-        mapd = m.mapd_function(xyz_best, target_xyz, non_h_indices)
-        # f_signal / target_f_signal
-        signal_ratio = 0  # define as 0 if noise == 0
-        if noise != 0:
-            signal_ratio = f_xray_best / target_f_signal
+        mapd = m.mapd_function(xyz_best, target_xyz, rmsd_indices)
         # HF energy with PySCF
         if hf_energy:
             mol = gto.Mole()
@@ -264,15 +256,16 @@ class Wrapper:
             mol.build()
             rhf_mol = scf.RHF(mol)  # run RHF
             e_mol = rhf_mol.kernel()
+        else:
+            e_mol = 0
         # encode the analysis values into the xyz header
-        header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f" % (
+        header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f" % (
             f_xray_best,
             rmsd,
-            r05,
+            bond_distance,
             dihedral,
             e_mol,
             mapd,
-            signal_ratio,
         )
         ### write best structure to xyz file
         print("writing to xyz... (f: %10.8f)" % f_xray_best)
@@ -532,11 +525,11 @@ class Wrapper:
         # r05 ring-opening bond-length
         r05 = np.linalg.norm(xyz_best[6, :] - xyz_best[12, :])
         # rmsd compared to target
-        non_h_indices = np.array([3, 5, 6, 10, 12, 0, 1])  # nmm
+        rmsd_indices = np.array([3, 5, 6, 10, 12, 0, 1])  # nmm
         # Kabsch rotation to target
-        rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, non_h_indices)
+        rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, rmsd_indices)
         # MAPD compared to target
-        mapd = m.mapd_function(xyz_best, target_xyz, non_h_indices)
+        mapd = m.mapd_function(xyz_best, target_xyz, rmsd_indices)
         # f_signal / target_f_signal
         signal_ratio = 0  # define as 0 if noise == 0
         if noise != 0:
@@ -599,333 +592,6 @@ class Wrapper:
 #####################################
 #####################################
 #####################################
-
-    def chd_1D_old(
-        self,
-        run_id,
-        start_xyz_file,
-        target_xyz_files,
-        qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
-        noise=0,
-        sa_nsteps=8000,
-        ga_nsteps=20000,
-        sa_step_size=0.01,
-        sa_starting_temp=0.2,
-        sa_harmonic_factor=(0.01, 0.01),
-        sa_angular_factor=0.1,
-        ga_harmonic_factor=(0.01, 0.01),
-        ga_angular_factor=0.1,
-        nrestarts=5,
-        ntrials=1,
-        timesteps = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),
-        non_h_modes_only=False,  # only include "non-hydrogen" modes
-        hf_energy=True,
-        pcd_mode=False,
-    ):
-        """
-        simple fitting to CHD 1D data
-        """
-        #############################
-        ######### Inputs ############
-        # run_id_ : define a number to label the start of the output filenames
-        # start_xyz_file : xyz file containing starting positions of the atoms
-        # target_xyz_file : xyz file containing target positions of the atoms
-        #############################
-
-        qlen = len(qvector)
-        inelastic, electron_mode = True, False
-        twod_mode = False
-
-        angular_bool = True # use HO terms on the angles
-        print(sa_harmonic_factor)
-
-        def xyz2iam(xyz, atomic_numbers, compton_array):
-            """convert xyz file to IAM signal"""
-            iam, atomic, molecular, compton = x.iam_calc(
-                atomic_numbers, xyz, qvector, electron_mode, inelastic, compton_array
-            )
-            return iam
-
-        #############################
-        ### arguments             ###
-        #############################
-        _, _, atomlist, starting_xyz = m.read_xyz(start_xyz_file)
-        _, _, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
-        atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
-        compton_array = x.compton_spline(atomic_numbers, qvector)
-        starting_iam = xyz2iam(starting_xyz, atomic_numbers, compton_array)
-        reference_iam = xyz2iam(reference_xyz, atomic_numbers, compton_array)
-
-        natoms = starting_xyz.shape[0]
-        nmfile = "nm/chd_normalmodes.txt"
-        displacements = sa.read_nm_displacements(nmfile, natoms)
-        nmodes = displacements.shape[0]
-        aa, bb, cc = x.read_iam_coeffs()
-        compton, atomic_total, pre_molecular = x.atomic_pre_molecular(
-            atomic_numbers,
-            qvector,
-            aa,
-            bb,
-            cc,
-            electron_mode,
-        )
-
-        #f_save = True
-
-        # hydrogen modes damped
-        hydrogen_modes = np.arange(28, nmodes)  # CHD hydrogen modes
-        sa_h_mode_modification = np.ones(nmodes)
-        for i in hydrogen_modes:
-            sa_h_mode_modification[i] = 0.2
-        sa_step_size_array = sa_step_size * np.ones(nmodes) * sa_h_mode_modification
-
-        ho_indices1 = np.array([[0, 1, 2, 3, 4], [1, 2, 3, 4, 5]])  # chd (C-C bonds)
-        # ho_indices = [
-        #    [0, 1, 2, 3, 4, 6, 12, 5, 5, 0, 0, 1, 2, 3, 4],
-        #    [1, 2, 3, 4, 5, 7, 13, 12, 13, 6, 7, 8, 9, 10, 11],
-        # ]  # chd (C-C and C-H bonds)
-
-        ho_indices2 = np.array([
-            [6, 12, 5, 5, 0, 0, 1, 2, 3, 4],
-            [7, 13, 12, 13, 6, 7, 8, 9, 10, 11],
-        ])  # chd (C-H bonds, and H-H "bonds" for the CH2 carbons)
-
-        #angular_indices = np.array([[0, 1, 2, 3], [1, 2, 3, 4], [2, 3, 4, 5]])  # chd (C-C-C angles)
-
-        #angular_indices = np.array([[0, 1, 2, 3, 6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1], 
-        #                            [1, 2, 3, 4, 0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
-        #                            [2, 3, 4, 5, 7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]])  # chd (C-C-C angles, and all C-C-H, H-C-H angles)
-        angular_indices = np.array([[6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1], 
-                                    [0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
-                                    [7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]])  # chd (C-C-C angles, and all C-C-H, H-C-H angles)
-
-        mode_indices = np.arange(0, 28)  # CHD, "non-hydrogen" modes
-
-        #############################
-        ### end arguments         ###
-        #############################
-
-        ### Rarely edit after this...
-
-        #############################
-        ### Initialise some stuff ###
-        #############################
-
-        ntimesteps = len(target_xyz_files)
-
-        xyz_best = starting_xyz  # initialise
-        #### timestep loop ####
-        for t in timesteps:
-
-            t = int(t)
-            target_xyz_file = target_xyz_files[t]
-            print(f"Target: {target_xyz_file}")
-
-            run_id_ = (str(t) + '_' + run_id).zfill(2)  # pad with zeros
-            # read from target xyz file
-            _, _, atomlist, target_xyz = m.read_xyz(target_xyz_file)
-            target_iam = xyz2iam(target_xyz, atomic_numbers, compton_array)
-
-            target_function_file = "tmp_/TARGET_FUNCTION_%s.dat" % run_id_
-            target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id_
-            target_pcd_file = "tmp_/TARGET_PCD_%s.dat" % run_id_
-
-            # save target IAM file before noise is added
-            print("Saving data to %s ..." % target_iam_file)
-            np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
-
-            if pcd_mode:
-                target_pcd = 100 * (target_iam / reference_iam - 1)
-                # Save PCD to file
-                print("Saving data to %s ..." % target_pcd_file)
-                np.savetxt(target_pcd_file, np.column_stack((qvector, target_pcd)))
-
-            ### ADDITION OF RANDOM NOISE
-            noise_bool = True
-            if noise_bool:
-                mu = 0  # normal distribution with mean of mu
-                sigma = noise
-                noise_array = sigma * np.random.randn(qlen) + mu
-                target_iam += noise_array
-
-            # define target_function
-            if os.path.exists(target_function_file):
-                print("Loading data from %s ..." % target_function_file)
-                target_function = np.loadtxt(target_function_file)[:, 1]
-                print(target_function)
-            else:
-                if pcd_mode:
-                    target_function = 100 * (target_iam / reference_iam - 1)
-                else:
-                    target_function = target_iam
-                print("Saving data to %s ..." % target_function_file)
-                np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
-            ###
-            # calculate target_f_signal for noise data compared to clean data
-            if noise != 0:
-                if pcd_mode:
-                    clean_data = target_pcd
-                else:
-                    clean_data = target_iam
-                target_f_signal = (
-                    np.sum((clean_data - target_function) ** 2 / np.abs(target_function))
-                    / qlen
-                )
-
-            # Store values for reinitialising at each trial
-            starting_xyz = xyz_best
-            starting_xyz_ = starting_xyz  # store the starting xyz
-            sa_nsteps_ = sa_nsteps
-            sa_starting_temp_ = sa_starting_temp
-            sa_harmonic_factor_ = sa_harmonic_factor
-            mode_indices_ = mode_indices
-            #################################
-            ### End Initialise some stuff ###
-            #################################
-            for j in range(ntrials):
-                print(f"Trial {j}")
-                # reinitialise values for each trial
-                xyz_best = starting_xyz_     # each trial starts from the original starting_xyz
-                sa_nsteps = sa_nsteps_
-                sa_starting_temp = sa_starting_temp_
-                sa_harmonic_factor = sa_harmonic_factor_
-                mode_indices = mode_indices_
-                for i in range(nrestarts):
-                    starting_xyz = xyz_best  # each restart starts at the previous xyz_best
-
-                    if i < nrestarts - 1:  # annealing mode
-                        print(f"Run {i}: SA")
-                        nsteps = sa_nsteps
-                        starting_temp = sa_starting_temp
-                        harmonic_factor = sa_harmonic_factor
-                        angular_factor = sa_angular_factor
-                        mode_indices = np.arange(0, 28)  # CHD, non-hydrogen modes
-                    else:  # greedy mode
-                        print(f"Run {i}: GA")
-                        nsteps = ga_nsteps
-                        starting_temp = 0
-                        harmonic_factor = ga_harmonic_factor
-                        angular_factor = ga_angular_factor
-                        mode_indices = np.arange(0, nmodes)  # CHD, all modes
-                        #mode_indices = np.arange(0, 28)  # CHD, non-hydrogen modes
-                    # Run simulated annealing
-                    (
-                        f_best,
-                        f_xray_best,
-                        predicted_best,
-                        xyz_best,
-                    ) = sa.simulated_annealing_modes_ho(
-                        atomic_numbers,
-                        starting_xyz,
-                        displacements,
-                        mode_indices,
-                        target_function,
-                        qvector,
-                        compton,
-                        atomic_total,
-                        pre_molecular,
-                        aa,
-                        bb,
-                        cc,
-                        sa_step_size_array,
-                        ho_indices1,
-                        ho_indices2,
-                        angular_indices,
-                        starting_temp,
-                        nsteps,
-                        inelastic,
-                        harmonic_factor,
-                        angular_factor,
-                        pcd_mode,
-                        electron_mode,
-                        twod_mode,
-                        angular_bool,
-                    )
-                    print("f_best (SA): %9.8f" % f_best)
-
-                ### save xyz_array as an xyz trajectory
-                #if xyz_save:
-                #    print("saving xyz array...")
-                #    fname = "tmp_/save_array.xyz"
-                #    m.write_xyz_traj(fname, atomlist, xyz_array)
-
-                ### save f_array
-                #if f_save:
-                #    print("saving f array...")
-                #    fname = "tmp_/f_array_%i.dat" % i
-                #    np.savetxt(fname, f_array)
-
-                ### analysis on xyz_best
-                # 0145 dihedral that describes the ring-opening
-                p0 = np.array(xyz_best[0, :])
-                p1 = np.array(xyz_best[1, :])
-                p4 = np.array(xyz_best[4, :])
-                p5 = np.array(xyz_best[5, :])
-                dihedral = m.new_dihedral(np.array([p0, p1, p4, p5]))
-                # r05 ring-opening bond-length
-                r05 = np.linalg.norm(xyz_best[0, :] - xyz_best[5, :])
-                # rmsd compared to target
-                non_h_indices = np.array([0, 1, 2, 3, 4, 5])  # chd
-                # Kabsch rotation to target
-                rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, non_h_indices)
-                # MAPD compared to target
-                mapd = m.mapd_function(xyz_best, target_xyz, non_h_indices)
-                # f_signal / target_f_signal
-                signal_ratio = 0  # define as 0 if noise == 0
-                if noise != 0:
-                    signal_ratio = f_xray_best / target_f_signal
-                # HF energy with PySCF
-                if hf_energy:
-                    mol = gto.Mole()
-                    arr = []
-                    for i in range(len(atomlist)):
-                        arr.append((atomlist[i], xyz_best[i]))
-                    mol.atom = arr
-                    mol.basis = "6-31g*"
-                    mol.build()
-                    rhf_mol = scf.RHF(mol)  # run RHF
-                    e_mol = rhf_mol.kernel()
-                # encode the analysis values into the xyz header
-                header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f" % (
-                    f_xray_best,
-                    rmsd,
-                    r05,
-                    dihedral,
-                    e_mol,
-                    mapd,
-                    signal_ratio,
-                )
-                ### write best structure to xyz file
-                print("writing to xyz... (f: %10.8f)" % f_xray_best)
-                f_best_str = ("%10.8f" % f_xray_best).zfill(12)
-                m.write_xyz(
-                    "tmp_/%s_%s.xyz" % (run_id_, f_best_str),
-                    header_str,
-                    atomlist,
-                    xyz_best,
-                )
-                ### Final save to files
-                # also write final xyz as "result.xyz"
-                m.write_xyz("tmp_/%s_result.xyz" % run_id_, "result", atomlist, xyz_best)
-                # target xyz
-                m.write_xyz(
-                    "tmp_/%s_target.xyz" % run_id_,
-                    "run_id: %s" % run_id_,
-                    atomlist,
-                    target_xyz,
-                )
-                # predicted data
-                if twod_mode:
-                    np.savetxt("tmp_/%s_%s.dat" % (run_id_, f_best_str), predicted_best)
-                    np.savetxt("tmp_/%s_result.dat" % run_id_, predicted_best)
-                else:
-                    np.savetxt(
-                        "tmp_/%s_%s.dat" % (run_id_, f_best_str),
-                        np.column_stack((qvector, predicted_best)),
-                    )
-        return  # end function
-
-
 
     def chd_2D(
         self,
