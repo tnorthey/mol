@@ -146,20 +146,28 @@ class Wrapper:
             noise_array = noise * noise_array[0 : qlen]
         else:
             # generate random noise here instead of reading from file
+            print('Randomly generating noise from normal dist... sigma = %3.2f' % sigma)
             mu = 0  # normal distribution with mean of mu
             sigma = noise
             noise_array = sigma * np.random.randn(qlen) + mu
         target_iam += noise_array
 
         # define target_function
-        if os.path.exists(target_function_file):
-            print("Loading data from %s ..." % target_function_file)
-            target_function = np.loadtxt(target_function_file)[:, 1]
-            print(target_function)
-        else:
-            target_function = target_iam
+        target_function = target_iam
+        if not os.path.exists(target_function_file):
             print("Saving data to %s ..." % target_function_file)
             np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
+        print(target_function)
+
+        # save target function to file
+        #if os.path.exists(target_function_file):
+        #    print("Loading data from %s ..." % target_function_file)
+        #    target_function = np.loadtxt(target_function_file)[:, 1]
+        #    print(target_function)
+        #else:
+        #    target_function = target_iam
+        #    print("Saving data to %s ..." % target_function_file)
+        #    np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
         ###
         # calculate target_f_signal for noise data compared to clean data
         if noise != 0:

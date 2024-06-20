@@ -1,27 +1,3 @@
-try: what I have on cluster
- - starting from best 100 should help a lot
-
-
-code timestep loop in python (?)
- - probably faster, better for server etc.
- - except then it makes it so n loop step depends on n-1 (so not GPU parellisable)
-
-coding:
-- I could stay in python throughout the whole trajectory,
-- i.e. basically create a "run_trajectory_chd_1d.py"
-- and save everything to a massive array, (and .npz file as an option)
-- then optionally create xyz files at the very end in one step
-
-> even stronger C-H constraints?
-... > Run the "laptoptest2" on the cluster (so it starts from a set of previous calculations, not just one)
-
-wrap->chd_1d() unit test
-
-test larger C-C HO terms; the first step uses this and works well.. So maybe it will continue.
-
-traj094: 10 20 32 35 37 40 44 50 55 60 65 70 75
-
-ONE input file that gets copied to tmp_/
 
 I think noiseless data was actually a red herring (i.e. misled / distracted me); I wasted time trying to optimise that perfectly
  - real data has some noise
@@ -31,9 +7,6 @@ I think noiseless data was actually a red herring (i.e. misled / distracted me);
 noise
  - creates a non-zero "global" minimum in f_signal
  - is more realistic for approximating experimental data
- - load in target data; avoid generating different noise every time...
- - to approx. "real" data start at q = 0.5 
- - PLOT, write f_signal / f_signal_true, w. f_signal_true is the true signal fit to the noisy data
 
 fix 2D
  - code Mats' correct detector projection (his thesis)

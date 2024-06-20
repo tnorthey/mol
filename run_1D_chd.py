@@ -1,9 +1,5 @@
 """
-Run the simulated annealing function for CHD
-Strategy 1: Generate a lot of initial conditions via short "hot" SA runs,
-    start from the best structure from that -> N restarts of longer "cooler" SA runs
-    - This should find a reasonably close starting point from the ICs,
-    then optimise it further with the subsequent longer runs
+Run simulated annealing for CHD
 """
 # run example: python3 run_1D_chd.py $run_id $starting_xyz_file $target_xyz_file $noise $qmax $qlen $nrestarts $results_dir
 
