@@ -25,7 +25,7 @@ class Wrapper:
         run_id,
         start_xyz_file,
         reference_xyz_file,
-        target_xyz_file,
+        target_file,
         qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
         inelastic=True,
         pcd_mode=False,
@@ -122,44 +122,52 @@ class Wrapper:
         ### Initialise some stuff ###
         #############################
 
-        print(f"Target: {target_xyz_file}")
-
-        # read from target xyz file
-        _, _, atomlist, target_xyz = m.read_xyz(target_xyz_file)
-        target_iam = xyz2iam(target_xyz, atomic_numbers, compton_array)
-
+        print(f"Target: {target_file}")
+        filename, target_file_ext = os.path.splitext(target_file)
         target_function_file = "%s/TARGET_FUNCTION_%s.dat" % (results_dir, run_id)
-        #target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id
 
-        # save target IAM file before noise is added
-        #print("Saving data to %s ..." % target_iam_file)
-        #np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
+        if target_file_ext == '.xyz':
+            # read from target xyz file
+            _, _, atomlist, target_xyz = m.read_xyz(target_xyz_file)
+            target_iam = xyz2iam(target_xyz, atomic_numbers, compton_array)
 
-        ### ADDITION OF RANDOM NOISE
-        constant_noise_bool = False
-        noise_data_file = "noise/noise.dat"
-        if constant_noise_bool and os.path.exists(noise_data_file):
-            # read the noise from a file
-            print('reading noise data from %s' % noise_data_file)
-            noise_array = np.loadtxt(noise_data_file)
-            # resize to length of q and scale magnitude
-            noise_array = noise * noise_array[0 : qlen]
+            #target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id
+            # save target IAM file before noise is added
+            #print("Saving data to %s ..." % target_iam_file)
+            #np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
+
+            ### ADDITION OF RANDOM NOISE
+            constant_noise_bool = False
+            noise_data_file = "noise/noise.dat"
+            if constant_noise_bool and os.path.exists(noise_data_file):
+                # read the noise from a file
+                print('reading noise data from %s' % noise_data_file)
+                noise_array = np.loadtxt(noise_data_file)
+                # resize to length of q and scale magnitude
+                noise_array = noise * noise_array[0 : qlen]
+            else:
+                # generate random noise here instead of reading from file
+                print('Randomly generating noise from normal dist... sigma = %3.2f' % sigma)
+                mu = 0  # normal distribution with mean of mu
+                sigma = noise
+                noise_array = sigma * np.random.randn(qlen) + mu
+            target_function = target_iam + noise_array  # define target_function
+        elif target_file_ext == '.dat':
+            # if target file is a data file, read as target_function
+            target_function = np.loadtxt(target_file)
+            excitation_factor = 0.057
+            target_function /= excitation_factor
         else:
-            # generate random noise here instead of reading from file
-            print('Randomly generating noise from normal dist... sigma = %3.2f' % sigma)
-            mu = 0  # normal distribution with mean of mu
-            sigma = noise
-            noise_array = sigma * np.random.randn(qlen) + mu
-        target_iam += noise_array
+            print('Error: target_file must be a .xyz or .dat file!')
 
-        # define target_function
-        target_function = target_iam
+
+        # save target function to file if it doesn't exist
         if not os.path.exists(target_function_file):
             print("Saving data to %s ..." % target_function_file)
             np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
         print(target_function)
 
-        # save target function to file
+        # load target function from file
         #if os.path.exists(target_function_file):
         #    print("Loading data from %s ..." % target_function_file)
         #    target_function = np.loadtxt(target_function_file)[:, 1]
@@ -168,14 +176,6 @@ class Wrapper:
         #    target_function = target_iam
         #    print("Saving data to %s ..." % target_function_file)
         #    np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
-        ###
-        # calculate target_f_signal for noise data compared to clean data
-        if noise != 0:
-            clean_data = target_iam
-            target_f_signal = (
-                np.sum((clean_data - target_function) ** 2 / np.abs(target_function))
-                / qlen
-            )
 
         #################################
         ### End Initialise some stuff ###
@@ -235,39 +235,49 @@ class Wrapper:
             print("f_best (SA): %9.8f" % f_best)
 
         ### analysis on xyz_best
-        # 0145 dihedral that describes the ring-opening
-        p0 = np.array(xyz_best[dihedral_indices[0], :])
-        p1 = np.array(xyz_best[dihedral_indices[1], :])
-        p4 = np.array(xyz_best[dihedral_indices[2], :])
-        p5 = np.array(xyz_best[dihedral_indices[3], :])
-        dihedral = m.new_dihedral(np.array([p0, p1, p4, p5]))
-        # r05 ring-opening bond-length
-        bond_distance = np.linalg.norm(xyz_best[bond_indices[0], :] - xyz_best[bond_indices[1], :])
-        # angle of interest
-        # 6-3-12
-        p1 = np.array(xyz_best[angle_indices[0], :])
-        p2 = np.array(xyz_best[angle_indices[1], :])  # central point
-        p3 = np.array(xyz_best[angle_indices[2], :])
-        print(p1)
-        angle_degrees = m.angle_2p_3d(p1, p2, p3)
-        # rmsd compared to target
-        # Kabsch rotation to target
-        rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, rmsd_indices)
-        # MAPD compared to target
-        mapd = m.mapd_function(xyz_best, target_xyz, rmsd_indices)
-        # HF energy with PySCF
-        if hf_energy:
-            mol = gto.Mole()
-            arr = []
-            for i in range(len(atomlist)):
-                arr.append((atomlist[i], xyz_best[i]))
-            mol.atom = arr
-            mol.basis = "6-31g*"
-            mol.build()
-            rhf_mol = scf.RHF(mol)  # run RHF
-            e_mol = rhf_mol.kernel()
+        analysis_bool = False
+        if analysis_bool:
+            # bond-length of interest
+            bond_distance = np.linalg.norm(xyz_best[bond_indices[0], :] - xyz_best[bond_indices[1], :])
+            # angle of interest
+            p0 = np.array(xyz_best[angle_indices[0], :])
+            p1 = np.array(xyz_best[angle_indices[1], :])  # central point
+            p2 = np.array(xyz_best[angle_indices[2], :])
+            angle_degrees = m.angle_2p_3d(p0, p1, p2)
+            # dihedral of interest
+            p0 = np.array(xyz_best[dihedral_indices[0], :])
+            p1 = np.array(xyz_best[dihedral_indices[1], :])
+            p2 = np.array(xyz_best[dihedral_indices[2], :])
+            p3 = np.array(xyz_best[dihedral_indices[3], :])
+            dihedral = m.new_dihedral(np.array([p0, p1, p2, p3]))
+            # rmsd compared to target
+            # Kabsch rotation to target
+            rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, rmsd_indices)
+            # MAPD compared to target
+            mapd = m.mapd_function(xyz_best, target_xyz, rmsd_indices)
+            # HF energy with PySCF
+            if hf_energy:
+                mol = gto.Mole()
+                arr = []
+                for i in range(len(atomlist)):
+                    arr.append((atomlist[i], xyz_best[i]))
+                mol.atom = arr
+                mol.basis = "6-31g*"
+                mol.build()
+                rhf_mol = scf.RHF(mol)  # run RHF
+                e_mol = rhf_mol.kernel()
+            else:
+                e_mol = 0
+            # save target xyz
+            m.write_xyz(
+                "%s/%s_target.xyz" % (results_dir, run_id),
+                "run_id: %s" % run_id,
+                atomlist,
+                target_xyz,
+            )
         else:
-            e_mol = 0
+            bond_distance, angle_degrees, dihedral = 0, 0, 0
+            rmsd, mapd, e_mol = 0, 0, 0
         # encode the analysis values into the xyz header
         header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f" % (
             f_xray_best,
@@ -290,13 +300,6 @@ class Wrapper:
         ### Final save to files
         # also write final xyz as "result.xyz"
         #m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
-        # target xyz
-        m.write_xyz(
-            "%s/%s_target.xyz" % (results_dir, run_id),
-            "run_id: %s" % run_id,
-            atomlist,
-            target_xyz,
-        )
         # predicted data
         if twod_mode:
             np.savetxt("%s/%s_%s.dat" % (results_dir, run_id, f_best_str), predicted_best)
