@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for i in ../results_/results_noise*_qmax?_nrestarts5_traj09?_b/
+for i in ../results_/results_noise*_qmax?_nrestarts5_traj09?_low_constraints_b/
 do
     base_name=$(basename ${i})
     echo $base_name

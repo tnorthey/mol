@@ -123,8 +123,8 @@ c3 = "#7f0000"
 
 p    "<paste rmsd_lowest_quartile_qmax4_traj090_b.dat rmsd_lowest_quartile_qmax4_traj099_b.dat rmsd_lowest_quartile_qmax4_traj094_b.dat"                 u (($2+$5+$8)/3) t "q_{max} = 4 Å^{-1}"     w lp lc rgb c1 lw LW1 dt DT1 pt PT1 ps PS1, \
      "<paste rmsd_lowest_quartile_qmax8_traj090_b.dat rmsd_lowest_quartile_qmax8_traj099_b.dat rmsd_lowest_quartile_qmax8_traj094_b.dat"                 u (($2+$5+$8)/3) t " = 8 Å^{-1}"     w lp lc rgb c2 lw LW1 dt DT1 pt PT2 ps PS1, \
-     #"<paste rmsd_lowest_quartile_qmax4_traj090_b_low_constraints.dat rmsd_lowest_quartile_qmax4_traj099_b_low_constraints.dat rmsd_lowest_quartile_qmax4_traj094_b_low_constraints.dat"                 u (($2+$5+$8)/3) t ""     w lp lc rgb c1 lw LW2 dt DT2 pt PT1 ps PS2, \
-     #"<paste rmsd_lowest_quartile_qmax8_traj090_b_low_constraints.dat rmsd_lowest_quartile_qmax8_traj099_b_low_constraints.dat rmsd_lowest_quartile_qmax8_traj094_b_low_constraints.dat"                 u (($2+$5+$8)/3) t ""     w lp lc rgb c2 lw LW2 dt DT2 pt PT2 ps PS2, \
+     "<paste rmsd_lowest_quartile_qmax4_traj090_low_constraints_b.dat rmsd_lowest_quartile_qmax4_traj099_low_constraints_b.dat rmsd_lowest_quartile_qmax4_traj094_low_constraints_b.dat"                 u (($2+$5+$8)/3) t ""     w lp lc rgb c1 lw LW2 dt DT2 pt PT1 ps PS2, \
+     "<paste rmsd_lowest_quartile_qmax8_traj090_low_constraints_b.dat rmsd_lowest_quartile_qmax8_traj099_low_constraints_b.dat rmsd_lowest_quartile_qmax8_traj094_low_constraints_b.dat"                 u (($2+$5+$8)/3) t ""     w lp lc rgb c2 lw LW2 dt DT2 pt PT2 ps PS2, \
 
 # color definitions
 #set style line 2  lc rgb '#0025ad' lt 1 lw 2
