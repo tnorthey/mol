@@ -58,12 +58,12 @@ w.run_1D(
     inelastic=True,
     pcd_mode=True,
     noise = noise,
-    sa_starting_temp = 0.5,
+    sa_starting_temp = 1.0,
     nmfile = "nm/nmm_normalmodes.txt",
-    hydrogen_modes = np.arange(38, nmodes),  # CHD hydrogen modes
-    sa_mode_indices = np.arange(0, nmodes),  # CHD, all modes
-    ga_mode_indices = np.arange(0, nmodes),  # CHD, all modes
-    sa_nsteps=12000,
+    hydrogen_modes = np.arange(38, nmodes),  # NMM hydrogen modes
+    sa_mode_indices = np.arange(0, nmodes),  # NMM all modes
+    ga_mode_indices = np.arange(0, nmodes),  # NMM all modes
+    sa_nsteps=60000,
     ga_nsteps=60000,
     ho_indices1 = np.array([
                     [3, 3, 3, 0, 0,  10, 5,  1, 1,  0, 0,  5,  3,  1, 5, 3,  0], 

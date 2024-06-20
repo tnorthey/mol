@@ -9,6 +9,7 @@
 # Columns 27 through 39:
 #   3.0968   3.2031   3.3094   3.4157   3.5221   3.6284   3.7347   3.8410   3.9474   4.0537   4.1600   4.2664   4.3727
 
+#starting_xyz_file="xyz/nmm_geomovie_end.xyz"	# starting xyz filename
 starting_xyz_file="xyz/nmm_start.xyz"	# starting xyz filename
 step=35			# define the target frame e.g. 01, 20, 30, 40, 50
 run_id=""$step"_1d"	# run ID
