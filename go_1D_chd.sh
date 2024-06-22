@@ -12,7 +12,7 @@ qlen=$6
 nrestarts=$7
 results_dir=$8
 reference_xyz_file="xyz/chd_reference.xyz"
-constraints="strong"
+constraints=$9  # 'strong' or 'weak'
 
 echo "go script: starting_xyz_file $starting_xyz_file"
 echo "go script: target_xyz_file $target_xyz_file"

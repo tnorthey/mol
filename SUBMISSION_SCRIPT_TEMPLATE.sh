@@ -9,9 +9,9 @@ qmax=_QMAX_
 qlen=_QMAX_1
 nrestarts=5
 traj=_TRAJ_
+constraints="strong"
 ### NB switch to low constraints in the run.py file
-results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj"$traj"_low_constraints_b"
-#results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj"$traj"_b"
+results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj"$traj"_"$constraints"_constraints_b"
 # create directory if not exists
 mkdir -p $results_dir
 
@@ -24,6 +24,7 @@ sed -i "s/QMAX/$qmax/" $fname
 sed -i "s/QLEN/$qlen/" $fname
 sed -i "s/NRESTARTS/$nrestarts/" $fname
 sed -i "s/RESULTS_DIR/$results_dir/" $fname
+sed -i "s/CONSTRAINTS/$constraints/" $fname
 JID=$(sbatch --parsable $fname)
 sleep 1s
 
@@ -60,6 +61,7 @@ do
 	sed -i "s/QLEN/$qlen/" $fname
 	sed -i "s/NRESTARTS/$nrestarts/" $fname
 	sed -i "s/RESULTS_DIR/$results_dir/" $fname
+        sed -i "s/CONSTRAINTS/$constraints/" $fname
 	echo $fname
 	JID=$(sbatch --parsable -d afterany:$JID $fname)
 done

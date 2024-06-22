@@ -36,6 +36,7 @@ qmax=QMAX
 qlen=QLEN
 nrestarts=NRESTARTS
 results_dir=RESULTS_DIR
+constraints=CONSTRAINTS
 # create directory if not exists
 mkdir -p $results_dir
 
@@ -46,6 +47,6 @@ start_list=$(ls -1 "$results_dir/$previous_step"_1d_???.*xyz | head -n $nfits)
 # run
 for i in $start_list
 do 
-	./go_1D_chd.sh $i $next_step $traj $noise $qmax $qlen $nrestarts $results_dir
+	./go_1D_chd.sh $i $next_step $traj $noise $qmax $qlen $nrestarts $results_dir $constraints
 done
 

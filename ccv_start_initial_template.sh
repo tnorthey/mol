@@ -32,6 +32,7 @@ qmax=QMAX
 qlen=QLEN
 nrestarts=NRESTARTS
 results_dir=RESULTS_DIR
+constraints=CONSTRAINTS
 # create directory if not exists
 mkdir -p $results_dir
 
