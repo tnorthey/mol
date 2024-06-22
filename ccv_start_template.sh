@@ -30,23 +30,30 @@ previous_step=XX
 next_step=YY
 
 # define run variables
-traj=TRAJ
-noise=NOISE
-qmax=QMAX
-qlen=QLEN
-nrestarts=NRESTARTS
-results_dir=RESULTS_DIR
-constraints=CONSTRAINTS
+step=_STEP_
+traj=_TRAJ_
+noise=_NOISE_
+qmax=_QMAX_
+qlen=_QLEN_
+nrestarts=_NRESTARTS_
+results_dir=_RESULTS_DIR_
+constraints=_CONSTRAINTS_
+
+run_id=""$step"_1d"	# run ID
+target_xyz_file="xyz/target_traj$traj/target_$step.xyz"  # target xyz filename
+reference_xyz_file="xyz/chd_reference.xyz"
+
 # create directory if not exists
 mkdir -p $results_dir
 
 # take the best n fits as the starting list
 nfits=20
 start_list=$(ls -1 "$results_dir/$previous_step"_1d_???.*xyz | head -n $nfits)
-
 # run
-for i in $start_list
+for starting_xyz_file in $start_list
 do 
-	./go_1D_chd.sh $i $next_step $traj $noise $qmax $qlen $nrestarts $results_dir $constraints
+    echo "submission script: starting_xyz_file $starting_xyz_file"
+    echo "submission script: target_xyz_file $target_xyz_file"
+    python3 run_1D_chd.py $run_id $starting_xyz_file $target_xyz_file $traj $noise $qmax $qlen $nrestarts $results_dir $reference_xyz_file $constraints
 done
 
