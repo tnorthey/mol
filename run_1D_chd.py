@@ -52,7 +52,7 @@ w.run_1D(
     start_xyz_file,
     reference_xyz_file,
     target_xyz_file,
-    qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
+    qvector=np.linspace(1e-9, qmax, qlen, endpoint=True),
     inelastic=True,
     pcd_mode=False,
     noise = noise,
