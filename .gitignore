@@ -21,10 +21,12 @@ xyz/*.png
 tmp_/*.png
 tmp_/*.xyz
 tmp_/*
+tmp_*
 notebooks/*.png
 notebooks/*.np[yz]
 out
 tmp
+sed??????
 scripts/*.dat
 
 # Byte-compiled / optimized / DLL files

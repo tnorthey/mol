@@ -1,5 +1,9 @@
 """
-Run simulated annealing for CHD
+Run the simulated annealing function for CHD
+Strategy 1: Generate a lot of initial conditions via short "hot" SA runs,
+    start from the best structure from that -> N restarts of longer "cooler" SA runs
+    - This should find a reasonably close starting point from the ICs,
+    then optimise it further with the subsequent longer runs
 """
 # run example: python3 run_1D_chd.py $run_id $starting_xyz_file $target_xyz_file $noise $qmax $qlen $nrestarts $results_dir
 
@@ -33,6 +37,7 @@ reference_xyz_file = str(sys.argv[10])
 constraints = str(sys.argv[11])  # "strong" or "weak"
 ###################################
 
+nmodes = 36
 if constraints == "strong":
     ACC = 10.0
     ACH = 10.0 
@@ -54,10 +59,8 @@ w.run_1D(
     sa_starting_temp = 1.0,
     nmfile = "nm/chd_normalmodes.txt",
     hydrogen_modes = np.arange(28, nmodes),  # CHD hydrogen modes
-    #sa_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
-    #ga_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
-    sa_mode_indices = np.arange(0, 36),  # CHD, all modes
-    ga_mode_indices = np.arange(0, 36),  # CHD, all modes
+    sa_mode_indices = np.arange(0, nmodes),  # CHD, all modes
+    ga_mode_indices = np.arange(0, nmodes),  # CHD, all modes
     sa_nsteps=8000,
     ga_nsteps=40000,
     ho_indices1 = np.array([[0, 1, 2, 3, 4], [1, 2, 3, 4, 5]]),  # chd (C-C bonds)
@@ -79,15 +82,15 @@ w.run_1D(
     ga_step_size=0.012,
     sa_harmonic_factor = (ACC, ACH),
     ga_harmonic_factor = (0.1 * ACC, ACH),
-    sa_angular_factor=0.1,
-    ga_angular_factor=0.1,
+    sa_angular_factor=0.0,
+    ga_angular_factor=0.0,
     nrestarts = nrestarts,    # it restarts from the xyz_best of the previous restart
     non_h_modes_only=False,  # only include "non-hydrogen" modes
-    hf_energy=True,  # run PySCF HF energy
+    hf_energy=False,  # run PySCF HF energy
     results_dir=results_dir,
     rmsd_indices = np.array([0, 1, 2, 3, 4, 5]),  # chd
     bond_indices = np.array([0, 5]),   # chd ring-opening bond
-    angle_indices = np.array([0, 3, 5]),   # angle, probably don't care about
+    angle_indices = np.array([0, 3, 5]),   # angle
     dihedral_indices = np.array([0, 1, 4, 5]),  # chd ring-opening dihedral
 )
 

@@ -128,7 +128,7 @@ class Wrapper:
 
         if target_file_ext == '.xyz':
             # read from target xyz file
-            _, _, atomlist, target_xyz = m.read_xyz(target_xyz_file)
+            _, _, atomlist, target_xyz = m.read_xyz(target_file)
             target_iam = xyz2iam(target_xyz, atomic_numbers, compton_array)
 
             #target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id
@@ -147,9 +147,9 @@ class Wrapper:
                 noise_array = noise * noise_array[0 : qlen]
             else:
                 # generate random noise here instead of reading from file
-                print('Randomly generating noise from normal dist... sigma = %3.2f' % sigma)
                 mu = 0  # normal distribution with mean of mu
                 sigma = noise
+                print('Randomly generating noise from normal dist... sigma = %3.2f' % sigma)
                 noise_array = sigma * np.random.randn(qlen) + mu
             target_function = target_iam + noise_array  # define target_function
         elif target_file_ext == '.dat':

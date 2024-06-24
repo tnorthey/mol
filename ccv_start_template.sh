@@ -26,21 +26,20 @@ source .venv/bin/activate
 
 #previous_step=$(echo "ZZ" | awk -F',' '{print $1}')  # take the FIRST step in the ZZ list as the "previous step"
 #next_step=$(echo "ZZ" | awk -F',' '{print $NF}')  # second step after the comma is next step
-previous_step=XX
-next_step=YY
+previous_step=_XX_
+next_step=_YY_
 
 # define run variables
-step=_STEP_
-traj=_TRAJ_
-noise=_NOISE_
-qmax=_QMAX_
-qlen=_QLEN_
-nrestarts=_NRESTARTS_
-results_dir=_RESULTS_DIR_
-constraints=_CONSTRAINTS_
+traj=TRAJ
+noise=NOISE
+qmax=QMAX
+qlen=QLEN
+nrestarts=NRESTARTS
+results_dir="RESULTS_DIR"
+constraints="CONSTRAINTS"
 
 run_id=""$step"_1d"	# run ID
-target_xyz_file="xyz/target_traj$traj/target_$step.xyz"  # target xyz filename
+target_xyz_file="xyz/target_traj"$traj"/target_"$next_step".xyz"  # target xyz filename
 reference_xyz_file="xyz/chd_reference.xyz"
 
 # create directory if not exists
