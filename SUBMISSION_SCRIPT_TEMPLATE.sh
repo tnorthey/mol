@@ -4,14 +4,14 @@
 # It loops N (20) times  check/edit ccv_start_initial.sh
 
 # define run variables
-initial_step=20
+initial_step=10
 noise=_NOISE_
 qmax=_QMAX_
 qlen=_QMAX_1
 nrestarts=5
 traj=_TRAJ_
-constraints="strong"
-ending="20"
+constraints="_CONSTRAINTS_"
+ending="_ENDING_"
 ### NB switch to low constraints in the run.py file
 results_dir="results_noise"$noise"_qmax"$qmax"_nrestarts"$nrestarts"_traj"$traj"_"$constraints"_constraints_"$ending""
 # create directory if not exists
@@ -36,14 +36,13 @@ sleep 1s
 
 #target_indices_arr=(0 1 0 1 2 1 0 1 2 3 2 1 0 1 2 3 4 3 2 1 2 3 4 5 4 3 2 3 4 5 6 5 4 3 4 5 6 7 6 5 4 5 6 7 8 7 6 5 6 7 8 9 8 7 6 7 8 9 10 9 8 7 8 9 10 11 10 9 8 9 10 11 12 11 10 9 10 11 12 11 10 11 12 11 12)
 #target_indices_arr=(0 1 2 1 0 1 2 3 2 1 2 3 4 3 2 3 4 5 4 3 4 5 6 5 4 5 6 7 6 5 6 7 8 7 6 7 8 9 8 7 8 9 10 9 8 9 10 11 10 9 10 11 12 11 10 11 12 11 12)
-#target_indices_arr=(0 1 2 1 0 1 2 3 2 1 2 3 4 3 2 3 4 5 4 3 4 5 6 5 4 5 6 7 6 5 6 7 8 7 6 7 8 9 8 7 8 9 10 9 8 9 10 11 10 9 10 11 12 11 10 11 12 11 12 11 10 9 8 7 6 5 4 3 2 1 0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 10 10 11 11 12 12 11 11 10 10 9 9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1)
+target_indices_arr=(0 1 2 1 0 1 2 3 2 1 2 3 4 3 2 3 4 5 4 3 4 5 6 5 4 5 6 7 6 5 6 7 8 7 6 7 8 9 8 7 8 9 10 9 8 9 10 11 10 9 10 11 12 11 10 11 12 11 12 11 10 9 8 7 6 5 4 3 2 1 0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 10 10 11 11 12 12 11 11 10 10 9 9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1)
 #target_indices_arr=(0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 10 10 11 11 12 12 11 11 10 10 9 9 8 8 7 7 6 6 5 5 4 4 3 3 2 2 1 1)
-target_indices_arr=(0 0 0 0 0 0 0 0 0 0)
-target_indices_arr=(0)
+#target_indices_arr=(0 0 0 0 0 0 0 0 0 0)
 nsteps=${#target_indices_arr[@]}
 
-#target_arr=(10 20 32 35 37 40 45 50 55 60 65 70 75)
-target_arr=(20)
+target_arr=(10 20 32 35 37 40 45 50 55 60 65 70 75)
+#target_arr=(20)
 
 ### Submit next step, depending on if previous jobs have completed
 # each sbatch script does 20 runs.
