@@ -41,7 +41,7 @@ reference_xyz_file="xyz/chd_reference.xyz"
 # create directory if not exists
 mkdir -p $results_dir
 
-ntrials=1
+ntrials=20
 starting_xyz_file="xyz/start.xyz"
 for i in $(seq 1 $ntrials); do
     echo "submission script: starting_xyz_file $starting_xyz_file"

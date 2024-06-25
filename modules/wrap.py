@@ -235,7 +235,7 @@ class Wrapper:
             print("f_best (SA): %9.8f" % f_best)
 
         ### analysis on xyz_best
-        analysis_bool = False
+        analysis_bool = True
         if analysis_bool:
             # bond-length of interest
             bond_distance = np.linalg.norm(xyz_best[bond_indices[0], :] - xyz_best[bond_indices[1], :])
