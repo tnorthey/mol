@@ -2,12 +2,14 @@
 ### create .dat files from the xyz headers for plotting ###
 ### Change the path loop target to analyse different results directories
 
-#for i in ../results_/results_noise*_qmax?_nrestarts5_traj09?_d23/
-for path in ../results_/results_noise*_qmax?_nrestarts5_traj09?_low_constraints_c3/
+#for path in ../results_/results_noise*_qmax?_nrestarts5_traj09?_low_constraints_c3/
+#for path in ../results_/results_noise*_qmax?_nrestarts2_traj09?_*_single_target_20/
+for path in ../results_/results_noise*_qmax?_nrestarts5_traj09?_strong_constraints_a/
 do
     base_name=$(basename ${path})
     echo $base_name
 
+    #for step in 20
     for step in 10 20 32 35 37 40 45 50 55 60 65 70 75
     do
 	file1=analysis_"$step"_"$base_name".dat

@@ -40,5 +40,5 @@ str1=$(awk -v var=$noise '{n++;sum+=$1} END {printf "%2.1f %10.8f\n", var, n?sum
 str2=$(awk '{n++;sum+=$1} END {printf "%10.8f\n", n?sum/n:0}' $fxray_tmp_file)
 str3=$(awk '{n++;sum+=$1} END {printf "%10.8f\n", n?sum/n:0}' $d05_tmp_file)
 echo "$str1 $str2 $str3"
-rm $rmsd_tmp_file $fxray_tmp_file $d05_tmp_file
+#rm $rmsd_tmp_file $fxray_tmp_file $d05_tmp_file
 
