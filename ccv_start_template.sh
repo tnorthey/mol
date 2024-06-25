@@ -38,7 +38,7 @@ nrestarts=NRESTARTS
 results_dir="RESULTS_DIR"
 constraints="CONSTRAINTS"
 
-run_id=""$step"_1d"	# run ID
+run_id=""$next_step"_1d"  # run ID
 target_xyz_file="xyz/target_traj"$traj"/target_"$next_step".xyz"  # target xyz filename
 reference_xyz_file="xyz/chd_reference.xyz"
 
