@@ -54,9 +54,9 @@ XTICS = "set xtics ('0' 0, '0.1' 1, '1' 2, '2' 3, '4' 4, '8' 5, '16' 6); \
 NOYTICS = "set ytics 0, 100, 20000; \
            set mytics 2 ; \
            unset ylabel"
-YTICS = "set ytics 0, 0.1, 20; \
+YTICS = "set ytics 0, 1.0, 20; \
            set mytics 2 ; \
-           set ylabel '〈〈RMSD〉〉 (Å)' offset 1.5,0"
+           set ylabel '〈〈d_{05}〉〉 (Å)' offset 1.5,0"
 
 NOKEY = "unset key"
 KEY = "set key top left"
@@ -86,12 +86,12 @@ POS3 = "at graph 0.55, 0.45 font 'helvetica, 40'"
 # Enable the use of macros
 set macros
 
-set output "PLOT_RMSD_LOWEST_QUARTILE_ADD_TRAJECTORIES_A.png"
+set output "PLOT_D05_LOWEST_QUARTILE_ADD_TRAJECTORIES_A.png"
 
-XMIN = -0.2
-XMAX = 6.2
-YMIN = 0.14
-YMAX = 0.78
+XMIN = 0
+XMAX = 6
+YMIN = 1.5
+YMAX = 3.50
 set yrange [YMIN : YMAX]
 set xrange [XMIN : XMAX]
 set key font ",40"
@@ -109,7 +109,6 @@ set multiplot layout 3,1 rowsfirst
 #set logscale y 10
 LW1= 15
 LW2 = 10
-LWe = 4
 DT1 = 1
 DT2 = 2
 DT3 = 3
@@ -122,14 +121,13 @@ c1 = "#0025ad"  # dark-blue
 c2 = "#09ad00"  # green
 c3 = "#7f0000" 
 
-p    "<paste rmsd_lowest_quartile_qmax4_traj090_strong_constraints_a.dat rmsd_lowest_quartile_qmax4_traj099_strong_constraints_a.dat rmsd_lowest_quartile_qmax4_traj094_strong_constraints_a.dat"                 u (($2+$7+$12)/3) t "q_{max} = 4 Å^{-1}"     w lp lc rgb c1 lw LW1 dt DT1 pt PT1 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj090_strong_constraints_a.dat rmsd_lowest_quartile_qmax4_traj099_strong_constraints_a.dat rmsd_lowest_quartile_qmax4_traj094_strong_constraints_a.dat"                 u :(($2+$7+$12)/3):(($5+$10+$15)/3) w errorbars t "" lc rgb c1 lw LWe dt DT1, \
-     "<paste rmsd_lowest_quartile_qmax8_traj090_strong_constraints_a.dat rmsd_lowest_quartile_qmax8_traj099_strong_constraints_a.dat rmsd_lowest_quartile_qmax8_traj094_strong_constraints_a.dat"                 u (($2+$7+$12)/3) t " = 8 Å^{-1}"     w lp lc rgb c2 lw LW1 dt DT1 pt PT2 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax8_traj090_strong_constraints_a.dat rmsd_lowest_quartile_qmax8_traj099_strong_constraints_a.dat rmsd_lowest_quartile_qmax8_traj094_strong_constraints_a.dat"                 u :(($2+$7+$12)/3):(($5+$10+$15)/3) t ""     w errorbars lc rgb c2 lw LWe dt DT1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj090_weak_constraints_a.dat rmsd_lowest_quartile_qmax4_traj099_weak_constraints_a.dat rmsd_lowest_quartile_qmax4_traj094_weak_constraints_a.dat"                 u (($2+$7+$12)/3) t ""     w lp lc rgb c1 lw LW2 dt DT2 pt PT1 ps PS2, \
-     "<paste rmsd_lowest_quartile_qmax8_traj090_weak_constraints_a.dat rmsd_lowest_quartile_qmax8_traj099_weak_constraints_a.dat rmsd_lowest_quartile_qmax8_traj094_weak_constraints_a.dat"                 u (($2+$7+$12)/3) t ""     w lp lc rgb c2 lw LW2 dt DT2 pt PT2 ps PS2, \
-     #"<paste rmsd_lowest_quartile_qmax4_traj090_weak_constraints_a.dat rmsd_lowest_quartile_qmax4_traj099_weak_constraints_a.dat rmsd_lowest_quartile_qmax4_traj094_weak_constraints_a.dat"                 u :(($2+$7+$12)/3):(($5+$10+$15)/3) t ""     w errorbars lc rgb c1 lw LWe dt DT1, \
-     #"<paste rmsd_lowest_quartile_qmax8_traj090_weak_constraints_a.dat rmsd_lowest_quartile_qmax8_traj099_weak_constraints_a.dat rmsd_lowest_quartile_qmax8_traj094_weak_constraints_a.dat"                 u :(($2+$7+$12)/3):(($5+$10+$15)/3) t ""     w errorbars lc rgb c2 lw LWe dt DT1, \
+mean_d05(x) = 2.8725449487
+
+p    "<paste rmsd_lowest_quartile_qmax4_traj090_strong_constraints_a.dat rmsd_lowest_quartile_qmax4_traj099_strong_constraints_a.dat rmsd_lowest_quartile_qmax4_traj094_strong_constraints_a.dat"                 u (($4+$8+$12)/3) t "q_{max} = 4 Å^{-1}"     w lp lc rgb c1 lw LW1 dt DT1 pt PT1 ps PS1, \
+     "<paste rmsd_lowest_quartile_qmax8_traj090_strong_constraints_a.dat rmsd_lowest_quartile_qmax8_traj099_strong_constraints_a.dat rmsd_lowest_quartile_qmax8_traj094_strong_constraints_a.dat"                 u (($4+$8+$12)/3) t " = 8 Å^{-1}"     w lp lc rgb c2 lw LW1 dt DT1 pt PT2 ps PS1, \
+     "<paste rmsd_lowest_quartile_qmax4_traj090_weak_constraints_a_nf.dat rmsd_lowest_quartile_qmax4_traj099_weak_constraints_a_nf.dat rmsd_lowest_quartile_qmax4_traj094_weak_constraints_a_nf.dat"                 u (($4+$8+$12)/3) t ""     w lp lc rgb c1 lw LW2 dt DT2 pt PT1 ps PS2, \
+     "<paste rmsd_lowest_quartile_qmax8_traj090_weak_constraints_a_nf.dat rmsd_lowest_quartile_qmax8_traj099_weak_constraints_a_nf.dat rmsd_lowest_quartile_qmax8_traj094_weak_constraints_a_nf.dat"                 u (($4+$8+$12)/3) t ""     w lp lc rgb c2 lw LW2 dt DT2 pt PT2 ps PS2, \
+     mean_d05(x) t "Target 〈〈d_{05}〉〉" w l lc rgb "black" lw 4 dt 2, \
 
 # color definitions
 #set style line 2  lc rgb '#0025ad' lt 1 lw 2

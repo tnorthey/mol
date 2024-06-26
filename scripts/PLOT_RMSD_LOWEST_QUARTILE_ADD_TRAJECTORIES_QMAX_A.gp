@@ -1,7 +1,7 @@
 reset
 
 # png
-set terminal pngcairo dashed size 2000,1600 enhanced font "Verdana,60"
+set terminal pngcairo dashed size 2000,800 enhanced font "Verdana,60"
 #set terminal pngcairo dashed size 1000,800 enhanced font "Verdana,30"
 #set terminal pngcairo dashed size 2500,1750 enhanced font "Verdana,50"
 # dashed option enables dashed linestyle in pngcairo
@@ -71,7 +71,7 @@ KEY = "set key top left"
 # ---- 0.20
 
 #TMARGIN = "set tmargin at screen 0.95; set bmargin at screen 0.75"
-TMARGIN = "set tmargin at screen 0.95; set bmargin at screen 0.15"
+TMARGIN = "set tmargin at screen 0.95; set bmargin at screen 0.3"
 MMARGIN = "set tmargin at screen 0.75; set bmargin at screen 0.55"
 MMARGIN2 = "set tmargin at screen 0.55; set bmargin at screen 0.35"
 BMARGIN = "set tmargin at screen 0.35; set bmargin at screen 0.15"
@@ -86,12 +86,12 @@ POS3 = "at graph 0.55, 0.45 font 'helvetica, 40'"
 # Enable the use of macros
 set macros
 
-set output "PLOT_RMSD_LOWEST_QUARTILE_ADD_TRAJECTORIES_A.png"
+set output "PLOT_RMSD_LOWEST_QUARTILE_ADD_TRAJECTORIES_QMAX_A.png"
 
-XMIN = -0.2
-XMAX = 6.2
-YMIN = 0.14
-YMAX = 0.78
+XMIN = 0
+XMAX = 6
+YMIN = 0.16
+YMAX = 0.45
 set yrange [YMIN : YMAX]
 set xrange [XMIN : XMAX]
 set key font ",40"
@@ -109,7 +109,6 @@ set multiplot layout 3,1 rowsfirst
 #set logscale y 10
 LW1= 15
 LW2 = 10
-LWe = 4
 DT1 = 1
 DT2 = 2
 DT3 = 3
@@ -122,14 +121,7 @@ c1 = "#0025ad"  # dark-blue
 c2 = "#09ad00"  # green
 c3 = "#7f0000" 
 
-p    "<paste rmsd_lowest_quartile_qmax4_traj090_strong_constraints_a.dat rmsd_lowest_quartile_qmax4_traj099_strong_constraints_a.dat rmsd_lowest_quartile_qmax4_traj094_strong_constraints_a.dat"                 u (($2+$7+$12)/3) t "q_{max} = 4 Å^{-1}"     w lp lc rgb c1 lw LW1 dt DT1 pt PT1 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj090_strong_constraints_a.dat rmsd_lowest_quartile_qmax4_traj099_strong_constraints_a.dat rmsd_lowest_quartile_qmax4_traj094_strong_constraints_a.dat"                 u :(($2+$7+$12)/3):(($5+$10+$15)/3) w errorbars t "" lc rgb c1 lw LWe dt DT1, \
-     "<paste rmsd_lowest_quartile_qmax8_traj090_strong_constraints_a.dat rmsd_lowest_quartile_qmax8_traj099_strong_constraints_a.dat rmsd_lowest_quartile_qmax8_traj094_strong_constraints_a.dat"                 u (($2+$7+$12)/3) t " = 8 Å^{-1}"     w lp lc rgb c2 lw LW1 dt DT1 pt PT2 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax8_traj090_strong_constraints_a.dat rmsd_lowest_quartile_qmax8_traj099_strong_constraints_a.dat rmsd_lowest_quartile_qmax8_traj094_strong_constraints_a.dat"                 u :(($2+$7+$12)/3):(($5+$10+$15)/3) t ""     w errorbars lc rgb c2 lw LWe dt DT1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj090_weak_constraints_a.dat rmsd_lowest_quartile_qmax4_traj099_weak_constraints_a.dat rmsd_lowest_quartile_qmax4_traj094_weak_constraints_a.dat"                 u (($2+$7+$12)/3) t ""     w lp lc rgb c1 lw LW2 dt DT2 pt PT1 ps PS2, \
-     "<paste rmsd_lowest_quartile_qmax8_traj090_weak_constraints_a.dat rmsd_lowest_quartile_qmax8_traj099_weak_constraints_a.dat rmsd_lowest_quartile_qmax8_traj094_weak_constraints_a.dat"                 u (($2+$7+$12)/3) t ""     w lp lc rgb c2 lw LW2 dt DT2 pt PT2 ps PS2, \
-     #"<paste rmsd_lowest_quartile_qmax4_traj090_weak_constraints_a.dat rmsd_lowest_quartile_qmax4_traj099_weak_constraints_a.dat rmsd_lowest_quartile_qmax4_traj094_weak_constraints_a.dat"                 u :(($2+$7+$12)/3):(($5+$10+$15)/3) t ""     w errorbars lc rgb c1 lw LWe dt DT1, \
-     #"<paste rmsd_lowest_quartile_qmax8_traj090_weak_constraints_a.dat rmsd_lowest_quartile_qmax8_traj099_weak_constraints_a.dat rmsd_lowest_quartile_qmax8_traj094_weak_constraints_a.dat"                 u :(($2+$7+$12)/3):(($5+$10+$15)/3) t ""     w errorbars lc rgb c2 lw LWe dt DT1, \
+p    "<paste rmsd_lowest_quartile_qmax4_traj090_strong_constraints_a.dat rmsd_lowest_quartile_qmax4_traj099_strong_constraints_a.dat rmsd_lowest_quartile_qmax4_traj094_strong_constraints_a.dat rmsd_lowest_quartile_qmax8_traj090_strong_constraints_a.dat rmsd_lowest_quartile_qmax8_traj099_strong_constraints_a.dat rmsd_lowest_quartile_qmax8_traj094_strong_constraints_a.dat"                 u (($2+$6+$10+$14+$18+$22)/6) t "" w lp lc rgb c1 lw LW1 dt DT1 pt PT2 ps PS1, \
 
 # color definitions
 #set style line 2  lc rgb '#0025ad' lt 1 lw 2
