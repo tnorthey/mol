@@ -2,8 +2,8 @@
 
 lt_file="vmd_open_lt_x.sh"
 gt_file="vmd_open_gt_x.sh"
-echo -n 'vmd -m ' > $lt_file
-echo -n 'vmd -m ' > $gt_file
+echo -n 'vmd -e <(echo "display set bgcolor white") -m ' > $lt_file
+echo -n 'vmd -e <(echo "display set bgcolor white") -m ' > $gt_file
 
 for i in 20_1d_???.*.xyz
 do
@@ -17,5 +17,5 @@ do
 done
 
 echo -n '20_1d_target.xyz' >> $lt_file
-echo -n '20_1d_target.xyz' >> $gt_file
+#echo -n '20_1d_target.xyz' >> $gt_file
 chmod +x $lt_file $gt_file
