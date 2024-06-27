@@ -39,12 +39,12 @@ NOXTICS = "set xtics ('' 0, '' 0.4, '' 0.8, '' 1.2); \
 XTICS = "set xtics 0, 0.2, 1.6; \
           set xlabel 'RMSD (Å)' offset 0,0.4; \
           set mxtics 2"
-NOYTICS = " set ytics add ('' 10, '1' 1, '' 0.1, '10^{-2}' 0.01, '' 0.001, '10^{-4}' 0.0001, '' 0.00001, '10^{-6}' 0.000001); \
+NOYTICS = " set ytics add ('' 10, '1' 1, '' 0.1, '10^{-2}' 0.01, '10^{-3}' 0.001, '10^{-4}' 0.0001, '10^{-5}' 0.00001, '10^{-6}' 0.000001); \
            set mytics 10 ; \
            unset ylabel"
-YTICS = " set ytics add ('' 10, '1' 1, '' 0.1, '10^{-2}' 0.01, '' 0.001, '10^{-4}' 0.0001, '' 0.00001, '10^{-6}' 0.000001); \
+YTICS = " set ytics add ('' 10, '1' 1, '' 0.1, '10^{-2}' 0.01, '10^{-3}' 0.001, '10^{-4}' 0.0001, '10^{-5}' 0.00001, '10^{-6}' 0.000001); \
            set mytics 10 ; \
-           set ylabel 'ζ_{xray}' offset 5.5,0"
+           set ylabel 'ζ_{xray}' offset 4.0,2"
 
 NOKEY = "unset key"
 KEY = "set key bottom right"
@@ -65,18 +65,20 @@ LMARGIN = "set lmargin at screen 0.18; set rmargin at screen 0.97"
 #RMARGIN = "set lmargin at screen 0.55; set rmargin at screen 0.95"
 
 # Placement of the a,b,c,d labels in the graphs
-POS = "at graph 0.70, 0.77 font 'helvetica, 30'"
-POS2 = "at graph 0.77, 0.25 font 'helvetica, 30'"
+POS = "at graph 0.70, 0.77 font 'helvetica, 60'"
+POS2 = "at graph 0.77, 0.25 font 'helvetica, 60'"
 
 # Enable the use of macros
 set macros
 
-set output "PLOT_SCATTER_SINGLE_TARGET_QMAX4_NOISE0p0_STRONG_RMSD_FXRAY.png"
+set output "PLOT_SCATTER_SINGLE_TARGET_NOISE0p0_STRONG_RMSD_FXRAY.png"
 
 XMIN = 0.000
-XMAX = 0.64
-YMIN = 0.0000008
-YMAX = 0.03
+XMAX = 0.54
+YMIN = 0.000008
+YMAX = 0.005
+YMIN2 = 0.00008
+YMAX2 = 0.006
 set yrange [YMIN : YMAX]
 set xrange [XMIN : XMAX]
 
@@ -86,31 +88,31 @@ set multiplot layout 3,1 rowsfirst
 @TMARGIN; @LMARGIN
 @NOXTICS; @NOYTICS
 @NOKEY
-set label 1 '' @POS
+set label 1 'q_{max} = 4 Å^{-1}' @POS
 #set logscale x 10
 set logscale y 10
-p "analysis_20_results_noise0.0_qmax4_nrestarts5_traj094_strong_constraints__single_target_20.dat" u 5:4 w p ls 7, \
-  "analysis_20_results_noise0.0_qmax4_nrestarts5_traj094_weak_constraints__single_target_20.dat"   u 5:4 w p ls 1, \
+p "analysis_20_results_noise0.0_qmax4_nrestarts2_traj094_strong_constraints_single_target_20.dat" u 5:4 w p ls 7, \
+  "analysis_20_results_noise0.0_qmax4_nrestarts2_traj094_weak_constraints_single_target_20.dat"   u 5:4 w p ls 1, \
 
 # --- GRAPH b
 @MMARGIN; @LMARGIN
-@NOXTICS; @YTICS
+@XTICS; @YTICS
 @NOKEY
-#set label 1 'N = 4,000' @POS
-p "analysis_20_results_noise0.0_qmax8_nrestarts5_traj094_strong_constraints__single_target_20.dat" u 5:4 w p ls 7, \
-  "analysis_20_results_noise0.0_qmax8_nrestarts5_traj094_weak_constraints__single_target_20.dat" u 5:4 w p ls 1, \
-  #"analysis_20_results_noise0.1_qmax8_nrestarts5_traj094_strong_constraints__single_target_20.dat" u 5:4 w p ls 5, \
-  #"analysis_20_results_noise0.1_qmax8_nrestarts5_traj094_weak_constraints__single_target_20.dat"   u 5:4 w p ls 3
+set yrange [YMIN2 : YMAX2]
+set label 1 '' @POS
+set label 2 'q_{max} = 8 Å^{-1}' @POS
+p "analysis_20_results_noise0.0_qmax8_nrestarts2_traj094_strong_constraints_single_target_20.dat" u 5:4 w p ls 7, \
+  "analysis_20_results_noise0.0_qmax8_nrestarts2_traj094_weak_constraints_single_target_20.dat"   u 5:4 w p ls 1
 
 # --- GRAPH c
 @BMARGIN; @LMARGIN
 @XTICS; @NOYTICS
 @NOKEY
 #set label 1 'N = 20,000' @POS
-p "analysis_20_results_noise0.0_qmax8_nrestarts2_traj094_strong_constraints_single_target_20.dat" u 5:4 w p ls 7, \
-  "analysis_20_results_noise0.0_qmax8_nrestarts2_traj094_weak_constraints_single_target_20.dat" u 5:4 w p ls 1, \
-  "analysis_20_results_noise0.0_qmax4_nrestarts2_traj094_strong_constraints_single_target_20.dat" u 5:4 w p ls 5, \
-  "analysis_20_results_noise0.0_qmax4_nrestarts2_traj094_weak_constraints_single_target_20.dat" u 5:4 w p ls 6, \
+#p "analysis_20_results_noise0.0_qmax8_nrestarts2_traj094_strong_constraints_single_target_20.dat" u 5:4 w p ls 7, \
+#  "analysis_20_results_noise0.0_qmax8_nrestarts2_traj094_weak_constraints_single_target_20.dat" u 5:4 w p ls 1, \
+#  "analysis_20_results_noise0.0_qmax4_nrestarts2_traj094_strong_constraints_single_target_20.dat" u 5:4 w p ls 5, \
+#  "analysis_20_results_noise0.0_qmax4_nrestarts2_traj094_weak_constraints_single_target_20.dat" u 5:4 w p ls 6, \
 
 unset multiplot
 ### End multiplot
