@@ -1,23 +1,25 @@
 #!/bin/bash
 # go_1d_chd: callable like this: ./go_1D_chd.sh $i $next_step $noise $qmax $qlen $nrestarts $results_dir $reference_xyz_file $constraints
 
-starting_xyz_file=$1	# starting xyz filename
-step=$2			# define the target frame e.g. 20, 30, 40, 50
+molecule="CHD"
+starting_xyz_file="xyz/start.xyz"	# starting xyz filename
+step=20			# define the target frame e.g. 20, 30, 40, 50
 run_id=""$step"_1d"	# run ID
-traj=$3
+traj="094"
 target_xyz_file="xyz/target_traj$traj/target_$step.xyz"  # target xyz filename
-noise=$4
-qmax=$5
-qlen=$6
-nrestarts=$7
-results_dir=$8
+noise=0.0
+qmin="1e-9"
+qmax=8
+qlen=81
+nrestarts=2
+results_dir="tmp_"
 reference_xyz_file="xyz/chd_reference.xyz"
-constraints=$9  # 'strong' or 'weak'
+constraints="weak"
 
 echo "go script: starting_xyz_file $starting_xyz_file"
 echo "go script: target_xyz_file $target_xyz_file"
 
-python3 run_1D_chd.py $run_id $starting_xyz_file $target_xyz_file $traj $noise $qmax $qlen $nrestarts $results_dir $reference_xyz_file $constraints
+python3 run.py $run_id $molecule $starting_xyz_file $reference_xyz_file $target_xyz_file $results_dir $qmin $qmax $qlen $noise $nrestarts $constraints
 
 #bestxyz=$(ls -1 tmp_/"$run_id"_???.????????.xyz | head -n 1) 
 #bestdat=$(ls -1 tmp_/"$run_id"_???.????????.dat | head -n 1) 

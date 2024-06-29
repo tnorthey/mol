@@ -53,6 +53,6 @@ for starting_xyz_file in $start_list
 do 
     echo "submission script: starting_xyz_file $starting_xyz_file"
     echo "submission script: target_xyz_file $target_xyz_file"
-    python3 run_1D_chd.py $run_id $starting_xyz_file $target_xyz_file $traj $noise $qmax $qlen $nrestarts $results_dir $reference_xyz_file $constraints
+    python3 run_1D_chd.py $run_id $starting_xyz_file $target_xyz_file $noise $qmax $qlen $nrestarts $results_dir $reference_xyz_file $constraints
 done
 

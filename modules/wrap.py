@@ -26,10 +26,11 @@ class Wrapper:
         start_xyz_file,
         reference_xyz_file,
         target_file,
+        results_dir="tmp_",
         qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
+        noise=0,
         inelastic=True,
         pcd_mode=False,
-        noise=0,
         sa_starting_temp=0.2,
         nmfile = "nm/chd_normalmodes.txt",
         hydrogen_modes = np.arange(28, 36),  # CHD hydrogen modes
@@ -55,7 +56,6 @@ class Wrapper:
         nrestarts=5,
         non_h_modes_only=False,  # only include "non-hydrogen" modes
         hf_energy=True,  # run PySCF HF energy
-        results_dir="tmp_",
         rmsd_indices = np.array([0, 1, 2, 3, 4, 5]), # chd non-hydrogen atoms
         bond_indices = np.array([0, 5]),     # e.g. chd ring-opening bond
         angle_indices = np.array([6, 3, 12]), # e.g. NMM methyl group motion angle
