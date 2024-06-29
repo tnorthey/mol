@@ -13,6 +13,7 @@ m = mol.Xyz()
 x = xray.Xray()
 sa = sa.Annealing()
 
+
 #############################
 class Wrapper:
     """wrapper functions for simulated annealing strategies"""
@@ -32,21 +33,27 @@ class Wrapper:
         inelastic=True,
         pcd_mode=False,
         sa_starting_temp=0.2,
-        nmfile = "nm/chd_normalmodes.txt",
-        hydrogen_modes = np.arange(28, 36),  # CHD hydrogen modes
-        sa_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
-        ga_mode_indices = np.arange(0, 28),  # CHD, "non-hydrogen" modes
+        nmfile="nm/chd_normalmodes.txt",
+        hydrogen_modes=np.arange(28, 36),  # CHD hydrogen modes
+        sa_mode_indices=np.arange(0, 28),  # CHD, "non-hydrogen" modes
+        ga_mode_indices=np.arange(0, 28),  # CHD, "non-hydrogen" modes
         sa_nsteps=8000,
         ga_nsteps=40000,
-        ho_indices1 = np.array([[0, 1, 2, 3, 4], [1, 2, 3, 4, 5]]),  # chd (C-C bonds)
-        ho_indices2 = np.array([
-            [6, 12, 5, 5, 0, 0, 1, 2, 3, 4],
-            [7, 13, 12, 13, 6, 7, 8, 9, 10, 11],
-        ]),  # chd (C-H bonds, and H-H "bonds" for the CH2 carbons)
-        angular_bool=False,   # use HO terms on the angles
-        angular_indices = np.array([[6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1], 
-                                    [0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
-                                    [7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]]),  # chd (non-C-C-C angles: C-C-H, H-C-H angles)
+        ho_indices1=np.array([[0, 1, 2, 3, 4], [1, 2, 3, 4, 5]]),  # chd (C-C bonds)
+        ho_indices2=np.array(
+            [
+                [6, 12, 5, 5, 0, 0, 1, 2, 3, 4],
+                [7, 13, 12, 13, 6, 7, 8, 9, 10, 11],
+            ]
+        ),  # chd (C-H bonds, and H-H "bonds" for the CH2 carbons)
+        angular_bool=False,  # use HO terms on the angles
+        angular_indices=np.array(
+            [
+                [6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1],
+                [0, 5, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0],
+                [7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6],
+            ]
+        ),  # chd (non-C-C-C angles: C-C-H, H-C-H angles)
         sa_step_size=0.01,
         ga_step_size=0.01,
         sa_harmonic_factor=(0.01, 0.01),
@@ -56,10 +63,10 @@ class Wrapper:
         nrestarts=5,
         non_h_modes_only=False,  # only include "non-hydrogen" modes
         hf_energy=True,  # run PySCF HF energy
-        rmsd_indices = np.array([0, 1, 2, 3, 4, 5]), # chd non-hydrogen atoms
-        bond_indices = np.array([0, 5]),     # e.g. chd ring-opening bond
-        angle_indices = np.array([6, 3, 12]), # e.g. NMM methyl group motion angle
-        dihedral_indices = np.array([0, 1, 4, 5]), # e.g. chd ring-opening dihedral
+        rmsd_indices=np.array([0, 1, 2, 3, 4, 5]),  # chd non-hydrogen atoms
+        bond_indices=np.array([0, 5]),  # e.g. chd ring-opening bond
+        angle_indices=np.array([6, 3, 12]),  # e.g. NMM methyl group motion angle
+        dihedral_indices=np.array([0, 1, 4, 5]),  # e.g. chd ring-opening dihedral
     ):
         """
         simple fitting to CHD 1D data
@@ -126,54 +133,58 @@ class Wrapper:
         filename, target_file_ext = os.path.splitext(target_file)
         target_function_file = "%s/TARGET_FUNCTION_%s.dat" % (results_dir, run_id)
 
-        if target_file_ext == '.xyz':
+        if target_file_ext == ".xyz":
             # read from target xyz file
             _, _, atomlist, target_xyz = m.read_xyz(target_file)
             target_iam = xyz2iam(target_xyz, atomic_numbers, compton_array)
 
-            #target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id
+            # target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id
             # save target IAM file before noise is added
-            #print("Saving data to %s ..." % target_iam_file)
-            #np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
+            # print("Saving data to %s ..." % target_iam_file)
+            # np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
 
             ### ADDITION OF RANDOM NOISE
             constant_noise_bool = False
             noise_data_file = "noise/noise.dat"
             if constant_noise_bool and os.path.exists(noise_data_file):
                 # read the noise from a file
-                print('reading noise data from %s' % noise_data_file)
+                print("reading noise data from %s" % noise_data_file)
                 noise_array = np.loadtxt(noise_data_file)
                 # resize to length of q and scale magnitude
-                noise_array = noise * noise_array[0 : qlen]
+                noise_array = noise * noise_array[0:qlen]
             else:
                 # generate random noise here instead of reading from file
                 mu = 0  # normal distribution with mean of mu
                 sigma = noise
-                print('Randomly generating noise from normal dist... sigma = %3.2f' % sigma)
+                print(
+                    "Randomly generating noise from normal dist... sigma = %3.2f"
+                    % sigma
+                )
                 noise_array = sigma * np.random.randn(qlen) + mu
             target_function = target_iam + noise_array  # define target_function
-        elif target_file_ext == '.dat':
+        elif target_file_ext == ".dat":
             # if target file is a data file, read as target_function
             target_function = np.loadtxt(target_file)
             excitation_factor = 0.057
             target_function /= excitation_factor
             target_xyz = starting_xyz  # added simply to run the rmsd analysis later compared to this
         else:
-            print('Error: target_file must be a .xyz or .dat file!')
-
+            print("Error: target_file must be a .xyz or .dat file!")
 
         # save target function to file if it doesn't exist
         if not os.path.exists(target_function_file):
             print("Saving data to %s ..." % target_function_file)
-            np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
+            np.savetxt(
+                target_function_file, np.column_stack((qvector, target_function))
+            )
         print(target_function)
 
         # load target function from file
-        #if os.path.exists(target_function_file):
+        # if os.path.exists(target_function_file):
         #    print("Loading data from %s ..." % target_function_file)
         #    target_function = np.loadtxt(target_function_file)[:, 1]
         #    print(target_function)
-        #else:
+        # else:
         #    target_function = target_iam
         #    print("Saving data to %s ..." % target_function_file)
         #    np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
@@ -237,7 +248,9 @@ class Wrapper:
 
         ### analysis on xyz_best
         # bond-length of interest
-        bond_distance = np.linalg.norm(xyz_best[bond_indices[0], :] - xyz_best[bond_indices[1], :])
+        bond_distance = np.linalg.norm(
+            xyz_best[bond_indices[0], :] - xyz_best[bond_indices[1], :]
+        )
         # angle of interest
         p0 = np.array(xyz_best[angle_indices[0], :])
         p1 = np.array(xyz_best[angle_indices[1], :])  # central point
@@ -300,10 +313,12 @@ class Wrapper:
         )
         ### Final save to files
         # also write final xyz as "result.xyz"
-        #m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
+        # m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
         # predicted data
         if twod_mode:
-            np.savetxt("%s/%s_%s.dat" % (results_dir, run_id, f_best_str), predicted_best)
+            np.savetxt(
+                "%s/%s_%s.dat" % (results_dir, run_id, f_best_str), predicted_best
+            )
             np.savetxt("%s/%s_result.dat" % (results_dir, run_id), predicted_best)
         else:
             np.savetxt(
@@ -312,12 +327,12 @@ class Wrapper:
             )
         return  # end function
 
-#####################################
-#####################################
-#####################################
-#####################################
-#####################################
-#####################################
+    #####################################
+    #####################################
+    #####################################
+    #####################################
+    #####################################
+    #####################################
 
     def chd_2D(
         self,
@@ -463,7 +478,7 @@ class Wrapper:
             )
             print("f_best (SA): %9.8f" % f_best)
             ### save xyz_array as an xyz trajectory
-            #if xyz_save:
+            # if xyz_save:
             #    print("saving xyz array...")
             #    fname = "tmp_/save_array.xyz"
             #    m.write_xyz_traj(fname, atomlist, xyz_array)

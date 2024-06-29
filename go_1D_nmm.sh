@@ -3,7 +3,7 @@
 
 molecule="NMM"
 starting_xyz_file="xyz/nmm_start.xyz"	# starting xyz filename
-step="35"			# define the target frame e.g. 01, 20, 30, 40, 50
+step="25"			# define the target frame e.g. 01, 20, 30, 40, 50
 run_id=""$step"_1d"	# run ID
 target_file="data_/nmm/target_$step.dat"  # target filename
 qmin="0.3323"

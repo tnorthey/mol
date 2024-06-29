@@ -128,7 +128,7 @@ class Xray:
             if electron_mode:
                 atomic_total += (atomic_numbers[k] - atomfactor) ** 2
             else:
-                atomic_total += atomfactor ** 2
+                atomic_total += atomfactor**2
         nij = int(natoms * (natoms - 1) / 2)
         pre_molecular = np.zeros((nij, qlen))
         k = 0
@@ -146,7 +146,6 @@ class Xray:
 
                 k += 1
         return compton, atomic_total, pre_molecular
-
 
     def iam_calc(
         self,
@@ -178,13 +177,10 @@ class Xray:
                 compton += compton_array[i, :]
         for i in range(natom):
             for j in range(i + 1, natom):  # j > i
-                molecular += (
-                    np.multiply(
-                        (zfactor[i] - e_mode_int * atomic_factor_array[i, :]),
-                        (zfactor[j] - e_mode_int * atomic_factor_array[j, :]),
-                    )
-                    * np.sinc(qvector * np.linalg.norm(xyz[i, :] - xyz[j, :]) / np.pi)
-                )
+                molecular += np.multiply(
+                    (zfactor[i] - e_mode_int * atomic_factor_array[i, :]),
+                    (zfactor[j] - e_mode_int * atomic_factor_array[j, :]),
+                ) * np.sinc(qvector * np.linalg.norm(xyz[i, :] - xyz[j, :]) / np.pi)
         iam = atomic + 2 * molecular
         if inelastic:
             iam += compton
@@ -279,7 +275,7 @@ class Xray:
         for i in range(natoms):
             tmp = self.atomic_factor(atomic_numbers[i], qvector)
             atomic_factor_arr[i, :] = tmp
-            jq += tmp ** 2
+            jq += tmp**2
         return jq, atomic_factor_arr
 
     def compton_spline_calc(self, atomic_numbers, qvector):

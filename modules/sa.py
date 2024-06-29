@@ -16,6 +16,7 @@ import modules.x as xray
 m = mol.Xyz()
 x = xray.Xray()
 
+
 #############################
 class Annealing:
     """Gradient descent functions"""
@@ -57,10 +58,10 @@ class Annealing:
         natoms = starting_xyz.shape[0]  # number of atoms
         nmodes = displacements.shape[0]  # number of displacement vectors
         nmode_indices = len(mode_indices)
-        #print((nmodes, nmode_indices))
+        # print((nmodes, nmode_indices))
         modes = list(range(nmodes))  # all modes
         ## q-vector, atomic, and pre-molecular IAM contributions ##
-        #print(qvector)
+        # print(qvector)
         qlen = len(qvector)  # length of q-vector
         if not inelastic:
             compton = 0
@@ -84,8 +85,8 @@ class Annealing:
             bc = p1 - p2
             cosine_theta = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
             theta0_arr[i_ang] = np.arccos(cosine_theta)
-        #print(np.degrees(theta0_arr))
-        #print("HO factors: %4.3f %4.3f" % (bonding_factor[0], bonding_factor[1]))
+        # print(np.degrees(theta0_arr))
+        # print("HO factors: %4.3f %4.3f" % (bonding_factor[0], bonding_factor[1]))
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
 
         @njit(nogil=True)  # numba decorator to compile to machine code
@@ -120,7 +121,7 @@ class Annealing:
                 ##=#=#=# END DISPLACE XYZ RANDOMLY ALONG ALL DISPLACEMENT VECTORS #=#=#=##
 
                 ##=#=#=# IAM CALCULATION #=#=#=##
-                #if twod_mode:  # 2D x-ray signal, q = q(theta, phi)
+                # if twod_mode:  # 2D x-ray signal, q = q(theta, phi)
                 #    molecular = np.zeros((qlen, qlen))  # total molecular factor
                 #    for ii in range(natoms):
                 #        for jj in range(ii + 1, natoms):  # j > i
@@ -133,7 +134,7 @@ class Annealing:
                 #            zij = xyz_[ii, 2] - xyz_[jj, 2]
                 #            molecular += fij * np.cos(qx * xij + qy * yij + qz * zij)
                 #    iam_ = atomic_2d + 2 * molecular
-                #else:  # assumed to be isotropic 1D signal
+                # else:  # assumed to be isotropic 1D signal
                 molecular = np.zeros(qlen)  # total molecular factor
                 k = 0
                 for ii in range(natoms):
@@ -148,13 +149,16 @@ class Annealing:
                 if pcd_mode:
                     predicted_function_ = 100 * (iam_ / reference_iam - 1)
                     ### x-ray part of objective function
-                    xray_contrib = np.sum((predicted_function_ - target_data) ** 2) / qlen
+                    xray_contrib = (
+                        np.sum((predicted_function_ - target_data) ** 2) / qlen
+                    )
                 else:
                     predicted_function_ = iam_
                     ### x-ray part of objective function
                     xray_contrib = (
                         np.sum(
-                            (predicted_function_ - target_data) ** 2 / np.abs(target_data)
+                            (predicted_function_ - target_data) ** 2
+                            / np.abs(target_data)
                         )
                         / qlen
                     )
@@ -181,9 +185,13 @@ class Annealing:
                         p2 = xyz_[angular_indices[2][i_ang], :]
                         ba = p1 - p0
                         bc = p1 - p2
-                        cosine_theta = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
+                        cosine_theta = np.dot(ba, bc) / (
+                            np.linalg.norm(ba) * np.linalg.norm(bc)
+                        )
                         theta = np.arccos(cosine_theta)
-                        angular_contrib += angular_factor * (theta - theta0_arr[i_ang]) ** 2
+                        angular_contrib += (
+                            angular_factor * (theta - theta0_arr[i_ang]) ** 2
+                        )
 
                 ### combine x-ray and bonding, angular contributions
                 f_ = xray_contrib + bonding_contrib + angular_contrib
@@ -202,7 +210,9 @@ class Annealing:
                     total_xray_contrib += xray_contrib
                 ##=#=#=# END ACCEPTANCE CRITERIA #=#=#=##
             # print ratio of contributions to f
-            total_contrib = total_xray_contrib + total_bonding_contrib + total_angular_contrib
+            total_contrib = (
+                total_xray_contrib + total_bonding_contrib + total_angular_contrib
+            )
             xray_ratio = total_xray_contrib / total_contrib
             bonding_ratio = total_bonding_contrib / total_contrib
             angular_ratio = total_angular_contrib / total_contrib
@@ -216,6 +226,7 @@ class Annealing:
                 angular_ratio,
                 c,
             )
+
         ### END run_annealing() function ###
 
         ### Call the run_annealing() function...
@@ -308,4 +319,3 @@ class Annealing:
             xyz = nm.nm_displacer(xyz, displacements, modes, factors)
             xyz_traj[:, :, i] = xyz
         return xyz_traj
-

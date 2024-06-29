@@ -5,6 +5,7 @@ from numpy.typing import NDArray, DTypeLike
 # only need for rmsd function:
 from scipy.spatial.transform import Rotation as R
 
+
 ######
 class Xyz:
     """methods to manipulate molecular coordinates (xyz)"""
@@ -175,42 +176,42 @@ class Xyz:
         p1 = p[1]
         p2 = p[2]
         p3 = p[3]
-    
-        b0 = -1.0*(p1 - p0)
+
+        b0 = -1.0 * (p1 - p0)
         b1 = p2 - p1
         b2 = p3 - p2
-    
+
         # normalize b1 so that it does not influence magnitude of vector
         # rejections that come next
         b1 /= np.linalg.norm(b1)
-    
+
         # vector rejections
         # v = projection of b0 onto plane perpendicular to b1
         #   = b0 minus component that aligns with b1
         # w = projection of b2 onto plane perpendicular to b1
         #   = b2 minus component that aligns with b1
-        v = b0 - np.dot(b0, b1)*b1
-        w = b2 - np.dot(b2, b1)*b1
-    
+        v = b0 - np.dot(b0, b1) * b1
+        w = b2 - np.dot(b2, b1) * b1
+
         # angle between v and w in a plane is the torsion angle
         # v and w may not be normalized but that's fine since tan is y/x
         x = np.dot(v, w)
         y = np.dot(np.cross(b1, v), w)
         return np.degrees(np.arctan2(y, x))
 
-    def angle_2p_3d(self, a, b, c):       
-        '''angle between two points in 3D'''
-        v1 = np.array([ a[0] - b[0], a[1] - b[1], a[2] - b[2] ])
-        v2 = np.array([ c[0] - b[0], c[1] - b[1], c[2] - b[2] ])
-    
-        v1mag = np.sqrt([ v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2] ])
-        v1norm = np.array([ v1[0] / v1mag, v1[1] / v1mag, v1[2] / v1mag ])
-    
+    def angle_2p_3d(self, a, b, c):
+        """angle between two points in 3D"""
+        v1 = np.array([a[0] - b[0], a[1] - b[1], a[2] - b[2]])
+        v2 = np.array([c[0] - b[0], c[1] - b[1], c[2] - b[2]])
+
+        v1mag = np.sqrt([v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2]])
+        v1norm = np.array([v1[0] / v1mag, v1[1] / v1mag, v1[2] / v1mag])
+
         v2mag = np.sqrt(v2[0] * v2[0] + v2[1] * v2[1] + v2[2] * v2[2])
-        v2norm = np.array([ v2[0] / v2mag, v2[1] / v2mag, v2[2] / v2mag ])
+        v2norm = np.array([v2[0] / v2mag, v2[1] / v2mag, v2[2] / v2mag])
         res = v1norm[0] * v2norm[0] + v1norm[1] * v2norm[1] + v1norm[2] * v2norm[2]
         angle_rad = np.arccos(res)
         return math.degrees(angle_rad[0])
 
-### End Molecule class section
 
+### End Molecule class section
