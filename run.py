@@ -34,13 +34,8 @@ nrestarts = int(sys.argv[11])
 constraints = str(sys.argv[12])  # "strong" or "weak" else constraints default to 0
 ###################################
 
-if molecule == "CHD":
-   p = params.CHD_Params()
-elif molecule == "NMM":
-   p = params.NMM_Params()
-else:
-   print('molecule must be "CHD" or "NMM". Exiting...')
-   exit()
+# load parameters
+p = params.Params(molecule)
 
 ACC, ACH = 0.0, 0.0  # default is 0 constraints
 if constraints == "strong": ACC, ACH = 10.0, 10.0

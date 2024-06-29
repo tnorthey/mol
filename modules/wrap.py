@@ -157,6 +157,7 @@ class Wrapper:
             target_function = np.loadtxt(target_file)
             excitation_factor = 0.057
             target_function /= excitation_factor
+            target_xyz = starting_xyz  # added simply to run the rmsd analysis later compared to this
         else:
             print('Error: target_file must be a .xyz or .dat file!')
 
@@ -235,49 +236,49 @@ class Wrapper:
             print("f_best (SA): %9.8f" % f_best)
 
         ### analysis on xyz_best
-        analysis_bool = True
-        if analysis_bool:
-            # bond-length of interest
-            bond_distance = np.linalg.norm(xyz_best[bond_indices[0], :] - xyz_best[bond_indices[1], :])
-            # angle of interest
-            p0 = np.array(xyz_best[angle_indices[0], :])
-            p1 = np.array(xyz_best[angle_indices[1], :])  # central point
-            p2 = np.array(xyz_best[angle_indices[2], :])
-            angle_degrees = m.angle_2p_3d(p0, p1, p2)
-            # dihedral of interest
-            p0 = np.array(xyz_best[dihedral_indices[0], :])
-            p1 = np.array(xyz_best[dihedral_indices[1], :])
-            p2 = np.array(xyz_best[dihedral_indices[2], :])
-            p3 = np.array(xyz_best[dihedral_indices[3], :])
-            dihedral = m.new_dihedral(np.array([p0, p1, p2, p3]))
+        # bond-length of interest
+        bond_distance = np.linalg.norm(xyz_best[bond_indices[0], :] - xyz_best[bond_indices[1], :])
+        # angle of interest
+        p0 = np.array(xyz_best[angle_indices[0], :])
+        p1 = np.array(xyz_best[angle_indices[1], :])  # central point
+        p2 = np.array(xyz_best[angle_indices[2], :])
+        angle_degrees = m.angle_2p_3d(p0, p1, p2)
+        # dihedral of interest
+        p0 = np.array(xyz_best[dihedral_indices[0], :])
+        p1 = np.array(xyz_best[dihedral_indices[1], :])
+        p2 = np.array(xyz_best[dihedral_indices[2], :])
+        p3 = np.array(xyz_best[dihedral_indices[3], :])
+        dihedral = m.new_dihedral(np.array([p0, p1, p2, p3]))
+        rmsd_target_bool = True
+        if rmsd_target_bool:
             # rmsd compared to target
             # Kabsch rotation to target
             rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, rmsd_indices)
             # MAPD compared to target
             mapd = m.mapd_function(xyz_best, target_xyz, rmsd_indices)
-            # HF energy with PySCF
-            if hf_energy:
-                mol = gto.Mole()
-                arr = []
-                for i in range(len(atomlist)):
-                    arr.append((atomlist[i], xyz_best[i]))
-                mol.atom = arr
-                mol.basis = "6-31g*"
-                mol.build()
-                rhf_mol = scf.RHF(mol)  # run RHF
-                e_mol = rhf_mol.kernel()
-            else:
-                e_mol = 0
             # save target xyz
             m.write_xyz(
                 "%s/%s_target.xyz" % (results_dir, run_id),
-                "run_id: %s" % run_id,
+                ".dat file case: starting_xyz (not target_xyz)",
                 atomlist,
                 target_xyz,
             )
         else:
             bond_distance, angle_degrees, dihedral = 0, 0, 0
             rmsd, mapd, e_mol = 0, 0, 0
+        # HF energy with PySCF
+        if hf_energy:
+            mol = gto.Mole()
+            arr = []
+            for i in range(len(atomlist)):
+                arr.append((atomlist[i], xyz_best[i]))
+            mol.atom = arr
+            mol.basis = "6-31g*"
+            mol.build()
+            rhf_mol = scf.RHF(mol)  # run RHF
+            e_mol = rhf_mol.kernel()
+        else:
+            e_mol = 0
         # encode the analysis values into the xyz header
         header_str = "%12.8f %12.8f %12.8f %12.8f %12.8f %12.8f %12.8f" % (
             f_xray_best,
