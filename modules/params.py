@@ -83,21 +83,23 @@ class Params:
                     [7, 8, 9, 2, 4, 14, 15, 11, 13, 16, 17, 9, 8, 9, 4, 17, 13, 15],
                 ]
             )  # nmm C-H bonds, and H-H "bonds"
-            self.angular_bool = (False,)  # use HO terms on the angles
-            self.angular_indices = np.array([[0, 0, 0], [1, 1, 1], [2, 2, 2]])
+            self.angular_bool = False  # use HO terms on the angles
+            self.angular_indices = np.array([[3, 5, 10,0,6,6,7,7,8,7,8,9,3,3,4,3, 3, 16,13,15], 
+                                             [5, 10,12,1,3,3,6,6,6,6,6,6,1,1,1,5, 5, 5, 10,0 ], 
+                                             [10,12,0, 3,1,5,8,9,9,3,3,3,4,2,2,16,17,17,11,14]])
             self.sa_step_size = 0.012
             self.ga_step_size = 0.012
             self.sa_harmonic_factor = (10.0, 10.0)
             self.ga_harmonic_factor = (1.0, 10.0)
-            self.sa_angular_factor = 0.0
-            self.ga_angular_factor = 0.0
+            self.sa_angular_factor = 10.0
+            self.ga_angular_factor = 10.0
             self.nrestarts = 5  # it restarts from the xyz_best of the previous restart
             self.non_h_modes_only = False  # only include "non-hydrogen" modes
-            self.hf_energy = False  # run PySCF HF energy
+            self.hf_energy = True # run PySCF HF energy
             self.rmsd_indices = np.array([3, 5, 6, 10, 12, 0, 1])  # nmm
-            self.bond_indices = np.array([0, 5])  # chd ring-opening bond
+            self.bond_indices = np.array([6, 12])  # nmm N-O distance
             self.angle_indices = np.array([6, 3, 12])  # nmm methyl group angle
-            self.dihedral_indices = np.array([0, 1, 4, 5])  # chd ring-opening dihedral
+            self.dihedral_indices = np.array([6, 3, 10, 5])  # nmm torsion
 
         else:
             print("No parameters were loaded... choose chd or nmm.")
