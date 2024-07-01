@@ -42,7 +42,8 @@ class Annealing:
         step_size_array: NDArray,
         ho_indices1: NDArray,
         ho_indices2: NDArray,
-        angular_indices: NDArray,
+        angular_indices1: NDArray,
+        angular_indices2: NDArray,
         starting_temp=0.2,
         nsteps=10000,
         inelastic=True,
@@ -70,21 +71,26 @@ class Annealing:
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
         nho_indices1 = len(ho_indices1[0])  # number of HO indices
         nho_indices2 = len(ho_indices2[0])  # number of HO indices
-        nangular_indices = len(angular_indices[0])  # number of angular indices
         # Calculate distance arrays for starting_xyz
         diff = starting_xyz[ho_indices1[0]] - starting_xyz[ho_indices1[1]]
         r0_arr1 = LA.norm(diff, axis=1)
         diff = starting_xyz[ho_indices2[0]] - starting_xyz[ho_indices2[1]]
         r0_arr2 = LA.norm(diff, axis=1)
-        theta0_arr = np.zeros((nangular_indices))
-        for i_ang in range(nangular_indices):
-            p0 = starting_xyz[angular_indices[0][i_ang], :]
-            p1 = starting_xyz[angular_indices[1][i_ang], :]
-            p2 = starting_xyz[angular_indices[2][i_ang], :]
-            ba = p1 - p0
-            bc = p1 - p2
-            cosine_theta = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
-            theta0_arr[i_ang] = np.arccos(cosine_theta)
+        def angle_array(angular_indices):
+            """calculate starting angles for angular indices"""
+            nangular_indices = len(angular_indices[0])  # number of angular indices
+            theta_arr = np.zeros((nangular_indices))
+            for i_ang in range(nangular_indices):
+                p0 = starting_xyz[angular_indices[0][i_ang], :]
+                p1 = starting_xyz[angular_indices[1][i_ang], :]
+                p2 = starting_xyz[angular_indices[2][i_ang], :]
+                ba = p1 - p0
+                bc = p1 - p2
+                cosine_theta = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
+                theta_arr[i_ang] = np.arccos(cosine_theta)
+            return theta_arr
+        theta0_arr1 = angle_array(angular_indices1)
+        theta0_arr2 = angle_array(angular_indices2)
         # print(np.degrees(theta0_arr))
         # print("HO factors: %4.3f %4.3f" % (bonding_factor[0], bonding_factor[1]))
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
@@ -179,10 +185,10 @@ class Annealing:
 
                 angular_contrib = 0
                 if angular_bool:
-                    for i_ang in range(nangular_indices):
-                        p0 = xyz_[angular_indices[0][i_ang], :]
-                        p1 = xyz_[angular_indices[1][i_ang], :]
-                        p2 = xyz_[angular_indices[2][i_ang], :]
+                    for i_ang in range(len(theta0_arr1)):
+                        p0 = xyz_[angular_indices1[0][i_ang], :]
+                        p1 = xyz_[angular_indices1[1][i_ang], :]
+                        p2 = xyz_[angular_indices1[2][i_ang], :]
                         ba = p1 - p0
                         bc = p1 - p2
                         cosine_theta = np.dot(ba, bc) / (
@@ -190,9 +196,21 @@ class Annealing:
                         )
                         theta = np.arccos(cosine_theta)
                         angular_contrib += (
-                            angular_factor * (theta - theta0_arr[i_ang]) ** 2
+                            angular_factor[0] * (theta - theta0_arr1[i_ang]) ** 2
                         )
-
+                    for i_ang in range(len(theta0_arr2)):
+                        p0 = xyz_[angular_indices2[0][i_ang], :]
+                        p1 = xyz_[angular_indices2[1][i_ang], :]
+                        p2 = xyz_[angular_indices2[2][i_ang], :]
+                        ba = p1 - p0
+                        bc = p1 - p2
+                        cosine_theta = np.dot(ba, bc) / (
+                            np.linalg.norm(ba) * np.linalg.norm(bc)
+                        )
+                        theta = np.arccos(cosine_theta)
+                        angular_contrib += (
+                            angular_factor[1] * (theta - theta0_arr2[i_ang]) ** 2
+                        )
                 ### combine x-ray and bonding, angular contributions
                 f_ = xray_contrib + bonding_contrib + angular_contrib
                 ##=#=#=# END PCD & CHI2 CALCULATIONS #=#=#=##

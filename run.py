@@ -69,7 +69,8 @@ w.run_1D(
     p.ho_indices1,
     p.ho_indices2,
     p.angular_bool,
-    p.angular_indices,
+    p.angular_indices1,
+    p.angular_indices2,
     p.sa_step_size,
     p.ga_step_size,
     sa_harmonic_factor,  # not loaded from param module

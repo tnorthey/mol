@@ -47,7 +47,14 @@ class Wrapper:
             ]
         ),  # chd (C-H bonds, and H-H "bonds" for the CH2 carbons)
         angular_bool=False,  # use HO terms on the angles
-        angular_indices=np.array(
+        angular_indices1=np.array(
+            [
+                [6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1],
+                [0, 5, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0],
+                [7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6],
+            ]
+        ),  # chd (non-C-C-C angles: C-C-H, H-C-H angles)
+        angular_indices2=np.array(
             [
                 [6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1],
                 [0, 5, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0],
@@ -58,8 +65,8 @@ class Wrapper:
         ga_step_size=0.01,
         sa_harmonic_factor=(0.01, 0.01),
         ga_harmonic_factor=(0.01, 0.01),
-        sa_angular_factor=0.1,
-        ga_angular_factor=0.1,
+        sa_angular_factor=(0.1, 0.1),
+        ga_angular_factor=(0.1, 0.1),
         nrestarts=5,
         non_h_modes_only=False,  # only include "non-hydrogen" modes
         hf_energy=True,  # run PySCF HF energy
@@ -233,7 +240,8 @@ class Wrapper:
                 sa_step_size_array,
                 ho_indices1,
                 ho_indices2,
-                angular_indices,
+                angular_indices1,
+                angular_indices2,
                 starting_temp,
                 nsteps,
                 inelastic,
