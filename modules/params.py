@@ -37,7 +37,14 @@ class Params:
             # angular_indices = np.array([[0, 1, 2, 3, 6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1],
             #                            [1, 2, 3, 4, 0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0],
             #                            [2, 3, 4, 5, 7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]])  # chd (C-C-C angles, and all C-C-H, H-C-H angles)
-            self.angular_indices = np.array(
+            self.angular_indices1 = np.array(
+                [
+                    [6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1],
+                    [0, 5, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0],
+                    [7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6],
+                ]
+            )  # chd (non-C-C-C angles: C-C-H, H-C-H angles)
+            self.angular_indices2 = np.array(
                 [
                     [6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1],
                     [0, 5, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0],
@@ -64,7 +71,7 @@ class Params:
             self.nmodes = 3 * self.natoms - 6
             self.inelastic = True
             self.pcd_mode = True
-            self.sa_starting_temp = 1.0
+            self.sa_starting_temp = 0.2
             self.nmfile = "nm/nmm_normalmodes.txt"
             self.hydrogen_modes = np.arange(38, self.nmodes)  # NMM hydrogen modes
             self.sa_mode_indices = np.arange(0, self.nmodes)  # NMM all modes

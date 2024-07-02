@@ -34,11 +34,11 @@ sed -i "s/QLEN/$qlen/" $fname
 sed -i "s/NRESTARTS/$nrestarts/" $fname
 sed -i "s/RESULTS_DIR/$results_dir/" $fname
 sed -i "s/CONSTRAINTS/$constraints/" $fname
-#JID=$(sbatch --parsable $fname)
-#sleep 1s
-
-JID=$(sbatch --parsable ccv_start_dummy.sh)
+JID=$(sbatch --parsable $fname)
 sleep 1s
+
+#JID=$(sbatch --parsable ccv_start_dummy.sh)
+#sleep 1s
 
 #target_indices_arr=(0 1 0 1 2 1 0 1 2 3 2 1 0 1 2 3 4 3 2 1 2 3 4 5 4 3 2 3 4 5 6 5 4 3 4 5 6 7 6 5 4 5 6 7 8 7 6 5 6 7 8 9 8 7 6 7 8 9 10 9 8 7 8 9 10 11 10 9 8 9 10 11 12 11 10 9 10 11 12 11 10 11 12 11 12)
 #target_indices_arr=(0 1 2 1 0 1 2 3 2 1 2 3 4 3 2 3 4 5 4 3 4 5 6 5 4 5 6 7 6 5 6 7 8 7 6 7 8 9 8 7 8 9 10 9 8 9 10 11 10 9 10 11 12 11 10 11 12 11 12)
@@ -50,8 +50,7 @@ target_indices_arr=(0 1 2 1 0 1 2 3 2 1 2 3 4 3 2 3 4 5 4 3 4 5 6 5 4 5 6 7 6 5 
 nsteps=${#target_indices_arr[@]}
 
 #target_arr=(10 20 32 35 37 40 45 50 55 60 65 70 75)  # CHD
-#target_arr=(18 19 20 21 22 23 24 25 26 27 28)  # NMM
-target_arr=(27 28 29 30 31 32 33 34 35 36 37)  # NMM
+target_arr=(18 19 20 21 22 23 24 25 26 27 28)  # NMM
 #target_arr=(20)
 
 ### Submit next step, depending on if previous jobs have completed

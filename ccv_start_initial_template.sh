@@ -37,17 +37,19 @@ results_dir="RESULTS_DIR"
 constraints="CONSTRAINTS"
 
 run_id=""$next_step"_1d"	# run ID
-#target_file="xyz/target_traj$traj/target_$next_step.xyz"  # target xyz filename
-target_file="data_/nmm/target_"$next_step".dat"  # target dat filename
-#reference_xyz_file="xyz/chd_reference.xyz"
-reference_xyz_file="xyz/nmm_opt.xyz"
+# CHD
+target_file="xyz/target_traj$traj/target_$next_step.xyz"  # target xyz filename
+reference_xyz_file="xyz/chd_reference.xyz"
+# NMM
+#target_file="data_/nmm/target_"$next_step".dat"  # target dat filename
+#reference_xyz_file="xyz/nmm_opt.xyz"
 
 # create directory if not exists
 mkdir -p $results_dir
 
 ntrials=20
-#starting_xyz_file="xyz/start.xyz"
-starting_xyz_file="xyz/nmm_start.xyz"
+starting_xyz_file="xyz/start.xyz"
+#starting_xyz_file="xyz/nmm_start.xyz"
 for i in $(seq 1 $ntrials); do
     echo "submission script: starting_xyz_file $starting_xyz_file"
     echo "submission script: target_file $target_file"

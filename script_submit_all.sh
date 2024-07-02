@@ -1,9 +1,11 @@
 #!/bin/bash
 
 constraints="strong"  # "strong" or "weak" constraints, defined in the run.py file
+#ending="chd_single_target_20"  # descriptive string that gets appended to files
 ending="nmm_a"  # descriptive string that gets appended to files
 
 #for traj in 090 094 099
+#for traj in 094
 for traj in 000
 do
     #for qmax in 4 8
