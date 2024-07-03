@@ -32,8 +32,9 @@ qmin = float(sys.argv[7])
 qmax = float(sys.argv[8])
 qlen = int(sys.argv[9])
 noise = float(sys.argv[10])
-nrestarts = int(sys.argv[11])
-constraints = str(sys.argv[12])  # "strong" or "weak" else constraints default to 0
+noise_data_file = str(sys.argv[11])
+nrestarts = int(sys.argv[12])
+constraints = str(sys.argv[13])  # "strong" or "weak" else constraints default to 0
 ###################################
 
 # load parameters
@@ -57,6 +58,7 @@ w.run_1D(
     results_dir,  # not loaded from param module
     qvector,  # not loaded from param module
     noise,  # not loaded from param module
+    noise_data_file,  # not loaded from param module
     p.inelastic,
     p.pcd_mode,
     p.sa_starting_temp,

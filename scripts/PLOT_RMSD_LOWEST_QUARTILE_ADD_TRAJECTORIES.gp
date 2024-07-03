@@ -88,10 +88,10 @@ set macros
 
 set output "PLOT_RMSD_LOWEST_QUARTILE_ADD_TRAJECTORIES.png"
 
-XMIN = 0
-XMAX = 6
+XMIN = -0.2
+XMAX = 6.2
 YMIN = 0.14
-YMAX = 0.52
+YMAX = 0.78
 set yrange [YMIN : YMAX]
 set xrange [XMIN : XMAX]
 set key font ",40"

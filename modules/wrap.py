@@ -30,6 +30,7 @@ class Wrapper:
         results_dir="tmp_",
         qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
         noise=0,
+        noise_data_file="noise/noise.dat",
         inelastic=True,
         pcd_mode=False,
         sa_starting_temp=0.2,
@@ -151,9 +152,9 @@ class Wrapper:
             # np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
 
             ### ADDITION OF RANDOM NOISE
-            constant_noise_bool = False
-            noise_data_file = "noise/noise.dat"
-            if constant_noise_bool and os.path.exists(noise_data_file):
+            noise_file_bool = True
+            #noise_data_file = "noise/noise.dat"
+            if noise_file_bool and os.path.exists(noise_data_file):
                 # read the noise from a file
                 print("reading noise data from %s" % noise_data_file)
                 noise_array = np.loadtxt(noise_data_file)

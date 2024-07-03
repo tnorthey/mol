@@ -7,6 +7,7 @@
 initial_step=18
 molecule="nmm"
 noise=_NOISE_
+noise_file="noise/noise__NOISEFILEINDEX_.dat"
 qmin="0.3323"
 qmax="4.3727"
 qlen=39
@@ -28,6 +29,7 @@ sed -i "s/INITIAL_STEP/$initial_step/" $fname
 sed -i "s/MOLECULE/$molecule/" $fname
 sed -i "s/TRAJ/$traj/" $fname
 sed -i "s/NOISE/$noise/" $fname
+sed -i "s/NOISE_FILE/$noise_file/" $fname
 sed -i "s/QMIN/$qmin/" $fname
 sed -i "s/QMAX/$qmax/" $fname
 sed -i "s/QLEN/$qlen/" $fname
@@ -73,6 +75,7 @@ do
         sed -i "s/MOLECULE/$molecule/" $fname
         sed -i "s/TRAJ/$traj/" $fname
 	sed -i "s/NOISE/$noise/" $fname
+        sed -i "s/NOISE_FILE/$noise_file/" $fname
         sed -i "s/QMIN/$qmin/" $fname
 	sed -i "s/QMAX/$qmax/" $fname
 	sed -i "s/QLEN/$qlen/" $fname

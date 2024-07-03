@@ -13,13 +13,14 @@ qmin="1e-9"
 qmax=8
 qlen=81
 noise=0.0
+noise_data_file="noise/noise.dat"
 nrestarts=2
 constraints="weak"
 
 echo "go script: starting_xyz_file $starting_xyz_file"
 echo "go script: target_file $target_file"
 
-python3 run.py $run_id $molecule $starting_xyz_file $reference_xyz_file $target_file $results_dir $qmin $qmax $qlen $noise $nrestarts $constraints
+python3 run.py $run_id $molecule $starting_xyz_file $reference_xyz_file $target_file $results_dir $qmin $qmax $qlen $noise $noise_data_file $nrestarts $constraints
 
 #bestxyz=$(ls -1 tmp_/"$run_id"_???.????????.xyz | head -n 1) 
 #bestdat=$(ls -1 tmp_/"$run_id"_???.????????.dat | head -n 1) 
