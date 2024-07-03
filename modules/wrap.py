@@ -154,13 +154,15 @@ class Wrapper:
             ### ADDITION OF RANDOM NOISE
             noise_file_bool = True
             #noise_data_file = "noise/noise.dat"
+            print(f'checking if {noise_data_file} exists...')
             if noise_file_bool and os.path.exists(noise_data_file):
                 # read the noise from a file
-                print("reading noise data from %s" % noise_data_file)
+                print(f"Yes. Reading noise data from {noise_data_file}")
                 noise_array = np.loadtxt(noise_data_file)
                 # resize to length of q and scale magnitude
                 noise_array = noise * noise_array[0:qlen]
             else:
+                print(f'{noise_data_file} does not exist.')
                 # generate random noise here instead of reading from file
                 mu = 0  # normal distribution with mean of mu
                 sigma = noise

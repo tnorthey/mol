@@ -33,6 +33,7 @@ next_step=YY
 molecule="MOLECULE"
 traj=TRAJ
 noise=NOISE
+noise_file="noise/noise_NOISFILEINDEX.dat"
 qmin=QMIN
 qmax=QMAX
 qlen=QLEN
@@ -41,9 +42,11 @@ results_dir="RESULTS_DIR"
 constraints="CONSTRAINTS"
 
 run_id=""$next_step"_1d"  # run ID
+# CHD
 #target_file="xyz/target_traj"$traj"/target_"$next_step".xyz"  # target xyz filename
-target_file="data_/nmm/target_"$next_step".dat"  # target dat filename
 #reference_xyz_file="xyz/chd_reference.xyz"
+# NMM
+target_file="data_/nmm/target_"$next_step".dat"  # target dat filename
 reference_xyz_file="xyz/nmm_opt.xyz"
 
 # create directory if not exists
@@ -57,6 +60,6 @@ for starting_xyz_file in $start_list
 do 
     echo "submission script: starting_xyz_file $starting_xyz_file"
     echo "submission script: target_file $target_file"
-    python3 run.py $run_id $molecule $starting_xyz_file $reference_xyz_file $target_file $results_dir $qmin $qmax $qlen $noise $nrestarts $constraints
+    python3 run.py $run_id $molecule $starting_xyz_file $reference_xyz_file $target_file $results_dir $qmin $qmax $qlen $noise $noise_file $nrestarts $constraints
 done
 
