@@ -10,6 +10,7 @@ qmin="0.3323"
 qmax="4.3727"
 qlen=39
 noise=0.0
+noise_file="noise/noise.dat"
 nrestarts=5
 results_dir="tmp_"
 reference_xyz_file="xyz/nmm_opt.xyz"
@@ -18,7 +19,7 @@ constraints="strong"
 echo "go script: starting_xyz_file $starting_xyz_file"
 echo "go script: target_file $target_file"
 
-python3 run.py $run_id $molecule $starting_xyz_file $reference_xyz_file $target_file $results_dir $qmin $qmax $qlen $noise $nrestarts $constraints
+python3 run.py $run_id $molecule $starting_xyz_file $reference_xyz_file $target_file $results_dir $qmin $qmax $qlen $noise $noise_file $nrestarts $constraints
 
 #bestxyz=$(ls -1 tmp_/"$run_id"_???.????????.xyz | head -n 1) 
 #bestdat=$(ls -1 tmp_/"$run_id"_???.????????.dat | head -n 1) 

@@ -5,7 +5,7 @@
 #for path in ../results_/results_noise*_qmax?_nrestarts5_traj09?_low_constraints_c3/
 #for path in ../results_/results_noise*_qmax?_nrestarts2_traj09?_*_single_target_20/
 #for path in ../results_/results_noise*_qmax?_nrestarts2_traj094_strong_constraints_chd_single_target_20/
-for path in ../results_/results_noise0.0_qmax*_nrestarts2_traj000_strong_constraints_nmm_a/
+for path in ../results_/results_noise0.0_qmax*_nrestarts2_traj000_strong_constraints_nmm_b/
 do
     base_name=$(basename ${path})
     echo $base_name
