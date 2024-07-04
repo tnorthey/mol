@@ -124,15 +124,16 @@ f37_range = f37_max+1
 NOXTICS = "set xtics ('' 0, '' 8, '' 16, '' 24); \
           unset xlabel; \
           set mxtics 2 "
-XTICS = "set xtics 0, 1, 24; \
-          set xlabel 't' offset 0,0.4; \
-          set mxtics 2"
+XTICS = "set xtics 0, 4, 20;\
+         set xtics add ('' 0, '0' 2, '' 4, '0.2' 6, '' 8, '0.4' 10, '' 12, '0.6' 14, '' 16, '0.8' 18); \
+         set mxtics 2; \
+         set xlabel 't (ps)' offset 0,0.4"
 NOYTICS = " set ytics add ('' 10, '1' 1, '' 0.1, '10^{-2}' 0.01, '' 0.001, '10^{-4}' 0.0001); \
            set mytics 2 ; \
            unset ylabel"
 YTICS = "set ytics -100, 20, 100; \
            set mytics 2 ; \
-           set ylabel 'torsion_{0} (degrees)' offset 1.5,0"
+           set ylabel 'ϕ_{C-N-C-C} (°)' offset 1.5,0"
 
 NOKEY = "unset key"
 KEY = "set key bottom right font ',35'"
@@ -163,8 +164,8 @@ set macros
 
 set output "PLOT_TORSION_NRESTARTS2_TRAJ000_NMM_B.png"
 
-XMIN = 0
-XMAX = 20
+XMIN = -0.5
+XMAX = 19.5
 YMIN = -65
 YMAX = 115
 set yrange [YMIN : YMAX]
@@ -212,7 +213,7 @@ p "analysis_18_results_noise0.0_qmax4.3727_nrestarts2_traj000_strong_constraints
   "analysis_35_results_noise0.0_qmax4.3727_nrestarts2_traj000_strong_constraints_nmm_b.dat" u (17):($6 < t35_range & $4 < f35_range ? $3 : 1/0) t "35" w p pt 6 ps 2 lw 3 lc 8,\
   "analysis_36_results_noise0.0_qmax4.3727_nrestarts2_traj000_strong_constraints_nmm_b.dat" u (18):($6 < t36_range & $4 < f36_range ? $3 : 1/0) t "36" w p pt 6 ps 2 lw 3 lc 8,\
   "analysis_37_results_noise0.0_qmax4.3727_nrestarts2_traj000_strong_constraints_nmm_b.dat" u (19):($6 < t37_range & $4 < f37_range ? $3 : 1/0) t "37" w p pt 6 ps 2 lw 3 lc 8,\
-     "nmm_geommovie_dihedral_6_3_10_5_modified.dat" u 1:($2 + 180) t "" w p pt 3 ps 4 lw 3 lc 7,\
+     "nmm_geommovie_dihedral_6_3_10_5_modified.dat" u 1:($2 + 180) t "" w p pt 6 ps 4 lw 8 lc 7,\
      #"nmm_geommovie_dihedral_6_3_1_0_modified.dat" u 1:($2 + 180) t "" w p pt 1 ps 3 lw 3 lc 2,\
 
 
