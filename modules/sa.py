@@ -127,7 +127,7 @@ class Annealing:
                 ##=#=#=# END DISPLACE XYZ RANDOMLY ALONG ALL DISPLACEMENT VECTORS #=#=#=##
 
                 ##=#=#=# IAM CALCULATION #=#=#=##
-                # if twod_mode:  # 2D x-ray signal, q = q(theta, phi)
+                #if twod_mode:  # 2D x-ray signal, q = q(theta, phi)
                 #    molecular = np.zeros((qlen, qlen))  # total molecular factor
                 #    for ii in range(natoms):
                 #        for jj in range(ii + 1, natoms):  # j > i
@@ -140,7 +140,7 @@ class Annealing:
                 #            zij = xyz_[ii, 2] - xyz_[jj, 2]
                 #            molecular += fij * np.cos(qx * xij + qy * yij + qz * zij)
                 #    iam_ = atomic_2d + 2 * molecular
-                # else:  # assumed to be isotropic 1D signal
+                #else:  # assumed to be isotropic 1D signal
                 molecular = np.zeros(qlen)  # total molecular factor
                 k = 0
                 for ii in range(natoms):

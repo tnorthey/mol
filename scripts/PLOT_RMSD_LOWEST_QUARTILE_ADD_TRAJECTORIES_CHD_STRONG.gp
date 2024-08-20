@@ -86,12 +86,12 @@ POS3 = "at graph 0.55, 0.45 font 'helvetica, 40'"
 # Enable the use of macros
 set macros
 
-set output "PLOT_RMSD_LOWEST_QUARTILE_ADD_TRAJECTORIES_CHD.png"
+set output "PLOT_RMSD_LOWEST_QUARTILE_ADD_TRAJECTORIES_CHD_STRONG.png"
 
 XMIN = -0.2
 XMAX = 6.2
-YMIN = 0.12
-YMAX = 1.00
+YMIN = 0.14
+YMAX = 0.54
 set yrange [YMIN : YMAX]
 set xrange [XMIN : XMAX]
 set key font ",40"
@@ -124,18 +124,12 @@ c3 = "#7f0000"
 
 p    "<paste rmsd_lowest_quartile_qmax4_traj090_strong_constraints_chd.dat rmsd_lowest_quartile_qmax4_traj099_strong_constraints_chd.dat rmsd_lowest_quartile_qmax4_traj094_strong_constraints_chd.dat"                 u (($2+$7+$12)/3) t "q_{max} = 4 Å^{-1}"     w lp lc rgb c1 lw LW1 dt DT1 pt PT1 ps PS1, \
      "<paste rmsd_lowest_quartile_qmax8_traj090_strong_constraints_chd.dat rmsd_lowest_quartile_qmax8_traj099_strong_constraints_chd.dat rmsd_lowest_quartile_qmax8_traj094_strong_constraints_chd.dat"                 u (($2+$7+$12)/3) t " = 8 Å^{-1}"     w lp lc rgb c2 lw LW1 dt DT1 pt PT2 ps PS1, \
-     "<paste rmsd_lowest_quartile_qmax4_traj090_weak_constraints_chd.dat rmsd_lowest_quartile_qmax4_traj099_weak_constraints_chd.dat rmsd_lowest_quartile_qmax4_traj094_weak_constraints_chd.dat"                 u (($2+$7+$12)/3) t ""     w lp lc rgb c1 lw LW2 dt DT2 pt PT1 ps PS2, \
-     "<paste rmsd_lowest_quartile_qmax8_traj090_weak_constraints_chd.dat rmsd_lowest_quartile_qmax8_traj099_weak_constraints_chd.dat rmsd_lowest_quartile_qmax8_traj094_weak_constraints_chd.dat"                 u (($2+$7+$12)/3) t ""     w lp lc rgb c2 lw LW2 dt DT2 pt PT2 ps PS2, \
 
 # filled errorbars...
-set style fill transparent solid 0.25 # partial transparency
+set style fill transparent solid 0.10 # partial transparency
 set style fill noborder # no separate top/bottom lines
 p "<paste rmsd_lowest_quartile_qmax4_traj090_strong_constraints_chd.dat rmsd_lowest_quartile_qmax4_traj099_strong_constraints_chd.dat rmsd_lowest_quartile_qmax4_traj094_strong_constraints_chd.dat"                 u :(($2+$7+$12)/3-($5+$10+$15)/3):(($2+$7+$12)/3+($5+$10+$15)/3) w filledcurves t "" lc rgb c1 lw LWe dt DT1, \
   "<paste rmsd_lowest_quartile_qmax8_traj090_strong_constraints_chd.dat rmsd_lowest_quartile_qmax8_traj099_strong_constraints_chd.dat rmsd_lowest_quartile_qmax8_traj094_strong_constraints_chd.dat"                 u :(($2+$7+$12)/3-($5+$10+$15)/3):(($2+$7+$12)/3+($5+$10+$15)/3) t ""     w filledcurves lc rgb c2 lw LWe dt DT1, \
-
-set style fill transparent solid 0.10 # partial transparency
-p  "<paste rmsd_lowest_quartile_qmax4_traj090_weak_constraints_chd.dat rmsd_lowest_quartile_qmax4_traj099_weak_constraints_chd.dat rmsd_lowest_quartile_qmax4_traj094_weak_constraints_chd.dat"                 u :(($2+$7+$12)/3-($5+$10+$15)/3):(($2+$7+$12)/3+($5+$10+$15)/3) t ""     w filledcurves lc rgb c1 lw LWe dt DT1, \
-  "<paste rmsd_lowest_quartile_qmax8_traj090_weak_constraints_chd.dat rmsd_lowest_quartile_qmax8_traj099_weak_constraints_chd.dat rmsd_lowest_quartile_qmax8_traj094_weak_constraints_chd.dat"                 u :(($2+$7+$12)/3-($5+$10+$15)/3):(($2+$7+$12)/3+($5+$10+$15)/3) t ""     w filledcurves lc rgb c2 lw LWe dt DT1, \
 
 # color definitions
 #set style line 2  lc rgb '#0025ad' lt 1 lw 2
