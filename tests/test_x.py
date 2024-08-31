@@ -80,6 +80,13 @@ def test_iam_calc():
     # test if H2O I(q=0) = 0 (within rounding)
     assert round(iam[0], 0) == 0.0, "H2O I_total(q = 0) != 0"
 
+def test_iam_calc_ewald():
+    electron_mode = False
+    iam, atomic, molecular, compton = x.iam_calc(atomic_numbers, xyz, qvector, electron_mode, inelastic, compton_array)
+    iam_3d, rotavg = x.iam_calc_ewald(atomic_numbers, xyz, qvector)
+    delta = iam - rotavg
+    assert round(np.sum(delta), 1) == 0.0, "Ewald rotavg is not equal to analytic IAM..."
+
 def test_iam_calc_2d():
     '''x-ray scattering mode'''
     # 2D signal

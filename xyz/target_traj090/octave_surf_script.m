@@ -20,7 +20,7 @@ surf(t, q, pcd(1:81, :));
 %title('Surf Plot Example');
 xlabel('t (fs)');
 ylabel('q (Å^{-1})');
-zlabel('%ΔI(q)');
+zlabel('%ΔI(q,t)');
 caxis([-35 60]);
 zlim([-35 60]);
 %colormap hot
