@@ -196,10 +196,10 @@ class Xray:
         qmax = qvector[-1]
         theta_min = 2 * np.arcsin(qmin / qmax)
         theta_max = 1 * np.pi
-        theta = np.linspace(theta_min, theta_max, qlen, endpoint=True)
         phi_min = 0
         phi_max = 2 * np.pi
-        phi = np.linspace(phi_min, phi_max, qlen, endpoint=True)
+        th = np.linspace(theta_min, theta_max, qlen, endpoint=True)
+        ph = np.linspace(phi_min, phi_max, qlen, endpoint=True)
         qx = np.zeros((qlen, qlen, qlen))
         qy = np.zeros((qlen, qlen, qlen))
         qz = np.zeros((qlen, qlen, qlen))
@@ -207,36 +207,39 @@ class Xray:
             for i in range(qlen):      # phi loop, note: skips 2*pi as f(0)=f(2*pi)
                 for j in range(qlen):  # theta loop           
                     # Create x, y, z as a function of spherical coords...           
-                    qx[k, j, i] = qvector[k] * sin(th[j]) * cos(ph[i])
-                    qy[k, j, i] = qvector[k] * sin(th[j]) * sin(ph[i])
-                    qz[k, j, i] = qvector[k] * cos(th[j])
+                    qx[k, j, i] = qvector[k] * np.sin(th[j]) * np.cos(ph[i])
+                    qy[k, j, i] = qvector[k] * np.sin(th[j]) * np.sin(ph[i])
+                    qz[k, j, i] = qvector[k] * np.cos(th[j])
 
         atomic = np.zeros((qlen, qlen, qlen))  # total atomic factor
         molecular = np.zeros((qlen, qlen, qlen))  # total molecular factor
         atomic_factor_array = np.zeros((natom, qlen, qlen, qlen))  # array of atomic factors
         # atomic
-        for i in range(natom):
-            for k in range(qlen):
-                atomic_factor_array[i, k, :, :] = self.atomic_factor(
-                    atomic_numbers[i], qvector
-                )
-            atomic += np.power(atomic_factor_array[i, :, :, :], 2)
+        for n in range(natom):
+            for i in range(qlen):
+                for j in range(qlen):
+                    atomic_factor_array[n, :, j, i] = self.atomic_factor(
+                        atomic_numbers[n], qvector
+                    )
+            atomic += np.power(atomic_factor_array[n, :, :, :], 2)
         # molecular
-        for i in range(natom):
-            for j in range(i + 1, natom):  # j > i
-                fij = np.multiply(
-                    atomic_factor_array[i, :, :, :], atomic_factor_array[j, :, :, :]
+        for n in range(natom):
+            for m in range(i + 1, natom):  # j > i
+                fnm = np.multiply(
+                    atomic_factor_array[n, :, :, :], atomic_factor_array[m, :, :, :]
                 )
-                xij = xyz[i, 0] - xyz[j, 0]
-                yij = xyz[i, 1] - xyz[j, 1]
-                zij = xyz[i, 2] - xyz[j, 2]
-                molecular += 2 * fij * np.cos(qx * xij + qy * yij + qz * zij)
-        iam_total = atomic + molecular
+                xnm = xyz[n, 0] - xyz[m, 0]
+                ynm = xyz[n, 1] - xyz[m, 1]
+                znm = xyz[n, 2] - xyz[m, 2]
+                #### do the maths again.. add to paper...
+                molecular += fnm * np.cos(qx * xnm + qy * ynm + qz * znm)
+        iam_total = atomic + 2 * molecular
         # the rotational average tends towards the exact sinc function solution of Debye
         # with increasing grid points (useful check!)
         ## write a test to check!
-        rotavg = np.sum(np.sum(iam_total, axis=2), axis=1) / qlen ** 2  # double check this double sum!
+        rotavg = np.sum(iam_total, axis=(1, 2)) / qlen ** 2  # double check this double sum!
         return iam_total, rotavg
+
 
     def iam_calc_2d(self, atomic_numbers, xyz, qvector):
         """

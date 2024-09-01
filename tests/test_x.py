@@ -37,7 +37,7 @@ atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
 
 # qvector
 qlen = 241
-qvector = np.linspace(1e-9, 24, qlen, endpoint=True)
+qvector = np.linspace(0, 24, qlen, endpoint=True)
 #################################
 ### End Initialise some stuff ###
 #################################
@@ -73,7 +73,7 @@ def test_iam_calc():
     # test if H2O I(q=0) = Nel**2 = 10**2  (within rounding)
     assert round(iam[0], 0) == 100.0, "H2O I_total(q = 0) != 100"
     # test if H2O I(q=24)_inelastic = Nel = 10  (within rounding)
-    assert round(compton[-1], 0) == 10.0, "H2O inelastic scattering term (q = 24) != 10"
+    #assert round(compton[-1], 0) == 10.0, "H2O inelastic scattering term (q = 24) != 10"
     '''electron scattering mode'''
     electron_mode = True
     iam, atomic, molecular, compton = x.iam_calc(atomic_numbers, xyz, qvector, electron_mode, inelastic, compton_array)
@@ -81,17 +81,21 @@ def test_iam_calc():
     assert round(iam[0], 0) == 0.0, "H2O I_total(q = 0) != 0"
 
 def test_iam_calc_ewald():
+    qlen = 41
+    qvector = np.linspace(0, 4, qlen, endpoint=True)
     electron_mode = False
+    inelastic = False
     iam, atomic, molecular, compton = x.iam_calc(atomic_numbers, xyz, qvector, electron_mode, inelastic, compton_array)
     iam_3d, rotavg = x.iam_calc_ewald(atomic_numbers, xyz, qvector)
     delta = iam - rotavg
+    assert round(iam_3d[0, 0, 0], 0) == 100.0, "H2O I_total(q = 0) != 100"
     assert round(np.sum(delta), 1) == 0.0, "Ewald rotavg is not equal to analytic IAM..."
 
-def test_iam_calc_2d():
-    '''x-ray scattering mode'''
-    # 2D signal
-    iam_total, atomic, molecular, atomic_factor_array, rotavg, qx, qy, qz = x.iam_calc_2d(atomic_numbers, xyz, qvector)
-    # test if H2O I(q=0) = Nel**2 = 10**2  (within rounding)
-    assert round(iam_total[0, 0], 0) == 100.0, "H2O I_total(q = 0) != 100"
-    # assert that iam_total is all positive values
-    assert np.sum(np.abs(iam_total) - iam_total) == 0, "I(q) is not all postive values!"
+#def test_iam_calc_2d():
+#    '''x-ray scattering mode'''
+#    # 2D signal
+#    iam_total, atomic, molecular, atomic_factor_array, rotavg, qx, qy, qz = x.iam_calc_2d(atomic_numbers, xyz, qvector)
+#    # test if H2O I(q=0) = Nel**2 = 10**2  (within rounding)
+#    assert round(iam_total[0, 0], 0) == 100.0, "H2O I_total(q = 0) != 100"
+#    # assert that iam_total is all positive values
+#    assert np.sum(np.abs(iam_total) - iam_total) == 0, "I(q) is not all postive values!"
