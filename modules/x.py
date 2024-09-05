@@ -207,15 +207,18 @@ class Xray:
         qmax = qvector[-1]
         theta_min = 2 * np.arcsin(qmin / qmax)
         theta_max = 1 * np.pi
+        delta_theta = (theta_max - theta_min) / qlen
         phi_min = 0
-        phi_max = 2 * np.pi
+        delta_phi = 2 * np.pi / qlen
+        phi_max = 2 * np.pi - delta_phi
         th = np.linspace(theta_min, theta_max, qlen, endpoint=True)
         ph = np.linspace(phi_min, phi_max, qlen, endpoint=True)
         qx = np.zeros((qlen, qlen, qlen))
         qy = np.zeros((qlen, qlen, qlen))
         qz = np.zeros((qlen, qlen, qlen))
+        # au2ang = 0.52918
         for k in range(1, qlen):  # loop through spheres of non-zero radius r(kk)
-            for i in range(qlen - 1):  # phi loop, note: skips 2*pi as f(0)=f(2*pi)
+            for i in range(qlen):  # phi loop, note: skips 2*pi as f(0)=f(2*pi)
                 for j in range(qlen):  # theta loop
                     # Create x, y, z as a function of spherical coords...
                     qx[k, j, i] = qvector[k] * np.sin(th[j]) * np.cos(ph[i])
@@ -247,7 +250,7 @@ class Xray:
                 xnm = xyz[n, 0] - xyz[m, 0]
                 ynm = xyz[n, 1] - xyz[m, 1]
                 znm = xyz[n, 2] - xyz[m, 2]
-                molecular += 2 * fnm * np.cos(qx * xnm + qy * ynm + qz * znm)
+                molecular += 2 * fnm * np.cos( (qx * xnm + qy * ynm + qz * znm) )
 
         iam_total = atomic + molecular + compton
         # the rotational average tends towards the exact sinc function solution of Debye
