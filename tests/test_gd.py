@@ -48,8 +48,8 @@ def test_dImoldx():
     """test dImol/dx function"""
 
     dImoldx = g.dImoldx(starting_xyz, atomic_factor_array, qvector)
-    print(dImoldx.shape)
-    print(dImoldx)
+    #print(dImoldx.shape)
+    #print(dImoldx)
     assert dImoldx.shape == (qlen, natoms, 3)
     # more assertations.. I have not proved it actually works correctly!
     # (15 Nov: likely not correct as last row is all zeros always)

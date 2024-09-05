@@ -177,16 +177,27 @@ class Xray:
                 compton += compton_array[i, :]
         for i in range(natom):
             for j in range(i + 1, natom):  # j > i
-                molecular += np.multiply(
-                    (zfactor[i] - e_mode_int * atomic_factor_array[i, :]),
-                    (zfactor[j] - e_mode_int * atomic_factor_array[j, :]),
-                ) * np.sinc(qvector * np.linalg.norm(xyz[i, :] - xyz[j, :]) / np.pi)
-        iam = atomic + 2 * molecular
+                molecular += (
+                    2
+                    * np.multiply(
+                        (zfactor[i] - e_mode_int * atomic_factor_array[i, :]),
+                        (zfactor[j] - e_mode_int * atomic_factor_array[j, :]),
+                    )
+                    * np.sinc(qvector * np.linalg.norm(xyz[i, :] - xyz[j, :]) / np.pi)
+                )
+        iam = atomic + molecular
         if inelastic:
             iam += compton
         return iam, atomic, molecular, compton
 
-    def iam_calc_ewald(self, atomic_numbers, xyz, qvector):
+    def iam_calc_ewald(
+        self,
+        atomic_numbers,
+        xyz,
+        qvector,
+        inelastic=False,
+        compton_array=np.zeros(0),
+    ):
         """
         calculate IAM function in the Ewald sphere
         """
@@ -203,43 +214,59 @@ class Xray:
         qx = np.zeros((qlen, qlen, qlen))
         qy = np.zeros((qlen, qlen, qlen))
         qz = np.zeros((qlen, qlen, qlen))
-        for k in range(1, qlen):       # loop through spheres of non-zero radius r(kk)    
-            for i in range(qlen):      # phi loop, note: skips 2*pi as f(0)=f(2*pi)
-                for j in range(qlen):  # theta loop           
-                    # Create x, y, z as a function of spherical coords...           
+        for k in range(1, qlen):  # loop through spheres of non-zero radius r(kk)
+            for i in range(qlen - 1):  # phi loop, note: skips 2*pi as f(0)=f(2*pi)
+                for j in range(qlen):  # theta loop
+                    # Create x, y, z as a function of spherical coords...
                     qx[k, j, i] = qvector[k] * np.sin(th[j]) * np.cos(ph[i])
                     qy[k, j, i] = qvector[k] * np.sin(th[j]) * np.sin(ph[i])
                     qz[k, j, i] = qvector[k] * np.cos(th[j])
-
-        atomic = np.zeros((qlen, qlen, qlen))  # total atomic factor
-        molecular = np.zeros((qlen, qlen, qlen))  # total molecular factor
-        atomic_factor_array = np.zeros((natom, qlen, qlen, qlen))  # array of atomic factors
+        # inelastic effects
+        compton = np.zeros((qlen, qlen, qlen))  # total compton factor
         # atomic
+        atomic = np.zeros((qlen, qlen, qlen))  # total atomic factor
+        atomic_factor_array = np.zeros(
+            (natom, qlen, qlen, qlen)
+        )  # array of atomic factors
         for n in range(natom):
             for i in range(qlen):
                 for j in range(qlen):
                     atomic_factor_array[n, :, j, i] = self.atomic_factor(
                         atomic_numbers[n], qvector
                     )
+                    if inelastic:
+                        compton[:, j, i] += compton_array[n, :]
             atomic += np.power(atomic_factor_array[n, :, :, :], 2)
         # molecular
-        for n in range(natom):
-            for m in range(i + 1, natom):  # j > i
+        molecular = np.zeros((qlen, qlen, qlen))  # total molecular factor
+        for n in range(natom - 1):
+            for m in range(n + 1, natom):  # j > i
                 fnm = np.multiply(
                     atomic_factor_array[n, :, :, :], atomic_factor_array[m, :, :, :]
                 )
                 xnm = xyz[n, 0] - xyz[m, 0]
                 ynm = xyz[n, 1] - xyz[m, 1]
                 znm = xyz[n, 2] - xyz[m, 2]
-                #### do the maths again.. add to paper...
-                molecular += fnm * np.cos(qx * xnm + qy * ynm + qz * znm)
-        iam_total = atomic + 2 * molecular
+                molecular += 2 * fnm * np.cos(qx * xnm + qy * ynm + qz * znm)
+
+        iam_total = atomic + molecular + compton
         # the rotational average tends towards the exact sinc function solution of Debye
         # with increasing grid points (useful check!)
-        ## write a test to check!
-        rotavg = np.sum(iam_total, axis=(1, 2)) / qlen ** 2  # double check this double sum!
-        return iam_total, rotavg
-
+        ## write a test to check! (done.)
+        iam_total_rotavg = np.sum(iam_total, axis=(1, 2)) / qlen**2
+        atomic_rotavg = np.sum(atomic, axis=(1, 2)) / qlen**2
+        molecular_rotavg = np.sum(molecular, axis=(1, 2)) / qlen**2
+        compton_rotavg = np.sum(compton, axis=(1, 2)) / qlen**2
+        return (
+            iam_total,
+            atomic,
+            molecular,
+            compton,
+            iam_total_rotavg,
+            atomic_rotavg,
+            molecular_rotavg,
+            compton_rotavg,
+        )
 
     def iam_calc_2d(self, atomic_numbers, xyz, qvector):
         """
