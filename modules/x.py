@@ -211,29 +211,31 @@ class Xray:
         phi_min = 0
         delta_phi = 2 * np.pi / qlen
         phi_max = 2 * np.pi - delta_phi
-        th = np.linspace(theta_min, theta_max, qlen, endpoint=True)
-        ph = np.linspace(phi_min, phi_max, qlen, endpoint=True)
-        qx = np.zeros((qlen, qlen, qlen))
-        qy = np.zeros((qlen, qlen, qlen))
-        qz = np.zeros((qlen, qlen, qlen))
+        tlen = qlen
+        plen = 2 * qlen
+        th = np.linspace(theta_min, theta_max, tlen, endpoint=True)
+        ph = np.linspace(phi_min, phi_max, plen, endpoint=True)
+        qx = np.zeros((qlen, tlen, plen))
+        qy = np.zeros((qlen, tlen, plen))
+        qz = np.zeros((qlen, tlen, plen))
         # au2ang = 0.52918
         for k in range(1, qlen):  # loop through spheres of non-zero radius r(kk)
-            for i in range(qlen):  # phi loop, note: skips 2*pi as f(0)=f(2*pi)
-                for j in range(qlen):  # theta loop
+            for i in range(plen):  # phi loop, note: skips 2*pi as f(0)=f(2*pi)
+                for j in range(tlen):  # theta loop
                     # Create x, y, z as a function of spherical coords...
                     qx[k, j, i] = qvector[k] * np.sin(th[j]) * np.cos(ph[i])
                     qy[k, j, i] = qvector[k] * np.sin(th[j]) * np.sin(ph[i])
                     qz[k, j, i] = qvector[k] * np.cos(th[j])
         # inelastic effects
-        compton = np.zeros((qlen, qlen, qlen))  # total compton factor
+        compton = np.zeros((qlen, tlen, plen))  # total compton factor
         # atomic
-        atomic = np.zeros((qlen, qlen, qlen))  # total atomic factor
+        atomic = np.zeros((qlen, tlen, plen))  # total atomic factor
         atomic_factor_array = np.zeros(
-            (natom, qlen, qlen, qlen)
+            (natom, qlen, tlen, plen)
         )  # array of atomic factors
         for n in range(natom):
-            for i in range(qlen):
-                for j in range(qlen):
+            for i in range(plen):
+                for j in range(tlen):
                     atomic_factor_array[n, :, j, i] = self.atomic_factor(
                         atomic_numbers[n], qvector
                     )
@@ -241,25 +243,28 @@ class Xray:
                         compton[:, j, i] += compton_array[n, :]
             atomic += np.power(atomic_factor_array[n, :, :, :], 2)
         # molecular
-        molecular = np.zeros((qlen, qlen, qlen))  # total molecular factor
+        molecular = np.zeros((qlen, tlen, plen))  # total molecular factor
         for n in range(natom - 1):
             for m in range(n + 1, natom):  # j > i
                 fnm = np.multiply(
                     atomic_factor_array[n, :, :, :], atomic_factor_array[m, :, :, :]
                 )
-                xnm = xyz[n, 0] - xyz[m, 0]
-                ynm = xyz[n, 1] - xyz[m, 1]
-                znm = xyz[n, 2] - xyz[m, 2]
+                # notably these aren't linalg.norms ...
+                # and the case where I use m - n is slightly different to n - m.
+                # it must be a mistake. Double check!!!
+                xnm = xyz[m, 0] - xyz[n, 0]
+                ynm = xyz[m, 1] - xyz[n, 1]
+                znm = xyz[m, 2] - xyz[n, 2]
                 molecular += 2 * fnm * np.cos( (qx * xnm + qy * ynm + qz * znm) )
 
         iam_total = atomic + molecular + compton
         # the rotational average tends towards the exact sinc function solution of Debye
         # with increasing grid points (useful check!)
         ## write a test to check! (done.)
-        iam_total_rotavg = np.sum(iam_total, axis=(1, 2)) / qlen**2
-        atomic_rotavg = np.sum(atomic, axis=(1, 2)) / qlen**2
-        molecular_rotavg = np.sum(molecular, axis=(1, 2)) / qlen**2
-        compton_rotavg = np.sum(compton, axis=(1, 2)) / qlen**2
+        iam_total_rotavg = np.sum(iam_total, axis=(1, 2)) / (tlen * plen)
+        atomic_rotavg = np.sum(atomic, axis=(1, 2)) / (tlen * plen)
+        molecular_rotavg = np.sum(molecular, axis=(1, 2)) / (tlen * plen)
+        compton_rotavg = np.sum(compton, axis=(1, 2)) / (tlen * plen)
         return (
             iam_total,
             atomic,

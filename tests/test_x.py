@@ -36,8 +36,8 @@ natoms = len(atomlist)
 atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
 
 # qvector
-qlen = 41
-qvector = np.linspace(0, 2, qlen, endpoint=True)
+qlen = 81
+qvector = np.linspace(0, 12, qlen, endpoint=True)
 #################################
 ### End Initialise some stuff ###
 #################################
@@ -95,8 +95,8 @@ def test_iam_calc():
 
 
 def test_iam_calc_ewald():
-    qlen = 41
-    qvector = np.linspace(0, 2, qlen, endpoint=True)
+    qlen = 81
+    qvector = np.linspace(0, 12, qlen, endpoint=True)
     electron_mode = False
     inelastic = True
     iam_1d, atomic, molecular, compton = x.iam_calc(
