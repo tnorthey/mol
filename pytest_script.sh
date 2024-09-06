@@ -1,4 +1,4 @@
 #!/bin/bash
 
-pytest -v --ignore=results_/
+pytest -vs --ignore=results_/
 

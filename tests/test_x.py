@@ -32,6 +32,7 @@ x = xray.Xray()
 #############################
 # read test.xyz (perfectly linear H-O-H with exactly 1 Angstrom OH bonds)
 xyzheader, comment, atomlist, xyz = m.read_xyz("xyz/test.xyz")
+#xyzheader, comment, atomlist, xyz = m.read_xyz("xyz/chd_opt.xyz")
 natoms = len(atomlist)
 atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
 
@@ -112,7 +113,6 @@ def test_iam_calc_ewald():
         molecular_rotavg,
         compton_rotavg,
     ) = x.iam_calc_ewald(atomic_numbers, xyz, qvector, inelastic, compton_array)
-    delta = iam_1d - iam_total_rotavg
     np.savetxt("rotavg.del_%s" % qlen, np.column_stack((qvector, iam_total_rotavg)))
     np.savetxt("iam_1d.del_%s" % qlen, np.column_stack((qvector, iam_1d)))
     np.savetxt("atomic_rotavg.del_%s" % qlen, np.column_stack((qvector, atomic_rotavg)))
@@ -124,8 +124,24 @@ def test_iam_calc_ewald():
     assert round(atomic_3d[0, 0, 0], 1) == 66.0, "I_atomic(q = 0) != 66"
     assert round(molecular_3d[0, 0, 0], 1) == 34.0, "I_mol(q = 0) != 34"
     assert round(iam_3d[0, 0, 0], 0) == 100.0, "H2O I_total(q = 0) != 100"
+    assert round(atomic_rotavg[0], 1) == 66.0, "I_atomic_rotavg(q = 0) != 66"
+    assert round(molecular_rotavg[0], 1) == 34.0, "I_mol_rotavg(q = 0) != 34"
+    assert round(iam_total_rotavg[0], 1) == 100.0, "H20 I_total_rotavg(q = 0) != 100"
+    delta_total = 100 * (iam_1d - iam_total_rotavg) / iam_1d
+    delta_atomic = 100 * (atomic - atomic_rotavg) / atomic
+    delta_molecular = 100 * (molecular - molecular_rotavg) / molecular
+    delta_compton = 100 * (compton - compton_rotavg) / compton
     assert (
-        round(np.sum(delta), 1) == 0.0
+        round(np.sum(delta_atomic) / qlen, 1) == 0.0
+    ), "Atomic 3d rotavg is not equal to analytic IAM..."
+    assert (
+        round(np.sum(delta_compton) / qlen, 1) == 0.0
+    ), "Compton 3d rotavg is not equal to analytic IAM..."
+    assert (
+        round(np.sum(delta_molecular) / qlen, 1) < 0.5
+    ), "Molecular 3d rotavg is not equal to analytic IAM..."
+    assert (
+        round(np.sum(delta_total) / qlen, 1) < 0.5
     ), "Ewald rotavg is not equal to analytic IAM..."
 
 
