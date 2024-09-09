@@ -202,37 +202,21 @@ class Xray:
         calculate IAM function in the Ewald sphere
         """
         natom = len(atomic_numbers)
-        qmin = qvector[0]
-        qmax = qvector[-1]
-        qlen = len(qvector)
+        qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
         tlen = 1 * qlen
-        plen = 2 * qlen
-        th_min = 2 * np.arcsin(qmin / qmax)
-        th_max = 1 * np.pi
-        dth = (th_max - th_min) / tlen
-        ph_min = 0
-        ph_max = 2 * np.pi
-        #dph = 2 * np.pi / plen
-        dph = (ph_max - ph_min) / plen
-        #ph_max = 2 * np.pi - dph
+        plen = 2 * qlen  # more grid points in phi because it spans more
+        th_min, th_max = 0, np.pi
+        ph_min, ph_max = 0, 2 * np.pi
         th = np.linspace(th_min, th_max, tlen, endpoint=True)
-        ph = np.linspace(ph_min, ph_max, plen, endpoint=False)
-        # could use meshgrid instead here ... (but I couldn't get it to be equivalent for now)
-        r_grid, th_grid, ph_grid = np.meshgrid(qvector, th, ph, indexing='ij')
+        ph = np.linspace(
+            ph_min, ph_max, plen, endpoint=False
+        )  # skips 2pi as f(0) = f(2pi)
+        # define coordinates on meshgrid
+        r_grid, th_grid, ph_grid = np.meshgrid(qvector, th, ph, indexing="ij")
         # Convert spherical coordinates to Cartesian coordinates
         qx = r_grid * np.sin(th_grid) * np.cos(ph_grid)
         qy = r_grid * np.sin(th_grid) * np.sin(ph_grid)
         qz = r_grid * np.cos(th_grid)
-        #qx = np.zeros((qlen, tlen, plen))
-        #qy = np.zeros((qlen, tlen, plen))
-        #qz = np.zeros((qlen, tlen, plen))
-        #for k in range(1, qlen):  # loop through spheres of non-zero radius r(kk)
-        #    for i in range(plen):  # phi loop, note: skips 2*pi as f(0)=f(2*pi)
-        #        for j in range(tlen):  # theta loop
-        #            # Create x, y, z as a function of spherical coords...
-        #            qx[k, j, i] = qvector[k] * np.sin(th[j]) * np.cos(ph[i])
-        #            qy[k, j, i] = qvector[k] * np.sin(th[j]) * np.sin(ph[i])
-        #            qz[k, j, i] = qvector[k] * np.cos(th[j])
         # inelastic effects
         compton = np.zeros((qlen, tlen, plen))  # total compton factor
         # atomic
@@ -251,32 +235,33 @@ class Xray:
             atomic += np.power(atomic_factor_array[n, :, :, :], 2)
         # molecular
         molecular = np.zeros((qlen, tlen, plen))  # total molecular factor
-        #for n in range(natom):
+        # for n in range(natom):
         #    for m in range(natom):
         for n in range(natom - 1):
             for m in range(n + 1, natom):  # j > i
                 fnm = np.multiply(
                     atomic_factor_array[n, :, :, :], atomic_factor_array[m, :, :, :]
                 )
-                xnm = (xyz[n, 0] - xyz[m, 0])
-                ynm = (xyz[n, 1] - xyz[m, 1])
-                znm = (xyz[n, 2] - xyz[m, 2])
-                molecular += 2 * fnm * np.cos( (qx * xnm + qy * ynm + qz * znm) )
+                xnm = xyz[n, 0] - xyz[m, 0]
+                ynm = xyz[n, 1] - xyz[m, 1]
+                znm = xyz[n, 2] - xyz[m, 2]
+                molecular += 2 * fnm * np.cos((qx * xnm + qy * ynm + qz * znm))
 
         iam_total = atomic + molecular + compton
-        # the rotational average tends towards the exact sinc function solution of Debye
-        # with increasing grid points (useful check!)
-        ## write a test to check! (done.)
+        # the rotational average tends towards the exact sinc function IAM solution
         atomic_rotavg = np.sum(atomic, axis=(1, 2)) / (tlen * plen)
-        #dA = dth * dph * np.sin(th_grid)
-        # only sum over phi:
+        compton_rotavg = np.sum(compton, axis=(1, 2)) / (tlen * plen)
+        # molecular rotatational average includes area element sin(th)dth*dph
+        # first sum over phi,
         molecular_rotavg_phi = np.sum(molecular, axis=2)
+        # multiply by the sin(th) term,
         for j in range(tlen):
             molecular_rotavg_phi[:, j] *= np.sin(th[j])
         dth = th[1] - th[0]
-        dph = 2 * np.pi / plen
-        molecular_rotavg = np.sum(molecular_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
-        compton_rotavg = np.sum(compton, axis=(1, 2)) / (tlen * plen)
+        dph = (ph_max - ph_min) / plen
+        molecular_rotavg = (
+            np.sum(molecular_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
+        )
         iam_total_rotavg = atomic_rotavg + molecular_rotavg + compton_rotavg
         return (
             iam_total,
