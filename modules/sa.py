@@ -63,7 +63,7 @@ class Annealing:
         modes = list(range(nmodes))  # all modes
         ## q-vector, atomic, and pre-molecular IAM contributions ##
         # print(qvector)
-        qlen = len(qvector)  # length of q-vector
+        qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
         if not inelastic:
             compton = 0
         ##=#=#=# END DEFINITIONS #=#=#=#
@@ -93,6 +93,27 @@ class Annealing:
         theta0_arr2 = angle_array(angular_indices2)
         # print(np.degrees(theta0_arr))
         # print("HO factors: %4.3f %4.3f" % (bonding_factor[0], bonding_factor[1]))
+        ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
+
+        ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
+        ### define qx, qy, qz for Ewald mode
+        if ewald_mode:
+            # define qx, qy, qz on meshgrid...
+            tlen = 1 * qlen
+            plen = 2 * qlen  # more grid points in phi because it spans more
+            th_min, th_max = 0, np.pi
+            ph_min, ph_max = 0, 2 * np.pi
+            th = np.linspace(th_min, th_max, tlen, endpoint=True)
+            ph = np.linspace(
+                ph_min, ph_max, plen, endpoint=False
+            )  # skips 2pi as f(0) = f(2pi)
+            # define coordinates on meshgrid
+            r_grid, th_grid, ph_grid = np.meshgrid(qvector, th, ph, indexing="ij")
+            # Convert spherical coordinates to Cartesian coordinates
+            qx = r_grid * np.sin(th_grid) * np.cos(ph_grid)
+            qy = r_grid * np.sin(th_grid) * np.sin(ph_grid)
+            qz = r_grid * np.cos(th_grid)
+
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
 
         @njit(nogil=True)  # numba decorator to compile to machine code
@@ -128,69 +149,36 @@ class Annealing:
 
                 ##=#=#=# IAM CALCULATION #=#=#=##
                 if ewald_mode:  # x-ray signal in Ewald sphere, q = (q_radial, q_theta, q_phi)
-                #    define qx, qy, qz on meshgrid...
-                # """
-                # calculate IAM function in the Ewald sphere
-                # """
-                # natom = len(atomic_numbers)
-                # qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
-                # tlen = 1 * qlen
-                # plen = 2 * qlen  # more grid points in phi because it spans more
-                # th_min, th_max = 0, np.pi
-                # ph_min, ph_max = 0, 2 * np.pi
-                # th = np.linspace(th_min, th_max, tlen, endpoint=True)
-                # ph = np.linspace(
-                #     ph_min, ph_max, plen, endpoint=False
-                # )  # skips 2pi as f(0) = f(2pi)
-                # # define coordinates on meshgrid
-                # r_grid, th_grid, ph_grid = np.meshgrid(qvector, th, ph, indexing="ij")
-                # # Convert spherical coordinates to Cartesian coordinates
-                # qx = r_grid * np.sin(th_grid) * np.cos(ph_grid)
-                # qy = r_grid * np.sin(th_grid) * np.sin(ph_grid)
-                # qz = r_grid * np.cos(th_grid)
-                # # inelastic effects
-                # compton = np.zeros((qlen, tlen, plen))  # total compton factor
-                # # atomic
-                # atomic = np.zeros((qlen, tlen, plen))  # total atomic factor
-                # atomic_factor_array = np.zeros(
-                #     (natom, qlen, tlen, plen)
-                # )  # array of atomic factors
-                # for n in range(natom):
-                #     for i in range(plen):
-                #         for j in range(tlen):
-                #             atomic_factor_array[n, :, j, i] = self.atomic_factor(
-                #                 atomic_numbers[n], qvector
-                #             )
-                #             if inelastic:
-                #                 compton[:, j, i] += compton_array[n, :]
-                #     atomic += np.power(atomic_factor_array[n, :, :, :], 2)
-                # # molecular
-                # molecular = np.zeros((qlen, tlen, plen))  # total molecular factor
-                # # for n in range(natom):
-                # #    for m in range(natom):
-                # for n in range(natom - 1):
-                #     for m in range(n + 1, natom):  # j > i
-                #         fnm = np.multiply(
-                #             atomic_factor_array[n, :, :, :], atomic_factor_array[m, :, :, :]
-                #         )
-                #         xnm = xyz[n, 0] - xyz[m, 0]
-                #         ynm = xyz[n, 1] - xyz[m, 1]
-                #         znm = xyz[n, 2] - xyz[m, 2]
-                #         molecular += 2 * fnm * np.cos((qx * xnm + qy * ynm + qz * znm))
-
-                #
-                #
-                #    molecular = np.zeros((qlen, qlen, qlen))  # total molecular factor
-                #    for ii in range(natoms):
-                #        for jj in range(ii + 1, natoms):  # j > i
-                #            fij = np.multiply(
-                #                atomic_factor_array[ii, :, :],
-                #                atomic_factor_array[jj, :, :],
-                #            )
-                #            xij = xyz_[ii, 0] - xyz_[jj, 0]
-                #            yij = xyz_[ii, 1] - xyz_[jj, 1]
-                #            zij = xyz_[ii, 2] - xyz_[jj, 2]
-                #            molecular += fij * np.cos(qx * xij + qy * yij + qz * zij)
+                    ### atomic and compton parts are inputs to the function...
+                    ### TO DO : they should be in the wrap function
+                    # # inelastic effects
+                    # compton = np.zeros((qlen, tlen, plen))  # total compton factor
+                    # # atomic
+                    # atomic = np.zeros((qlen, tlen, plen))  # total atomic factor
+                    # atomic_factor_array = np.zeros(
+                    #     (natom, qlen, tlen, plen)
+                    # )  # array of atomic factors
+                    # for n in range(natom):
+                    #     for i in range(plen):
+                    #         for j in range(tlen):
+                    #             atomic_factor_array[n, :, j, i] = self.atomic_factor(
+                    #                 atomic_numbers[n], qvector
+                    #             )
+                    #             if inelastic:
+                    #                 compton[:, j, i] += compton_array[n, :]
+                    #     atomic += np.power(atomic_factor_array[n, :, :, :], 2)
+                    # molecular
+                    molecular = np.zeros((qlen, tlen, plen))  # total molecular factor
+                    for n in range(natoms - 1):
+                        for m in range(n + 1, natoms):  # j > i
+                            fnm = np.multiply(
+                                atomic_factor_array[n, :, :, :], atomic_factor_array[m, :, :, :]
+                            )
+                            xnm = xyz[n, 0] - xyz[m, 0]
+                            ynm = xyz[n, 1] - xyz[m, 1]
+                            znm = xyz[n, 2] - xyz[m, 2]
+                            molecular += 2 * fnm * np.cos((qx * xnm + qy * ynm + qz * znm))
+                    ### end ewald_mode
                 else:  # assumed to be isotropic 1D signal
                     molecular = np.zeros(qlen)  # total molecular factor
                     k = 0
@@ -206,12 +194,14 @@ class Annealing:
                 if pcd_mode:
                     predicted_function_ = 100 * (iam_ / reference_iam - 1)
                     ### x-ray part of objective function
+                    ### TO DO: depends on ewald_mode ...
                     xray_contrib = (
                         np.sum((predicted_function_ - target_data) ** 2) / qlen
                     )
                 else:
                     predicted_function_ = iam_
                     ### x-ray part of objective function
+                    ### TO DO: depends on ewald_mode ...
                     xray_contrib = (
                         np.sum(
                             (predicted_function_ - target_data) ** 2
