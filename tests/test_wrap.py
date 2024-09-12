@@ -29,10 +29,13 @@ def test_wrap_chd():
         start_xyz_file,
         reference_xyz_file,
         target_xyz_file,
-        qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
+        results_dir,
+        qvector=np.linspace(1e-9, 2.0, 21, endpoint=True),
+        noise = 0.0,
+        noise_data_file = "noise/noise.dat",
         inelastic=True,
         pcd_mode=False,
-        noise = 0.1,
+        ewald_mode=True,
         sa_starting_temp = 1.0,
         nmfile = "nm/chd_normalmodes.txt",
         hydrogen_modes = np.arange(28, nmodes),  # CHD hydrogen modes
@@ -52,7 +55,10 @@ def test_wrap_chd():
         #angular_indices = np.array([[0, 1, 2, 3, 6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1], 
         #                            [1, 2, 3, 4, 0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0], 
         #                            [2, 3, 4, 5, 7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]])  # chd (C-C-C angles, and all C-C-H, H-C-H angles)
-        angular_indices = np.array([[6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1],
+        angular_indices1 = np.array([[6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1],
+                                    [0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0],
+                                    [7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]]),  # chd (non-C-C-C angles: C-C-H, H-C-H angles)
+        angular_indices2 = np.array([[6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1],
                                     [0, 5,  1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0],
                                     [7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]]),  # chd (non-C-C-C angles: C-C-H, H-C-H angles)
         sa_step_size=0.012,
@@ -64,7 +70,6 @@ def test_wrap_chd():
         nrestarts = 1,
         non_h_modes_only=False,  # only include "non-hydrogen" modes
         hf_energy=False,  # run PySCF HF energy
-        results_dir=results_dir,
         rmsd_indices = np.array([0, 1, 2, 3, 4, 5]),  # chd
         bond_indices = np.array([0, 5]),    # chd ring-opening bond
         angle_indices = np.array([0, 3, 5]),    # angle
@@ -93,10 +98,13 @@ def test_wrap_nmm():
         start_xyz_file,
         reference_xyz_file,
         target_xyz_file,
+        results_dir,
         qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
+        noise = 0.1,
+        noise_data_file = "noise/noise.dat",
         inelastic=True,
         pcd_mode=False,
-        noise = 0.1,
+        ewald_mode=False,
         sa_starting_temp = 1.0,
         nmfile = "nm/nmm_normalmodes.txt",
         hydrogen_modes = np.arange(38, nmodes),  # CHD hydrogen modes
@@ -112,7 +120,8 @@ def test_wrap_nmm():
                         [7, 8, 9, 2, 4, 14, 15, 11, 13, 16, 17],
         ]),  # nmm (C-H bonds)
         angular_bool=False,   # use HO terms on the angles
-        angular_indices = np.array([[0, 0], [1, 1], [2, 2]]),
+        angular_indices1 = np.array([[0, 0], [1, 1], [2, 2]]),
+        angular_indices2 = np.array([[0, 0], [1, 1], [2, 2]]),
         sa_step_size=0.012,
         ga_step_size=0.012,
         sa_harmonic_factor = (ACC, ACH),
@@ -122,7 +131,6 @@ def test_wrap_nmm():
         nrestarts = 1,    # it restarts from the xyz_best of the previous restart
         non_h_modes_only=False,  # only include "non-hydrogen" modes
         hf_energy=True,  # run PySCF HF energy
-        results_dir=results_dir,
         rmsd_indices = np.array([3, 5, 6, 10, 12, 0, 1]),  # nmm
         bond_indices = np.array([0, 5]),   # chd ring-opening bond
         angle_indices = np.array([6, 3, 12]),   # nmm methyl group angle

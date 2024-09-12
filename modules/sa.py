@@ -98,9 +98,8 @@ class Annealing:
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
         ### define qx, qy, qz for Ewald mode
         if ewald_mode:
-            # define qx, qy, qz on meshgrid...
             tlen = 1 * qlen
-            plen = 2 * qlen  # more grid points in phi because it spans more
+            plen = 2 * qlen  # double phi-grid points because it spans double
             th_min, th_max = 0, np.pi
             ph_min, ph_max = 0, 2 * np.pi
             th = np.linspace(th_min, th_max, tlen, endpoint=True)
@@ -113,7 +112,6 @@ class Annealing:
             qx = r_grid * np.sin(th_grid) * np.cos(ph_grid)
             qy = r_grid * np.sin(th_grid) * np.sin(ph_grid)
             qz = r_grid * np.cos(th_grid)
-
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
 
         @njit(nogil=True)  # numba decorator to compile to machine code
@@ -149,24 +147,6 @@ class Annealing:
 
                 ##=#=#=# IAM CALCULATION #=#=#=##
                 if ewald_mode:  # x-ray signal in Ewald sphere, q = (q_radial, q_theta, q_phi)
-                    ### atomic and compton parts are inputs to the function...
-                    ### TO DO : they should be in the wrap function
-                    # # inelastic effects
-                    # compton = np.zeros((qlen, tlen, plen))  # total compton factor
-                    # # atomic
-                    # atomic = np.zeros((qlen, tlen, plen))  # total atomic factor
-                    # atomic_factor_array = np.zeros(
-                    #     (natom, qlen, tlen, plen)
-                    # )  # array of atomic factors
-                    # for n in range(natom):
-                    #     for i in range(plen):
-                    #         for j in range(tlen):
-                    #             atomic_factor_array[n, :, j, i] = self.atomic_factor(
-                    #                 atomic_numbers[n], qvector
-                    #             )
-                    #             if inelastic:
-                    #                 compton[:, j, i] += compton_array[n, :]
-                    #     atomic += np.power(atomic_factor_array[n, :, :, :], 2)
                     # molecular
                     molecular = np.zeros((qlen, tlen, plen))  # total molecular factor
                     for n in range(natoms - 1):

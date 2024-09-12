@@ -104,48 +104,48 @@ class Xray:
             compton_array[i, :] = interpolate.splev(qvector, tck, der=0)
         return compton_array
 
-    def atomic_pre_molecular(
-        self, atomic_numbers, qvector: NDArray, aa, bb, cc, electron_mode=False
-    ):
-        """both parts of IAM equation that don't depend on atom-atom distances"""
-        # compton factors for inelastic effect
-        compton_array = self.compton_spline(atomic_numbers, qvector)
-        natoms = len(atomic_numbers)
-        qlen = len(qvector)
-        atomic_total = np.zeros(qlen)  # total atomic factor
-        atomic_factor_array = np.zeros((natoms, qlen))  # array of atomic factors
-        compton = np.zeros(qlen)
-        for k in range(natoms):
-            compton += compton_array[k, :]
-            atomfactor = np.zeros(qlen)
-            for j in range(qlen):
-                for i in range(4):
-                    atomfactor[j] += aa[atomic_numbers[k] - 1, i] * np.exp(
-                        -bb[atomic_numbers[k] - 1, i] * (0.25 * qvector[j] / np.pi) ** 2
-                    )
-            atomfactor += cc[atomic_numbers[k] - 1]
-            atomic_factor_array[k, :] = atomfactor
-            if electron_mode:
-                atomic_total += (atomic_numbers[k] - atomfactor) ** 2
-            else:
-                atomic_total += atomfactor**2
-        nij = int(natoms * (natoms - 1) / 2)
-        pre_molecular = np.zeros((nij, qlen))
-        k = 0
-        for i in range(natoms):
-            for j in range(i + 1, natoms):
-                if electron_mode:
-                    pre_molecular[k, :] = np.multiply(
-                        (atomic_numbers[i] - atomic_factor_array[i, :]),
-                        (atomic_numbers[j] - atomic_factor_array[j, :]),
-                    )
-                else:
-                    pre_molecular[k, :] = np.multiply(
-                        atomic_factor_array[i, :], atomic_factor_array[j, :]
-                    )
+    # def atomic_pre_molecular(
+    #    self, atomic_numbers, qvector: NDArray, aa, bb, cc, electron_mode=False
+    # ):
+    #    """both parts of IAM equation that don't depend on atom-atom distances"""
+    #    # compton factors for inelastic effect
+    #    compton_array = self.compton_spline(atomic_numbers, qvector)
+    #    natoms = len(atomic_numbers)
+    #    qlen = len(qvector)
+    #    atomic_total = np.zeros(qlen)  # total atomic factor
+    #    atomic_factor_array = np.zeros((natoms, qlen))  # array of atomic factors
+    #    compton = np.zeros(qlen)
+    #    for k in range(natoms):
+    #        compton += compton_array[k, :]
+    #        atomfactor = np.zeros(qlen)
+    #        for j in range(qlen):
+    #            for i in range(4):
+    #                atomfactor[j] += aa[atomic_numbers[k] - 1, i] * np.exp(
+    #                    -bb[atomic_numbers[k] - 1, i] * (0.25 * qvector[j] / np.pi) ** 2
+    #                )
+    #        atomfactor += cc[atomic_numbers[k] - 1]
+    #        atomic_factor_array[k, :] = atomfactor
+    #        if electron_mode:
+    #            atomic_total += (atomic_numbers[k] - atomfactor) ** 2
+    #        else:
+    #            atomic_total += atomfactor**2
+    #    nij = int(natoms * (natoms - 1) / 2)
+    #    pre_molecular = np.zeros((nij, qlen))
+    #    k = 0
+    #    for i in range(natoms):
+    #        for j in range(i + 1, natoms):
+    #            if electron_mode:
+    #                pre_molecular[k, :] = np.multiply(
+    #                    (atomic_numbers[i] - atomic_factor_array[i, :]),
+    #                    (atomic_numbers[j] - atomic_factor_array[j, :]),
+    #                )
+    #            else:
+    #                pre_molecular[k, :] = np.multiply(
+    #                    atomic_factor_array[i, :], atomic_factor_array[j, :]
+    #                )
 
-                k += 1
-        return compton, atomic_total, pre_molecular
+    #            k += 1
+    #    return compton, atomic_total, pre_molecular
 
     def iam_calc(
         self,
@@ -157,38 +157,48 @@ class Xray:
         compton_array=np.zeros(0),
     ):
         """calculate IAM molecular scattering curve for atoms, xyz, qvector"""
-        natom = len(atomic_numbers)
+        natoms = len(atomic_numbers)
         qlen = len(qvector)
         atomic = np.zeros(qlen)  # total atomic factor
         molecular = np.zeros(qlen)  # total molecular factor
         compton = np.zeros(qlen)  # total compton factor
-        atomic_factor_array = np.zeros((natom, qlen))  # array of atomic factors
+        atomic_factor_array = np.zeros((natoms, qlen))  # array of atomic factors
         if electron_mode:  # electron mode
             zfactor = atomic_numbers
             e_mode_int = 1
         else:  # assume x-ray mode
             zfactor = np.multiply(0.0, atomic_numbers)
             e_mode_int = -1
-        for i in range(natom):
+        for i in range(natoms):
             tmp = self.atomic_factor(atomic_numbers[i], qvector)
             atomic_factor_array[i, :] = tmp
             atomic += (zfactor[i] - tmp) ** 2
             if inelastic:
                 compton += compton_array[i, :]
-        for i in range(natom):
-            for j in range(i + 1, natom):  # j > i
+        nij = int(natoms * (natoms - 1) / 2)
+        pre_molecular = np.zeros(
+            (nij, qlen)
+        )  # pre_molecular array for speed in other functions
+        k = 0  # begin counter
+        for n in range(natoms - 1):
+            for m in range(n + 1, natoms):  # j > i
+                fnm = np.multiply(
+                    zfactor[n] - e_mode_int * atomic_factor_array[n, :],
+                    zfactor[m] - e_mode_int * atomic_factor_array[m, :],
+                )
+                pre_molecular[k, :] = (
+                    fnm  # store in array for speed in other functions later
+                )
+                k += 1  # count iterations
                 molecular += (
                     2
-                    * np.multiply(
-                        (zfactor[i] - e_mode_int * atomic_factor_array[i, :]),
-                        (zfactor[j] - e_mode_int * atomic_factor_array[j, :]),
-                    )
-                    * np.sinc(qvector * np.linalg.norm(xyz[i, :] - xyz[j, :]) / np.pi)
+                    * fnm
+                    * np.sinc(qvector * np.linalg.norm(xyz[n, :] - xyz[m, :]) / np.pi)
                 )
         iam = atomic + molecular
         if inelastic:
             iam += compton
-        return iam, atomic, molecular, compton
+        return iam, atomic, molecular, compton, pre_molecular
 
     def iam_calc_ewald(
         self,
@@ -201,10 +211,10 @@ class Xray:
         """
         calculate IAM function in the Ewald sphere
         """
-        natom = len(atomic_numbers)
+        natoms = len(atomic_numbers)
         qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
         tlen = 1 * qlen
-        plen = 2 * qlen  # more grid points in phi because it spans more
+        plen = 1 * qlen  # more grid points in phi because it spans more
         th_min, th_max = 0, np.pi
         ph_min, ph_max = 0, 2 * np.pi
         th = np.linspace(th_min, th_max, tlen, endpoint=True)
@@ -222,9 +232,9 @@ class Xray:
         # atomic
         atomic = np.zeros((qlen, tlen, plen))  # total atomic factor
         atomic_factor_array = np.zeros(
-            (natom, qlen, tlen, plen)
+            (natoms, qlen, tlen, plen)
         )  # array of atomic factors
-        for n in range(natom):
+        for n in range(natoms):
             for i in range(plen):
                 for j in range(tlen):
                     atomic_factor_array[n, :, j, i] = self.atomic_factor(
@@ -235,13 +245,20 @@ class Xray:
             atomic += np.power(atomic_factor_array[n, :, :, :], 2)
         # molecular
         molecular = np.zeros((qlen, tlen, plen))  # total molecular factor
-        # for n in range(natom):
-        #    for m in range(natom):
-        for n in range(natom - 1):
-            for m in range(n + 1, natom):  # j > i
+        nij = int(natoms * (natoms - 1) / 2)
+        pre_molecular = np.zeros(
+            (nij, qlen, tlen, plen)
+        )  # pre_molecular array for speed in other functions
+        k = 0  # begin counter
+        for n in range(natoms - 1):
+            for m in range(n + 1, natoms):  # j > i
                 fnm = np.multiply(
                     atomic_factor_array[n, :, :, :], atomic_factor_array[m, :, :, :]
                 )
+                pre_molecular[k, :, :, :] = (
+                    fnm  # store in array for speed in other functions later
+                )
+                k += 1  # count iterations
                 xnm = xyz[n, 0] - xyz[m, 0]
                 ynm = xyz[n, 1] - xyz[m, 1]
                 znm = xyz[n, 2] - xyz[m, 2]
@@ -268,6 +285,7 @@ class Xray:
             atomic,
             molecular,
             compton,
+            pre_molecular,
             iam_total_rotavg,
             atomic_rotavg,
             molecular_rotavg,
