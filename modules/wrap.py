@@ -100,6 +100,7 @@ class Wrapper:
         ph = np.linspace(
             ph_min, ph_max, plen, endpoint=False
         )  # skips 2pi as f(0) = f(2pi)
+
         def xyz2iam(xyz, atomic_numbers, compton_array, ewald_mode):
             """convert xyz file to IAM signal"""
             if ewald_mode:
@@ -140,9 +141,7 @@ class Wrapper:
                 f_rotavg_phi[:, j] *= np.sin(th[j])
             dth = th[1] - th[0]
             dph = (ph_max - ph_min) / plen
-            f_rotavg = (
-                np.sum(f_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
-            )
+            f_rotavg = np.sum(f_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
             return f_rotavg
 
         #############################
@@ -186,7 +185,9 @@ class Wrapper:
         if target_file_ext == ".xyz":
             # read from target xyz file
             _, _, atomlist, target_xyz = m.read_xyz(target_file)
-            target_iam, atomic, compton, pre_molecular = xyz2iam(target_xyz, atomic_numbers, compton_array, ewald_mode)
+            target_iam, atomic, compton, pre_molecular = xyz2iam(
+                target_xyz, atomic_numbers, compton_array, ewald_mode
+            )
 
             # target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id
             # save target IAM file before noise is added
@@ -231,16 +232,18 @@ class Wrapper:
             print("Error: target_file must be a .xyz or .dat file!")
 
         # save target function to file if it doesn't exist
-        #if not os.path.exists(target_function_file):
+        # if not os.path.exists(target_function_file):
         print("Saving data to %s ..." % target_function_file)
         if ewald_mode:
             target_function_r = spherical_rotavg(target_function)
-            target_function = target_function_r
-
-        np.savetxt(
-            target_function_file, np.column_stack((qvector, target_function))
-        )
-        print(target_function)
+            np.savetxt(
+                target_function_file, np.column_stack((qvector, target_function_r))
+            )
+        else:
+            np.savetxt(
+                target_function_file, np.column_stack((qvector, target_function))
+            )
+        # print(target_function)
 
         # load target function from file
         # if os.path.exists(target_function_file):

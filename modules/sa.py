@@ -30,7 +30,7 @@ class Annealing:
         starting_xyz: NDArray,
         displacements: NDArray,
         mode_indices: NDArray,
-        target_data: NDArray,
+        target_function: NDArray,
         reference_iam: NDArray,
         qvector: NDArray,
         compton: NDArray,
@@ -54,7 +54,7 @@ class Annealing:
         ewald_mode=False,
         angular_bool=False,
     ):
-        """simulated annealing minimisation to target_data"""
+        """simulated annealing minimisation to target_function"""
         ##=#=#=# DEFINITIONS #=#=#=##
         natoms = starting_xyz.shape[0]  # number of atoms
         nmodes = displacements.shape[0]  # number of displacement vectors
@@ -76,6 +76,7 @@ class Annealing:
         r0_arr1 = LA.norm(diff, axis=1)
         diff = starting_xyz[ho_indices2[0]] - starting_xyz[ho_indices2[1]]
         r0_arr2 = LA.norm(diff, axis=1)
+
         def angle_array(angular_indices):
             """calculate starting angles for angular indices"""
             nangular_indices = len(angular_indices[0])  # number of angular indices
@@ -86,9 +87,12 @@ class Annealing:
                 p2 = starting_xyz[angular_indices[2][i_ang], :]
                 ba = p1 - p0
                 bc = p1 - p2
-                cosine_theta = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
+                cosine_theta = np.dot(ba, bc) / (
+                    np.linalg.norm(ba) * np.linalg.norm(bc)
+                )
                 theta_arr[i_ang] = np.arccos(cosine_theta)
             return theta_arr
+
         theta0_arr1 = angle_array(angular_indices1)
         theta0_arr2 = angle_array(angular_indices2)
         # print(np.degrees(theta0_arr))
@@ -120,7 +124,8 @@ class Annealing:
             ##=#=#=# INITIATE LOOP VARIABLES #=#=#=#=#
             xyz = starting_xyz
             c = 0
-            f, f_best = 1e9, 1e10
+            f, f_best, f_xray_best = 1e9, 1e10, 0.0
+            # xyz_best, predicted_best = 0.0, 0.0  # no harm to pre-define as 0
             mdisp = displacements
             total_bonding_contrib = 0
             total_angular_contrib = 0
@@ -146,7 +151,9 @@ class Annealing:
                 ##=#=#=# END DISPLACE XYZ RANDOMLY ALONG ALL DISPLACEMENT VECTORS #=#=#=##
 
                 ##=#=#=# IAM CALCULATION #=#=#=##
-                if ewald_mode:  # x-ray signal in Ewald sphere, q = (q_radial, q_theta, q_phi)
+                if (
+                    ewald_mode
+                ):  # x-ray signal in Ewald sphere, q = (q_radial, q_theta, q_phi)
                     # molecular
                     molecular = np.zeros((qlen, tlen, plen))  # total molecular factor
                     k = 0  # begin counter
@@ -157,7 +164,9 @@ class Annealing:
                             xnm = xyz[n, 0] - xyz[m, 0]
                             ynm = xyz[n, 1] - xyz[m, 1]
                             znm = xyz[n, 2] - xyz[m, 2]
-                            molecular += 2 * fnm * np.cos((qx * xnm + qy * ynm + qz * znm))
+                            molecular += (
+                                2 * fnm * np.cos((qx * xnm + qy * ynm + qz * znm))
+                            )
                     ### end ewald_mode
                 else:  # assumed to be isotropic 1D signal
                     molecular = np.zeros(qlen)  # total molecular factor
@@ -176,19 +185,22 @@ class Annealing:
                     ### x-ray part of objective function
                     ### TO DO: depends on ewald_mode ...
                     xray_contrib = (
-                        np.sum((predicted_function_ - target_data) ** 2) / qlen
+                        np.sum((predicted_function_ - target_function) ** 2) / qlen
                     )
                 else:
                     predicted_function_ = iam_
                     ### x-ray part of objective function
                     ### TO DO: depends on ewald_mode ...
+                    n = qlen
+                    if ewald_mode:
+                        n = qlen * tlen * plen
                     xray_contrib = (
                         np.sum(
-                            (predicted_function_ - target_data) ** 2
-                            / np.abs(target_data)
+                            (predicted_function_ - target_function) ** 2
+                            / np.abs(target_function)
                         )
-                        / qlen
-                    )
+                        / n
+                    )  # this is a float64.
 
                 ### harmonic oscillator part of f
                 # somehow this is faster in numba than the vectorised version
@@ -249,6 +261,8 @@ class Annealing:
                     total_xray_contrib += xray_contrib
                 ##=#=#=# END ACCEPTANCE CRITERIA #=#=#=##
             # print ratio of contributions to f
+            # print(f'predicted_best: {type(predicted_best)}')
+            # print(f'total_xray_contrib: {type(total_xray_contrib)}')
             total_contrib = (
                 total_xray_contrib + total_bonding_contrib + total_angular_contrib
             )
