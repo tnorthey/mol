@@ -88,10 +88,18 @@ class Wrapper:
         #
         #############################
 
-        qlen = len(qvector)
+        qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
         electron_mode = False
         twod_mode = False
-
+        aa, bb, cc = x.read_iam_coeffs()
+        tlen = 1 * qlen
+        plen = 2 * qlen  # more grid points in phi because it spans more
+        th_min, th_max = 0, np.pi
+        ph_min, ph_max = 0, 2 * np.pi
+        th = np.linspace(th_min, th_max, tlen, endpoint=True)
+        ph = np.linspace(
+            ph_min, ph_max, plen, endpoint=False
+        )  # skips 2pi as f(0) = f(2pi)
         def xyz2iam(xyz, atomic_numbers, compton_array, ewald_mode):
             """convert xyz file to IAM signal"""
             if ewald_mode:
@@ -122,6 +130,20 @@ class Wrapper:
                     compton_array,
                 )
             return iam, atomic, compton, pre_molecular
+
+        def spherical_rotavg(f):
+            # rotatational average includes area element sin(th)dth*dph
+            # first sum over phi,
+            f_rotavg_phi = np.sum(f, axis=2)
+            # multiply by the sin(th) term,
+            for j in range(tlen):
+                f_rotavg_phi[:, j] *= np.sin(th[j])
+            dth = th[1] - th[0]
+            dph = (ph_max - ph_min) / plen
+            f_rotavg = (
+                np.sum(f_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
+            )
+            return f_rotavg
 
         #############################
         ### arguments             ###
@@ -164,7 +186,7 @@ class Wrapper:
         if target_file_ext == ".xyz":
             # read from target xyz file
             _, _, atomlist, target_xyz = m.read_xyz(target_file)
-            target_iam = xyz2iam(target_xyz, atomic_numbers, compton_array, ewald_mode)
+            target_iam, atomic, compton, pre_molecular = xyz2iam(target_xyz, atomic_numbers, compton_array, ewald_mode)
 
             # target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id
             # save target IAM file before noise is added
@@ -191,6 +213,13 @@ class Wrapper:
                     % sigma
                 )
                 noise_array = sigma * np.random.randn(qlen) + mu
+            # if Ewald mode the noise_array has to be 3D
+            if ewald_mode:
+                noise_array_3d = np.zeros((qlen, tlen, plen))
+                for i in range(plen):
+                    for j in range(tlen):
+                        noise_array_3d[:, j, i] = noise_array
+                noise_array = noise_array_3d  # redefine as the 3D array
             target_function = target_iam + noise_array  # define target_function
         elif target_file_ext == ".dat":
             # if target file is a data file, read as target_function
@@ -202,11 +231,15 @@ class Wrapper:
             print("Error: target_file must be a .xyz or .dat file!")
 
         # save target function to file if it doesn't exist
-        if not os.path.exists(target_function_file):
-            print("Saving data to %s ..." % target_function_file)
-            np.savetxt(
-                target_function_file, np.column_stack((qvector, target_function))
-            )
+        #if not os.path.exists(target_function_file):
+        print("Saving data to %s ..." % target_function_file)
+        if ewald_mode:
+            target_function_r = spherical_rotavg(target_function)
+            target_function = target_function_r
+
+        np.savetxt(
+            target_function_file, np.column_stack((qvector, target_function))
+        )
         print(target_function)
 
         # load target function from file
@@ -346,16 +379,14 @@ class Wrapper:
         # also write final xyz as "result.xyz"
         # m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
         # predicted data
-        if twod_mode:
-            np.savetxt(
-                "%s/%s_%s.dat" % (results_dir, run_id, f_best_str), predicted_best
-            )
-            np.savetxt("%s/%s_result.dat" % (results_dir, run_id), predicted_best)
-        else:
-            np.savetxt(
-                "%s/%s_%s.dat" % (results_dir, run_id, f_best_str),
-                np.column_stack((qvector, predicted_best)),
-            )
+        if ewald_mode:
+            predicted_best_r = spherical_rotavg(predicted_best)
+            predicted_best = predicted_best_r
+
+        np.savetxt(
+            "%s/%s_%s.dat" % (results_dir, run_id, f_best_str),
+            np.column_stack((qvector, predicted_best)),
+        )
         return  # end function
 
     #####################################

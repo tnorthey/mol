@@ -149,11 +149,11 @@ class Annealing:
                 if ewald_mode:  # x-ray signal in Ewald sphere, q = (q_radial, q_theta, q_phi)
                     # molecular
                     molecular = np.zeros((qlen, tlen, plen))  # total molecular factor
+                    k = 0  # begin counter
                     for n in range(natoms - 1):
                         for m in range(n + 1, natoms):  # j > i
-                            fnm = np.multiply(
-                                atomic_factor_array[n, :, :, :], atomic_factor_array[m, :, :, :]
-                            )
+                            fnm = pre_molecular[k, :, :, :]
+                            k += 1  # count iterations
                             xnm = xyz[n, 0] - xyz[m, 0]
                             ynm = xyz[n, 1] - xyz[m, 1]
                             znm = xyz[n, 2] - xyz[m, 2]

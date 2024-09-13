@@ -214,7 +214,7 @@ class Xray:
         natoms = len(atomic_numbers)
         qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
         tlen = 1 * qlen
-        plen = 1 * qlen  # more grid points in phi because it spans more
+        plen = 2 * qlen  # more grid points in phi because it spans more
         th_min, th_max = 0, np.pi
         ph_min, ph_max = 0, 2 * np.pi
         th = np.linspace(th_min, th_max, tlen, endpoint=True)
