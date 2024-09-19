@@ -30,7 +30,7 @@ def test_wrap_chd():
         reference_xyz_file,
         target_xyz_file,
         results_dir,
-        qvector=np.linspace(1e-9, 2.0, 21, endpoint=True),
+        qvector=np.linspace(1e-9, 4.0, 21, endpoint=True),
         noise = 0.0,
         noise_data_file = "noise/noise.dat",
         inelastic=True,
@@ -41,8 +41,8 @@ def test_wrap_chd():
         hydrogen_modes = np.arange(28, nmodes),  # CHD hydrogen modes
         sa_mode_indices = np.arange(0, nmodes),  # CHD, all modes
         ga_mode_indices = np.arange(0, nmodes),  # CHD, all modes
-        sa_nsteps=40,
-        ga_nsteps=40,
+        sa_nsteps=10000,
+        ga_nsteps=20000,
         ho_indices1 = np.array([[0, 1, 2, 3, 4], [1, 2, 3, 4, 5]]),  # chd (C-C bonds)
         ho_indices2 = np.array([
             [6, 12, 5, 5, 0, 0, 1, 2, 3, 4],

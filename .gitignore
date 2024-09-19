@@ -28,6 +28,7 @@ out
 tmp
 sed??????
 scripts/*.dat
+*1  ## anything ending in 1
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -200,6 +200,30 @@ class Xray:
             iam += compton
         return iam, atomic, molecular, compton, pre_molecular
 
+    def setup_ewald_coords(self, qvector):
+        qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
+        tlen = 1 * qlen
+        plen = 2 * qlen  # more grid points in phi because it spans more
+        th_min, th_max = 0, np.pi
+        ph_min, ph_max = 0, 2 * np.pi
+        th = np.linspace(th_min, th_max, tlen, endpoint=True)
+        ph = np.linspace(
+            ph_min, ph_max, plen, endpoint=False
+        )  # skips 2pi as f(0) = f(2pi)
+        return (
+            th,
+            ph,
+            qlen,
+            tlen,
+            plen,
+            qmin,
+            qmax,
+            th_min,
+            th_max,
+            ph_min,
+            ph_max,
+        )
+
     def iam_calc_ewald(
         self,
         atomic_numbers,
@@ -212,15 +236,9 @@ class Xray:
         calculate IAM function in the Ewald sphere
         """
         natoms = len(atomic_numbers)
-        qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
-        tlen = 1 * qlen
-        plen = 2 * qlen  # more grid points in phi because it spans more
-        th_min, th_max = 0, np.pi
-        ph_min, ph_max = 0, 2 * np.pi
-        th = np.linspace(th_min, th_max, tlen, endpoint=True)
-        ph = np.linspace(
-            ph_min, ph_max, plen, endpoint=False
-        )  # skips 2pi as f(0) = f(2pi)
+        th, ph, qlen, tlen, plen, qmin, qmax, th_min, th_max, ph_min, ph_max = (
+            self.setup_ewald_coords(qvector)
+        )
         # define coordinates on meshgrid
         r_grid, th_grid, ph_grid = np.meshgrid(qvector, th, ph, indexing="ij")
         # Convert spherical coordinates to Cartesian coordinates

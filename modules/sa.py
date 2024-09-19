@@ -102,15 +102,9 @@ class Annealing:
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
         ### define qx, qy, qz for Ewald mode
         if ewald_mode:
-            tlen = 1 * qlen
-            plen = 2 * qlen  # double phi-grid points because it spans double
-            th_min, th_max = 0, np.pi
-            ph_min, ph_max = 0, 2 * np.pi
-            th = np.linspace(th_min, th_max, tlen, endpoint=True)
-            ph = np.linspace(
-                ph_min, ph_max, plen, endpoint=False
-            )  # skips 2pi as f(0) = f(2pi)
-            # define coordinates on meshgrid
+            th, ph, qlen, tlen, plen, qmin, qmax, th_min, th_max, ph_min, ph_max = (
+                x.setup_ewald_coords(qvector)
+            )  # setup Ewald sphere coordinates
             r_grid, th_grid, ph_grid = np.meshgrid(qvector, th, ph, indexing="ij")
             # Convert spherical coordinates to Cartesian coordinates
             qx = r_grid * np.sin(th_grid) * np.cos(ph_grid)
@@ -176,7 +170,7 @@ class Annealing:
                             qdij = qvector * LA.norm(xyz_[ii, :] - xyz_[jj, :])
                             molecular += pre_molecular[k, :] * np.sin(qdij) / qdij
                             k += 1
-                iam_ = atomic_total + 2 * molecular + compton
+                iam_ = atomic_total + molecular + compton
                 ##=#=#=# END IAM CALCULATION #=#=#=##
 
                 ##=#=#=# PCD & CHI2 CALCULATIONS #=#=#=##

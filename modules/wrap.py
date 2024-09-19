@@ -92,14 +92,9 @@ class Wrapper:
         electron_mode = False
         twod_mode = False
         aa, bb, cc = x.read_iam_coeffs()
-        tlen = 1 * qlen
-        plen = 2 * qlen  # more grid points in phi because it spans more
-        th_min, th_max = 0, np.pi
-        ph_min, ph_max = 0, 2 * np.pi
-        th = np.linspace(th_min, th_max, tlen, endpoint=True)
-        ph = np.linspace(
-            ph_min, ph_max, plen, endpoint=False
-        )  # skips 2pi as f(0) = f(2pi)
+        th, ph, qlen, tlen, plen, qmin, qmax, th_min, th_max, ph_min, ph_max = (
+            x.setup_ewald_coords(qvector)
+        )
 
         def xyz2iam(xyz, atomic_numbers, compton_array, ewald_mode):
             """convert xyz file to IAM signal"""
@@ -235,6 +230,8 @@ class Wrapper:
         # if not os.path.exists(target_function_file):
         print("Saving data to %s ..." % target_function_file)
         if ewald_mode:
+            ## TO DO: Maybe the error is I "rotavg" the full iam
+            ## before I only rotavg the molecular, atomic and compton separately and then added
             target_function_r = spherical_rotavg(target_function)
             np.savetxt(
                 target_function_file, np.column_stack((qvector, target_function_r))
