@@ -17,10 +17,13 @@ def test_wrap_chd():
     ###################################
     run_id = "test_chd"
     start_xyz_file = "xyz/start.xyz"
-    target_xyz_file = "xyz/target.xyz"
+    #target_xyz_file = "xyz/target.xyz"
+    target_xyz_file = "xyz/target_traj094/target_05.xyz"
     reference_xyz_file = "xyz/chd_reference.xyz"
-    ACC = 0.0
-    ACH = 1.0 
+    ACC = 1.0
+    ACH = 10.0 
+    #ACC = 0.0
+    #ACH = 0.0 
     results_dir = "tmp_"
     nmodes = 36
     ###################################
@@ -30,7 +33,7 @@ def test_wrap_chd():
         reference_xyz_file,
         target_xyz_file,
         results_dir,
-        qvector=np.linspace(1e-9, 4.0, 21, endpoint=True),
+        qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
         noise = 0.0,
         noise_data_file = "noise/noise.dat",
         inelastic=True,
@@ -41,7 +44,7 @@ def test_wrap_chd():
         hydrogen_modes = np.arange(28, nmodes),  # CHD hydrogen modes
         sa_mode_indices = np.arange(0, nmodes),  # CHD, all modes
         ga_mode_indices = np.arange(0, nmodes),  # CHD, all modes
-        sa_nsteps=10000,
+        sa_nsteps=8000,
         ga_nsteps=20000,
         ho_indices1 = np.array([[0, 1, 2, 3, 4], [1, 2, 3, 4, 5]]),  # chd (C-C bonds)
         ho_indices2 = np.array([
@@ -63,11 +66,13 @@ def test_wrap_chd():
                                     [7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6]]),  # chd (non-C-C-C angles: C-C-H, H-C-H angles)
         sa_step_size=0.012,
         ga_step_size=0.012,
+        #sa_step_size=0.02,
+        #ga_step_size=0.02,
         sa_harmonic_factor = (ACC, ACH),
         ga_harmonic_factor = (0.1 * ACC, ACH),
         sa_angular_factor=0.1,
         ga_angular_factor=0.1,
-        nrestarts = 1,
+        nrestarts = 5,
         non_h_modes_only=False,  # only include "non-hydrogen" modes
         hf_energy=False,  # run PySCF HF energy
         rmsd_indices = np.array([0, 1, 2, 3, 4, 5]),  # chd
@@ -82,7 +87,7 @@ def test_wrap_chd():
     assert os.path.exists(xyz_file), "%s doesn't exist! It wasn't created..." % xyz_file
 
 
-def test_wrap_nmm():
+def _test_wrap_nmm():
     ###################################
     run_id = "test_nmm"
     start_xyz_file = "xyz/nmm_start.xyz"

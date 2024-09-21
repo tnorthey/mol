@@ -203,7 +203,13 @@ class Xray:
     def setup_ewald_coords(self, qvector):
         qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
         tlen = 1 * qlen
-        plen = 2 * qlen  # more grid points in phi because it spans more
+        plen = 1 * qlen  # more grid points in phi because it spans more
+        test_mode = True
+        if test_mode:
+            tlen = 4
+            plen = 2 * tlen
+            # in test mode with theta and phi with length 1
+            # the linspaces become [0], so th = ph = [0.]
         th_min, th_max = 0, np.pi
         ph_min, ph_max = 0, 2 * np.pi
         th = np.linspace(th_min, th_max, tlen, endpoint=True)
@@ -292,7 +298,8 @@ class Xray:
         # multiply by the sin(th) term,
         for j in range(tlen):
             molecular_rotavg_phi[:, j] *= np.sin(th[j])
-        dth = th[1] - th[0]
+        dth = th[1] - th[0]   # for some reason this is different than the below.. (and this one is correct)
+        #dth = (th_max - th_min) / tlen
         dph = (ph_max - ph_min) / plen
         molecular_rotavg = (
             np.sum(molecular_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)

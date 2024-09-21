@@ -243,6 +243,8 @@ class Annealing:
                 ##=#=#=# END PCD & CHI2 CALCULATIONS #=#=#=##
 
                 ##=#=#=# ACCEPTANCE CRITERIA #=#=#=##
+                ## as it is it always accepts the first step because f gets reinitialised as 1e9
+                ## that's fine, but optionally add input f_best for restarts
                 if f_ / f < 0.999 or temp > random():
                     c += 1  # count acceptances
                     f, xyz = f_, xyz_  # update f and xyz

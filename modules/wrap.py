@@ -134,7 +134,7 @@ class Wrapper:
             # multiply by the sin(th) term,
             for j in range(tlen):
                 f_rotavg_phi[:, j] *= np.sin(th[j])
-            dth = th[1] - th[0]
+            dth = th[1] - th[0]   # for some reason this is different than the below.. (and this one is correct)
             dph = (ph_max - ph_min) / plen
             f_rotavg = np.sum(f_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
             return f_rotavg
