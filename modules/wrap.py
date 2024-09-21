@@ -127,18 +127,6 @@ class Wrapper:
                 )
             return iam, atomic, compton, pre_molecular
 
-        def spherical_rotavg(f):
-            # rotatational average includes area element sin(th)dth*dph
-            # first sum over phi,
-            f_rotavg_phi = np.sum(f, axis=2)
-            # multiply by the sin(th) term,
-            for j in range(tlen):
-                f_rotavg_phi[:, j] *= np.sin(th[j])
-            dth = th[1] - th[0]   # for some reason this is different than the below.. (and this one is correct)
-            dph = (ph_max - ph_min) / plen
-            f_rotavg = np.sum(f_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
-            return f_rotavg
-
         #############################
         ### arguments             ###
         #############################
@@ -232,7 +220,7 @@ class Wrapper:
         if ewald_mode:
             ## TO DO: Maybe the error is I "rotavg" the full iam
             ## before I only rotavg the molecular, atomic and compton separately and then added
-            target_function_r = spherical_rotavg(target_function)
+            target_function_r = x.spherical_rotavg(target_function, th, ph)
             np.savetxt(
                 target_function_file, np.column_stack((qvector, target_function_r))
             )
@@ -380,7 +368,7 @@ class Wrapper:
         # m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
         # predicted data
         if ewald_mode:
-            predicted_best_r = spherical_rotavg(predicted_best)
+            predicted_best_r = x.spherical_rotavg(predicted_best, th, ph)
             predicted_best = predicted_best_r
 
         np.savetxt(

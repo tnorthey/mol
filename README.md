@@ -1,5 +1,31 @@
 # mol
 
+### File tree
+
+<!-- TREEVIEW START -->
+```bash
+├── data_/
+│   ├── nmm/
+├── images/
+├── mathematica/
+├── modules/
+│   ├── __pycache__/
+├── nm/
+├── noise/
+├── __pycache__/
+├── scripts/
+├── shell_scripts/
+├── sine_transform/
+├── tests/
+│   ├── __pycache__/
+└── xyz/
+    ├── target_traj090/
+    ├── target_traj094/
+    ├── target_traj099/
+```
+
+<!-- TREEVIEW END -->
+
 ### setup
 
 create a virtual env. install numpy, scipy

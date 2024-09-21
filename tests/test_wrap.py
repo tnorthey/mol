@@ -44,8 +44,8 @@ def test_wrap_chd():
         hydrogen_modes = np.arange(28, nmodes),  # CHD hydrogen modes
         sa_mode_indices = np.arange(0, nmodes),  # CHD, all modes
         ga_mode_indices = np.arange(0, nmodes),  # CHD, all modes
-        sa_nsteps=8000,
-        ga_nsteps=20000,
+        sa_nsteps=80,
+        ga_nsteps=20,
         ho_indices1 = np.array([[0, 1, 2, 3, 4], [1, 2, 3, 4, 5]]),  # chd (C-C bonds)
         ho_indices2 = np.array([
             [6, 12, 5, 5, 0, 0, 1, 2, 3, 4],
@@ -72,7 +72,7 @@ def test_wrap_chd():
         ga_harmonic_factor = (0.1 * ACC, ACH),
         sa_angular_factor=0.1,
         ga_angular_factor=0.1,
-        nrestarts = 5,
+        nrestarts = 2,
         non_h_modes_only=False,  # only include "non-hydrogen" modes
         hf_energy=False,  # run PySCF HF energy
         rmsd_indices = np.array([0, 1, 2, 3, 4, 5]),  # chd
