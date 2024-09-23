@@ -1,0 +1,21 @@
+{
+  "run_id": "chd",
+  "molecule": "chd",
+  "start_xyz_file": "",
+  "reference_xyz_file": "",
+  "target_xyz_file": "",
+  "results_dir": "",
+  "qmin": 0,
+  "qmax": 8,
+  "qlen": 81,
+  "noise": 0,
+  "noise_data_file": "noise/noise.dat",
+  "nrestarts": 5,
+  "constraints": "strong",
+  "preferences": {
+    "a": True,
+    "b": True,
+    "c": True
+  }
+}
+

@@ -9,6 +9,7 @@ from timeit import default_timer
 start = default_timer()
 import os
 import sys
+import json
 import numpy as np
 
 # my modules
@@ -21,20 +22,25 @@ m = mol.Xyz()
 w = wrap.Wrapper()
 
 ###################################
-# command line arguments
-run_id = str(sys.argv[1])  # define a string to label the start of the output filenames
-molecule = str(sys.argv[2])
-start_xyz_file = str(sys.argv[3])
-reference_xyz_file = str(sys.argv[4])
-target_xyz_file = str(sys.argv[5])
-results_dir = str(sys.argv[6])
-qmin = float(sys.argv[7])
-qmax = float(sys.argv[8])
-qlen = int(sys.argv[9])
-noise = float(sys.argv[10])
-noise_data_file = str(sys.argv[11])
-nrestarts = int(sys.argv[12])
-constraints = str(sys.argv[13])  # "strong" or "weak" else constraints default to 0
+# Load input JSON
+with open('input.json', 'r') as file:
+    data = json.load(file)
+# parameters
+run_id = data["run_id"]
+molecule = data["molecule"]
+start_xyz_file = data["start_xyz_file"]
+reference_xyz_file = data["reference_xyz_file"]
+target_xyz_file = data["target_xyz_file"]
+results_dir = data["results_dir"]
+qmin = data["qmin"]
+qmax = data["qmax"]
+qlen = data["qlen"]
+noise = data["noise"]
+noise_data_file = data["noise_data_file"]
+nrestarts = data["nrestarts"]
+constraints = data["constraints"]
+# example nested preference...
+preference_a = data["preferences"]["a"]
 ###################################
 
 # load parameters

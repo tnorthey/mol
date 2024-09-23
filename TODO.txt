@@ -2,6 +2,12 @@
 #####CODE#EDITS################################
 ###############################################
 
+- one input file. Nothing else changes
+  - already have the params module; it's a start
+    - something like that but "input.py" (possibly still with the params module)
+- one run.py file that doesn't need to be edited. And it's callable by just "python run.py"
+
+- simplify functions: single-use, individual tests etc.
 
 ###############################################
 ###############################################
