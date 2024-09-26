@@ -41,6 +41,7 @@ class Wrapper:
         ga_mode_indices=np.arange(0, 28),  # CHD, "non-hydrogen" modes
         sa_nsteps=8000,
         ga_nsteps=40000,
+        bonds_bool=True,  # use HO terms on the bonds
         ho_indices1=np.array([[0, 1, 2, 3, 4], [1, 2, 3, 4, 5]]),  # chd (C-C bonds)
         ho_indices2=np.array(
             [
@@ -48,7 +49,7 @@ class Wrapper:
                 [7, 13, 12, 13, 6, 7, 8, 9, 10, 11],
             ]
         ),  # chd (C-H bonds, and H-H "bonds" for the CH2 carbons)
-        angular_bool=False,  # use HO terms on the angles
+        angles_bool=False,  # use HO terms on the angles
         angular_indices1=np.array(
             [
                 [6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1],
@@ -294,7 +295,8 @@ class Wrapper:
                 pcd_mode,
                 electron_mode,
                 ewald_mode,
-                angular_bool,
+                bonds_bool,
+                angles_bool,
             )
             print("f_best (SA): %9.8f" % f_best)
 

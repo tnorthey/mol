@@ -10,9 +10,9 @@
     "target_xyz_file": "xyz/target_traj094/target_05.xyz"
   },
   "scattering_params": {
-    "inelastic_bool": 1,
-    "pcd_mode_bool": 0,
-    "ewald_mode_bool": 0,
+    "inelastic": "True",
+    "pcd_mode": "False",
+    "ewald_mode": "False",
     "q": {
       "qmin": 1e-9,
       "qmax": 8,
@@ -25,19 +25,19 @@
   },
   "simulated_annealing_params": {
     "sa_starting_temp": 1.0,
-    "sa_nsteps": 80,
-    "ga_nsteps": 40,
+    "sa_nsteps": 8000,
+    "ga_nsteps": 40000,
     "sa_step_size": 0.012,
     "ga_step_size": 0.012,
     "nrestarts": 2,
-    "bonds_bool": 1,
+    "bonds_boolean": "True",
     "sa_harmonic_factor": [10.0, 10.0],
     "ga_harmonic_factor": [1.0, 10.0],
-    "angles_bool": 0,
+    "angles_boolean": "False",
     "sa_angular_factor": 0.0,
     "ga_angular_factor": 0.0,
-    "non_h_modes_only_bool": 0,
-    "hf_energy_bool": 0
+    "non_h_modes_only": "False",
+    "hf_energy": "False"
   },
   "molecule_params": {
      "chd": {
@@ -47,6 +47,7 @@
         "hydrogen_mode_range": [28, 36],
         "sa_mode_range": [0, 36],
         "ga_mode_range": [0, 36],
+        "bonds_bool": "True",
         "ho_indices1": 
           [
             [0, 1, 2, 3, 4], 
@@ -57,6 +58,7 @@
             [6, 12, 5, 5, 0, 0, 1, 2, 3, 4],
             [7, 13, 12, 13, 6, 7, 8, 9, 10, 11]
           ],
+        "angular_bool": "False",
         "angular_indices1": 
           [
             [6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1],
@@ -73,6 +75,42 @@
         "bond_indices": [0, 5],
         "angle_indices": [0, 3, 5],
         "dihedral_indices": [0, 1, 4, 5]
+     },
+     "nmm": {
+        "natoms": 18,
+        "nmodes": 48,
+        "nmfile": "nm/nmm_normalmodes.txt",
+        "hydrogen_mode_range": [38, 48],
+        "sa_mode_indices": [0, 48],
+        "ga_mode_indices": [0, 48],
+        "bonds_bool": "True",
+        "ho_indices1": 
+          [
+              [3, 3, 3, 0, 0, 10, 5, 1, 1, 0, 0, 5, 3, 1, 5, 3, 0],
+              [6, 5, 1, 1, 12, 12, 10, 5, 12, 3, 10, 12, 10, 6, 6, 12, 12]
+          ],
+        "ho_indices2": 
+          [
+            [6, 6, 6, 1, 1, 0, 0, 10, 10, 5, 5, 7, 7, 8, 2, 16, 11, 14],
+            [7, 8, 9, 2, 4, 14, 15, 11, 13, 16, 17, 9, 8, 9, 4, 17, 13, 15]
+          ],
+        "angular_bool": "False",
+        "angular_indices1": 
+          [
+            [5, 10,5,7,7,8,7,8,9,3,3,4,3, 3, 16,13,15,15,13],
+            [10,12,3,6,6,6,6,6,6,1,1,1,5, 5, 5, 10,0 ,0 ,10],
+            [12,0, 1,8,9,9,3,3,3,4,2,2,16,17,17,11,14,12,12]
+          ],
+	  "angular_indices2": 
+		  [
+            [ 6,6 ],
+            [ 3,3 ],
+            [ 1,5 ]
+          ],
+        "rmsd_indices": = [3, 5, 6, 10, 12, 0, 1],
+        "bond_indices": [6, 12],
+        "angle_indices": [6, 3, 12],
+        "dihedral_indices": [6, 3, 10, 5]
     }
   }
 }

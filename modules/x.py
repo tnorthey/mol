@@ -13,7 +13,6 @@ class Xray:
         xyz,
         qvector,
         electron_mode=False,
-        ewald_mode=False,
         inelastic=False,
         compton_array=np.zeros(0),
     ):
@@ -65,12 +64,14 @@ class Xray:
         qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
         tlen = 1 * qlen
         plen = 1 * qlen  # more grid points in phi because it spans more
-        test_mode = True
+        ######
+        test_mode = False  ### NB this shouldn't be coded here...
         if test_mode:
             tlen = 4
             plen = 2 * tlen
             # in test mode with theta and phi with length 1
             # the linspaces become [0], so th = ph = [0.]
+        ######
         th_min, th_max = 0, np.pi
         ph_min, ph_max = 0, 2 * np.pi
         th = np.linspace(th_min, th_max, tlen, endpoint=True)

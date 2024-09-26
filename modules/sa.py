@@ -52,7 +52,8 @@ class Annealing:
         pcd_mode=False,
         electron_mode=False,
         ewald_mode=False,
-        angular_bool=False,
+        bonds_bool=True,
+        angles_bool=False,
     ):
         """simulated annealing minimisation to target_function"""
         ##=#=#=# DEFINITIONS #=#=#=##
@@ -112,7 +113,7 @@ class Annealing:
             qz = r_grid * np.cos(th_grid)
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
 
-        @njit(nogil=True)  # numba decorator to compile to machine code
+        #@njit(nogil=True)  # numba decorator to compile to machine code
         def run_annealing(nsteps):
 
             ##=#=#=# INITIATE LOOP VARIABLES #=#=#=#=#
@@ -199,19 +200,20 @@ class Annealing:
                 ### harmonic oscillator part of f
                 # somehow this is faster in numba than the vectorised version
                 bonding_contrib = 0
-                for iho in range(nho_indices1):
-                    r = LA.norm(
-                        xyz_[ho_indices1[0][iho], :] - xyz_[ho_indices1[1][iho], :]
-                    )
-                    bonding_contrib += bonding_factor[0] * (r - r0_arr1[iho]) ** 2
-                for iho in range(nho_indices2):
-                    r = LA.norm(
-                        xyz_[ho_indices2[0][iho], :] - xyz_[ho_indices2[1][iho], :]
-                    )
-                    bonding_contrib += bonding_factor[1] * (r - r0_arr2[iho]) ** 2
+                if bonds_bool:
+                    for iho in range(nho_indices1):
+                        r = LA.norm(
+                            xyz_[ho_indices1[0][iho], :] - xyz_[ho_indices1[1][iho], :]
+                        )
+                        bonding_contrib += bonding_factor[0] * (r - r0_arr1[iho]) ** 2
+                    for iho in range(nho_indices2):
+                        r = LA.norm(
+                            xyz_[ho_indices2[0][iho], :] - xyz_[ho_indices2[1][iho], :]
+                        )
+                        bonding_contrib += bonding_factor[1] * (r - r0_arr2[iho]) ** 2
 
                 angular_contrib = 0
-                if angular_bool:
+                if angles_bool:
                     for i_ang in range(len(theta0_arr1)):
                         p0 = xyz_[angular_indices1[0][i_ang], :]
                         p1 = xyz_[angular_indices1[1][i_ang], :]
