@@ -114,14 +114,14 @@ def test_iam_calc_ewald():
         molecular_rotavg,
         compton_rotavg,
     ) = x.iam_calc_ewald(atomic_numbers, xyz, qvector, inelastic, compton_array)
-    np.savetxt("rotavg.del_%s" % qlen, np.column_stack((qvector, iam_total_rotavg)))
-    np.savetxt("iam_1d.del_%s" % qlen, np.column_stack((qvector, iam_1d)))
-    np.savetxt("atomic_rotavg.del_%s" % qlen, np.column_stack((qvector, atomic_rotavg)))
-    np.savetxt("atomic.del_%s" % qlen, np.column_stack((qvector, atomic)))
-    np.savetxt("molecular_rotavg.del_%s" % qlen, np.column_stack((qvector, molecular_rotavg)))
-    np.savetxt("molecular.del_%s" % qlen, np.column_stack((qvector, molecular)))
-    np.savetxt("compton_rotavg.del_%s" % qlen, np.column_stack((qvector, compton_rotavg)))
-    np.savetxt("compton.del_%s" % qlen, np.column_stack((qvector, compton)))
+    np.savetxt("tmp_/rotavg.del_%s" % qlen, np.column_stack((qvector, iam_total_rotavg)))
+    np.savetxt("tmp_/iam_1d.del_%s" % qlen, np.column_stack((qvector, iam_1d)))
+    np.savetxt("tmp_/atomic_rotavg.del_%s" % qlen, np.column_stack((qvector, atomic_rotavg)))
+    np.savetxt("tmp_/atomic.del_%s" % qlen, np.column_stack((qvector, atomic)))
+    np.savetxt("tmp_/molecular_rotavg.del_%s" % qlen, np.column_stack((qvector, molecular_rotavg)))
+    np.savetxt("tmp_/molecular.del_%s" % qlen, np.column_stack((qvector, molecular)))
+    np.savetxt("tmp_/compton_rotavg.del_%s" % qlen, np.column_stack((qvector, compton_rotavg)))
+    np.savetxt("tmp_/compton.del_%s" % qlen, np.column_stack((qvector, compton)))
     assert round(atomic_3d[0, 0, 0], 1) == 66.0, "I_atomic(q = 0) != 66"
     assert round(molecular_3d[0, 0, 0], 1) == 34.0, "I_mol(q = 0) != 34"
     assert round(iam_3d[0, 0, 0], 0) == 100.0, "H2O I_total(q = 0) != 100"

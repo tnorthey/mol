@@ -41,6 +41,7 @@ class Wrapper:
         ga_mode_indices=np.arange(0, 28),  # CHD, "non-hydrogen" modes
         sa_nsteps=8000,
         ga_nsteps=40000,
+        bonds_bool=True,  # use HO terms on the bonds
         ho_indices1=np.array([[0, 1, 2, 3, 4], [1, 2, 3, 4, 5]]),  # chd (C-C bonds)
         ho_indices2=np.array(
             [
@@ -48,7 +49,7 @@ class Wrapper:
                 [7, 13, 12, 13, 6, 7, 8, 9, 10, 11],
             ]
         ),  # chd (C-H bonds, and H-H "bonds" for the CH2 carbons)
-        angular_bool=False,  # use HO terms on the angles
+        angles_bool=False,  # use HO terms on the angles
         angular_indices1=np.array(
             [
                 [6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1],
@@ -126,18 +127,6 @@ class Wrapper:
                     compton_array,
                 )
             return iam, atomic, compton, pre_molecular
-
-        def spherical_rotavg(f):
-            # rotatational average includes area element sin(th)dth*dph
-            # first sum over phi,
-            f_rotavg_phi = np.sum(f, axis=2)
-            # multiply by the sin(th) term,
-            for j in range(tlen):
-                f_rotavg_phi[:, j] *= np.sin(th[j])
-            dth = th[1] - th[0]
-            dph = (ph_max - ph_min) / plen
-            f_rotavg = np.sum(f_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
-            return f_rotavg
 
         #############################
         ### arguments             ###
@@ -232,7 +221,7 @@ class Wrapper:
         if ewald_mode:
             ## TO DO: Maybe the error is I "rotavg" the full iam
             ## before I only rotavg the molecular, atomic and compton separately and then added
-            target_function_r = spherical_rotavg(target_function)
+            target_function_r = x.spherical_rotavg(target_function, th, ph)
             np.savetxt(
                 target_function_file, np.column_stack((qvector, target_function_r))
             )
@@ -306,7 +295,8 @@ class Wrapper:
                 pcd_mode,
                 electron_mode,
                 ewald_mode,
-                angular_bool,
+                bonds_bool,
+                angles_bool,
             )
             print("f_best (SA): %9.8f" % f_best)
 
@@ -380,7 +370,7 @@ class Wrapper:
         # m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
         # predicted data
         if ewald_mode:
-            predicted_best_r = spherical_rotavg(predicted_best)
+            predicted_best_r = x.spherical_rotavg(predicted_best, th, ph)
             predicted_best = predicted_best_r
 
         np.savetxt(

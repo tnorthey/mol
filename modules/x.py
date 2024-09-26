@@ -7,6 +7,197 @@ class Xray:
     def __init__(self):
         pass
 
+    def iam_calc(
+        self,
+        atomic_numbers,
+        xyz,
+        qvector,
+        electron_mode=False,
+        inelastic=False,
+        compton_array=np.zeros(0),
+    ):
+        """calculate IAM molecular scattering curve for atoms, xyz, qvector"""
+        natoms = len(atomic_numbers)
+        qlen = len(qvector)
+        atomic = np.zeros(qlen)  # total atomic factor
+        molecular = np.zeros(qlen)  # total molecular factor
+        compton = np.zeros(qlen)  # total compton factor
+        atomic_factor_array = np.zeros((natoms, qlen))  # array of atomic factors
+        if electron_mode:  # electron mode
+            zfactor = atomic_numbers
+            e_mode_int = -1
+        else:  # x-ray mode
+            zfactor = np.multiply(0.0, atomic_numbers)
+            e_mode_int = 1
+        for i in range(natoms):
+            tmp = self.atomic_factor(atomic_numbers[i], qvector)
+            atomic_factor_array[i, :] = tmp
+            atomic += (zfactor[i] - tmp) ** 2
+            if inelastic:
+                compton += compton_array[i, :]
+        nij = int(natoms * (natoms - 1) / 2)
+        pre_molecular = np.zeros(
+            (nij, qlen)
+        )  # pre_molecular array for speed in other functions
+        k = 0  # begin counter
+        for n in range(natoms - 1):
+            for m in range(n + 1, natoms):  # j > i
+                fnm = np.multiply(
+                    zfactor[n] + e_mode_int * atomic_factor_array[n, :],
+                    zfactor[m] + e_mode_int * atomic_factor_array[m, :],
+                )
+                pre_molecular[k, :] = (
+                    fnm  # store in array for speed in other functions later
+                )
+                k += 1  # count iterations
+                molecular += (
+                    2
+                    * fnm
+                    * np.sinc(qvector * np.linalg.norm(xyz[n, :] - xyz[m, :]) / np.pi)
+                )
+        iam = atomic + molecular
+        if inelastic:
+            iam += compton
+        return iam, atomic, molecular, compton, pre_molecular
+
+    def setup_ewald_coords(self, qvector):
+        qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
+        tlen = 1 * qlen
+        plen = 1 * qlen  # more grid points in phi because it spans more
+        ######
+        test_mode = False  ### NB this shouldn't be coded here...
+        if test_mode:
+            tlen = 4
+            plen = 2 * tlen
+            # in test mode with theta and phi with length 1
+            # the linspaces become [0], so th = ph = [0.]
+        ######
+        th_min, th_max = 0, np.pi
+        ph_min, ph_max = 0, 2 * np.pi
+        th = np.linspace(th_min, th_max, tlen, endpoint=True)
+        ph = np.linspace(
+            ph_min, ph_max, plen, endpoint=False
+        )  # skips 2pi as f(0) = f(2pi)
+        return (
+            th,
+            ph,
+            qlen,
+            tlen,
+            plen,
+            qmin,
+            qmax,
+            th_min,
+            th_max,
+            ph_min,
+            ph_max,
+        )
+
+    def spherical_rotavg(self, f, th, ph):
+        '''
+        Rotational average in sphericals: I use it with the Ewald sphere
+        f must be a 3D array with coordinates (r, theta, phi)
+        '''
+        # read size of array axes
+        qlen, tlen, plen = f.shape[0], len(th), len(ph)
+        # first sum over phi,
+        f_rotavg_phi = np.sum(f, axis=2)
+        # multiply by the sin(th) term,
+        for j in range(tlen):
+            f_rotavg_phi[:, j] *= np.sin(th[j])
+        dth = th[1] - th[0]   # for some reason this is different than the below.. (and this one is correct)
+        ph_min, ph_max = np.min(ph), np.max(ph)
+        dph = (ph_max - ph_min) / plen
+        f_rotavg = np.sum(f_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
+        return f_rotavg
+
+
+    def iam_calc_ewald(
+        self,
+        atomic_numbers,
+        xyz,
+        qvector,
+        inelastic=False,
+        compton_array=np.zeros(0),
+    ):
+        """
+        calculate IAM function in the Ewald sphere
+        """
+        natoms = len(atomic_numbers)
+        th, ph, qlen, tlen, plen, qmin, qmax, th_min, th_max, ph_min, ph_max = (
+            self.setup_ewald_coords(qvector)
+        )
+        # define coordinates on meshgrid
+        r_grid, th_grid, ph_grid = np.meshgrid(qvector, th, ph, indexing="ij")
+        # Convert spherical coordinates to Cartesian coordinates
+        qx = r_grid * np.sin(th_grid) * np.cos(ph_grid)
+        qy = r_grid * np.sin(th_grid) * np.sin(ph_grid)
+        qz = r_grid * np.cos(th_grid)
+        # inelastic effects
+        compton = np.zeros((qlen, tlen, plen))  # total compton factor
+        # atomic
+        atomic = np.zeros((qlen, tlen, plen))  # total atomic factor
+        atomic_factor_array = np.zeros(
+            (natoms, qlen, tlen, plen)
+        )  # array of atomic factors
+        for n in range(natoms):
+            for i in range(plen):
+                for j in range(tlen):
+                    atomic_factor_array[n, :, j, i] = self.atomic_factor(
+                        atomic_numbers[n], qvector
+                    )
+                    if inelastic:
+                        compton[:, j, i] += compton_array[n, :]
+            atomic += np.power(atomic_factor_array[n, :, :, :], 2)
+        # molecular
+        molecular = np.zeros((qlen, tlen, plen))  # total molecular factor
+        nij = int(natoms * (natoms - 1) / 2)
+        pre_molecular = np.zeros(
+            (nij, qlen, tlen, plen)
+        )  # pre_molecular array for speed in other functions
+        k = 0  # begin counter
+        for n in range(natoms - 1):
+            for m in range(n + 1, natoms):  # j > i
+                fnm = np.multiply(
+                    atomic_factor_array[n, :, :, :], atomic_factor_array[m, :, :, :]
+                )
+                pre_molecular[k, :, :, :] = (
+                    fnm  # store in array for speed in other functions later
+                )
+                k += 1  # count iterations
+                xnm = xyz[n, 0] - xyz[m, 0]
+                ynm = xyz[n, 1] - xyz[m, 1]
+                znm = xyz[n, 2] - xyz[m, 2]
+                molecular += 2 * fnm * np.cos((qx * xnm + qy * ynm + qz * znm))
+
+        iam_total = atomic + molecular + compton
+        # the rotational average tends towards the exact sinc function IAM solution
+        atomic_rotavg = np.sum(atomic, axis=(1, 2)) / (tlen * plen)
+        compton_rotavg = np.sum(compton, axis=(1, 2)) / (tlen * plen)
+        # molecular rotatational average includes area element sin(th)dth*dph
+        # first sum over phi,
+        molecular_rotavg_phi = np.sum(molecular, axis=2)
+        # multiply by the sin(th) term,
+        for j in range(tlen):
+            molecular_rotavg_phi[:, j] *= np.sin(th[j])
+        dth = th[1] - th[0]   # for some reason this is different than the below.. (and this one is correct)
+        #dth = (th_max - th_min) / tlen
+        dph = (ph_max - ph_min) / plen
+        molecular_rotavg = (
+            np.sum(molecular_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
+        )
+        iam_total_rotavg = atomic_rotavg + molecular_rotavg + compton_rotavg
+        return (
+            iam_total,
+            atomic,
+            molecular,
+            compton,
+            pre_molecular,
+            iam_total_rotavg,
+            atomic_rotavg,
+            molecular_rotavg,
+            compton_rotavg,
+        )
+
     def read_iam_coeffs(self) -> (NDArray, NDArray, NDArray):
         """returns the IAM coefficient arrays"""
         aa = np.array(
@@ -104,211 +295,7 @@ class Xray:
             compton_array[i, :] = interpolate.splev(qvector, tck, der=0)
         return compton_array
 
-    # def atomic_pre_molecular(
-    #    self, atomic_numbers, qvector: NDArray, aa, bb, cc, electron_mode=False
-    # ):
-    #    """both parts of IAM equation that don't depend on atom-atom distances"""
-    #    # compton factors for inelastic effect
-    #    compton_array = self.compton_spline(atomic_numbers, qvector)
-    #    natoms = len(atomic_numbers)
-    #    qlen = len(qvector)
-    #    atomic_total = np.zeros(qlen)  # total atomic factor
-    #    atomic_factor_array = np.zeros((natoms, qlen))  # array of atomic factors
-    #    compton = np.zeros(qlen)
-    #    for k in range(natoms):
-    #        compton += compton_array[k, :]
-    #        atomfactor = np.zeros(qlen)
-    #        for j in range(qlen):
-    #            for i in range(4):
-    #                atomfactor[j] += aa[atomic_numbers[k] - 1, i] * np.exp(
-    #                    -bb[atomic_numbers[k] - 1, i] * (0.25 * qvector[j] / np.pi) ** 2
-    #                )
-    #        atomfactor += cc[atomic_numbers[k] - 1]
-    #        atomic_factor_array[k, :] = atomfactor
-    #        if electron_mode:
-    #            atomic_total += (atomic_numbers[k] - atomfactor) ** 2
-    #        else:
-    #            atomic_total += atomfactor**2
-    #    nij = int(natoms * (natoms - 1) / 2)
-    #    pre_molecular = np.zeros((nij, qlen))
-    #    k = 0
-    #    for i in range(natoms):
-    #        for j in range(i + 1, natoms):
-    #            if electron_mode:
-    #                pre_molecular[k, :] = np.multiply(
-    #                    (atomic_numbers[i] - atomic_factor_array[i, :]),
-    #                    (atomic_numbers[j] - atomic_factor_array[j, :]),
-    #                )
-    #            else:
-    #                pre_molecular[k, :] = np.multiply(
-    #                    atomic_factor_array[i, :], atomic_factor_array[j, :]
-    #                )
 
-    #            k += 1
-    #    return compton, atomic_total, pre_molecular
-
-    def iam_calc(
-        self,
-        atomic_numbers,
-        xyz,
-        qvector,
-        electron_mode=False,
-        inelastic=False,
-        compton_array=np.zeros(0),
-    ):
-        """calculate IAM molecular scattering curve for atoms, xyz, qvector"""
-        natoms = len(atomic_numbers)
-        qlen = len(qvector)
-        atomic = np.zeros(qlen)  # total atomic factor
-        molecular = np.zeros(qlen)  # total molecular factor
-        compton = np.zeros(qlen)  # total compton factor
-        atomic_factor_array = np.zeros((natoms, qlen))  # array of atomic factors
-        if electron_mode:  # electron mode
-            zfactor = atomic_numbers
-            e_mode_int = 1
-        else:  # assume x-ray mode
-            zfactor = np.multiply(0.0, atomic_numbers)
-            e_mode_int = -1
-        for i in range(natoms):
-            tmp = self.atomic_factor(atomic_numbers[i], qvector)
-            atomic_factor_array[i, :] = tmp
-            atomic += (zfactor[i] - tmp) ** 2
-            if inelastic:
-                compton += compton_array[i, :]
-        nij = int(natoms * (natoms - 1) / 2)
-        pre_molecular = np.zeros(
-            (nij, qlen)
-        )  # pre_molecular array for speed in other functions
-        k = 0  # begin counter
-        for n in range(natoms - 1):
-            for m in range(n + 1, natoms):  # j > i
-                fnm = np.multiply(
-                    zfactor[n] - e_mode_int * atomic_factor_array[n, :],
-                    zfactor[m] - e_mode_int * atomic_factor_array[m, :],
-                )
-                pre_molecular[k, :] = (
-                    fnm  # store in array for speed in other functions later
-                )
-                k += 1  # count iterations
-                molecular += (
-                    2
-                    * fnm
-                    * np.sinc(qvector * np.linalg.norm(xyz[n, :] - xyz[m, :]) / np.pi)
-                )
-        iam = atomic + molecular
-        if inelastic:
-            iam += compton
-        return iam, atomic, molecular, compton, pre_molecular
-
-    def setup_ewald_coords(self, qvector):
-        qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
-        tlen = 1 * qlen
-        plen = 2 * qlen  # more grid points in phi because it spans more
-        th_min, th_max = 0, np.pi
-        ph_min, ph_max = 0, 2 * np.pi
-        th = np.linspace(th_min, th_max, tlen, endpoint=True)
-        ph = np.linspace(
-            ph_min, ph_max, plen, endpoint=False
-        )  # skips 2pi as f(0) = f(2pi)
-        return (
-            th,
-            ph,
-            qlen,
-            tlen,
-            plen,
-            qmin,
-            qmax,
-            th_min,
-            th_max,
-            ph_min,
-            ph_max,
-        )
-
-    def iam_calc_ewald(
-        self,
-        atomic_numbers,
-        xyz,
-        qvector,
-        inelastic=False,
-        compton_array=np.zeros(0),
-    ):
-        """
-        calculate IAM function in the Ewald sphere
-        """
-        natoms = len(atomic_numbers)
-        th, ph, qlen, tlen, plen, qmin, qmax, th_min, th_max, ph_min, ph_max = (
-            self.setup_ewald_coords(qvector)
-        )
-        # define coordinates on meshgrid
-        r_grid, th_grid, ph_grid = np.meshgrid(qvector, th, ph, indexing="ij")
-        # Convert spherical coordinates to Cartesian coordinates
-        qx = r_grid * np.sin(th_grid) * np.cos(ph_grid)
-        qy = r_grid * np.sin(th_grid) * np.sin(ph_grid)
-        qz = r_grid * np.cos(th_grid)
-        # inelastic effects
-        compton = np.zeros((qlen, tlen, plen))  # total compton factor
-        # atomic
-        atomic = np.zeros((qlen, tlen, plen))  # total atomic factor
-        atomic_factor_array = np.zeros(
-            (natoms, qlen, tlen, plen)
-        )  # array of atomic factors
-        for n in range(natoms):
-            for i in range(plen):
-                for j in range(tlen):
-                    atomic_factor_array[n, :, j, i] = self.atomic_factor(
-                        atomic_numbers[n], qvector
-                    )
-                    if inelastic:
-                        compton[:, j, i] += compton_array[n, :]
-            atomic += np.power(atomic_factor_array[n, :, :, :], 2)
-        # molecular
-        molecular = np.zeros((qlen, tlen, plen))  # total molecular factor
-        nij = int(natoms * (natoms - 1) / 2)
-        pre_molecular = np.zeros(
-            (nij, qlen, tlen, plen)
-        )  # pre_molecular array for speed in other functions
-        k = 0  # begin counter
-        for n in range(natoms - 1):
-            for m in range(n + 1, natoms):  # j > i
-                fnm = np.multiply(
-                    atomic_factor_array[n, :, :, :], atomic_factor_array[m, :, :, :]
-                )
-                pre_molecular[k, :, :, :] = (
-                    fnm  # store in array for speed in other functions later
-                )
-                k += 1  # count iterations
-                xnm = xyz[n, 0] - xyz[m, 0]
-                ynm = xyz[n, 1] - xyz[m, 1]
-                znm = xyz[n, 2] - xyz[m, 2]
-                molecular += 2 * fnm * np.cos((qx * xnm + qy * ynm + qz * znm))
-
-        iam_total = atomic + molecular + compton
-        # the rotational average tends towards the exact sinc function IAM solution
-        atomic_rotavg = np.sum(atomic, axis=(1, 2)) / (tlen * plen)
-        compton_rotavg = np.sum(compton, axis=(1, 2)) / (tlen * plen)
-        # molecular rotatational average includes area element sin(th)dth*dph
-        # first sum over phi,
-        molecular_rotavg_phi = np.sum(molecular, axis=2)
-        # multiply by the sin(th) term,
-        for j in range(tlen):
-            molecular_rotavg_phi[:, j] *= np.sin(th[j])
-        dth = th[1] - th[0]
-        dph = (ph_max - ph_min) / plen
-        molecular_rotavg = (
-            np.sum(molecular_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
-        )
-        iam_total_rotavg = atomic_rotavg + molecular_rotavg + compton_rotavg
-        return (
-            iam_total,
-            atomic,
-            molecular,
-            compton,
-            pre_molecular,
-            iam_total_rotavg,
-            atomic_rotavg,
-            molecular_rotavg,
-            compton_rotavg,
-        )
 
     def iam_calc_2d(self, atomic_numbers, xyz, qvector):
         """
