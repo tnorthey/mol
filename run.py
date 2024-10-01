@@ -23,6 +23,7 @@ w = wrap.Wrapper()
 p = read_input.Input_to_params()
 
 w.run_1D(
+    p.mode,
     p.run_id,
     p.start_xyz_file,
     p.reference_xyz_file,

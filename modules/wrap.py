@@ -23,6 +23,7 @@ class Wrapper:
 
     def run_1D(
         self,
+        mode,
         run_id,
         start_xyz_file,
         reference_xyz_file,
