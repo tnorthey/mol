@@ -1,14 +1,14 @@
 {
-  "mode": "xyz",
+  "mode": "dat",
   "run_params": {
     "run_id": "nmm_1d",
     "molecule": "nmm",
     "results_dir": "tmp_"
   },
-  "xyz_files": {
+  "files": {
     "start_xyz_file": "xyz/nmm_start.xyz",
     "reference_xyz_file": "xyz/nmm_opt.xyz",
-    "target_xyz_file": "xyz/nmm_target.xyz"
+    "target_file": "data_/nmm/target_50.dat"
   },
   "scattering_params": {
     "inelastic_bool": 1,

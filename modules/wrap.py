@@ -13,6 +13,7 @@ m = mol.Xyz()
 x = xray.Xray()
 sa = sa.Annealing()
 
+
 #############################
 class Wrapper:
     """wrapper functions for simulated annealing strategies"""
@@ -20,7 +21,7 @@ class Wrapper:
     def __init__(self):
         pass
 
-    def run_1D(
+    def run(
         self,
         mode,
         run_id,
@@ -131,18 +132,18 @@ class Wrapper:
         #############################
         ### arguments             ###
         #############################
-        _, _, atomlist, starting_xyz = m.read_xyz(start_xyz_file)
+        _, _, atomlist, xyz_start = m.read_xyz(start_xyz_file)
         _, _, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
         atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
         compton_array = x.compton_spline(atomic_numbers, qvector)
         starting_iam, atomic, compton, pre_molecular = xyz2iam(
-            starting_xyz, atomic_numbers, compton_array, ewald_mode
+            xyz_start, atomic_numbers, compton_array, ewald_mode
         )
         reference_iam, atomic, compton, pre_molecular = xyz2iam(
             reference_xyz, atomic_numbers, compton_array, ewald_mode
         )
 
-        natoms = starting_xyz.shape[0]
+        natoms = xyz_start.shape[0]
         displacements = sa.read_nm_displacements(nmfile, natoms)
         nmodes = displacements.shape[0]
 
@@ -211,7 +212,7 @@ class Wrapper:
             target_function = np.loadtxt(target_file)
             excitation_factor = 0.057
             target_function /= excitation_factor
-            target_xyz = starting_xyz  # added simply to run the rmsd analysis later compared to this
+            target_xyz = xyz_start  # added simply to run the rmsd analysis later compared to this
         else:
             print('Error: mode value must be "xyz" or "dat"!')
 
@@ -244,10 +245,16 @@ class Wrapper:
         #################################
         ### End Initialise some stuff ###
         #################################
-        # start
-        xyz_best = starting_xyz  # initialise xyz_best
+        # initialise starting "best" values
+        xyz_best = xyz_start
+        f_best = 1e10
+        predicted_best = np.zeros(qlen)
         for i in range(nrestarts):
-            starting_xyz = xyz_best  # each restart starts at the previous xyz_best
+            ### each restart starts at the previous xyz_best
+            xyz_start = xyz_best  
+            f_start = f_best
+            predicted_start = predicted_best
+            ###
             if i < nrestarts - 1:  # annealing mode
                 print(f"Run {i}: SA")
                 nsteps = sa_nsteps
@@ -270,7 +277,7 @@ class Wrapper:
                 xyz_best,
             ) = sa.simulated_annealing_modes_ho(
                 atomic_numbers,
-                starting_xyz,
+                xyz_start,
                 displacements,
                 mode_indices,
                 target_function,
@@ -297,6 +304,8 @@ class Wrapper:
                 ewald_mode,
                 bonds_bool,
                 angles_bool,
+                f_start,
+                predicted_start,
             )
             print("f_best (SA): %9.8f" % f_best)
 
@@ -326,7 +335,7 @@ class Wrapper:
             # save target xyz
             m.write_xyz(
                 "%s/%s_target.xyz" % (results_dir, run_id),
-                ".dat file case: starting_xyz (not target_xyz)",
+                ".dat file case: xyz_start (not target_xyz)",
                 atomlist,
                 target_xyz,
             )
@@ -386,3 +395,49 @@ class Wrapper:
     #####################################
     #####################################
 
+    def call_run(self, p):
+        """
+        Call function; useful to generalise.
+        p is the params object from read_input.
+        """
+        self.run(
+            p.mode,
+            p.run_id,
+            p.start_xyz_file,
+            p.reference_xyz_file,
+            p.target_file,
+            p.results_dir,
+            p.qvector,
+            p.noise_value,
+            p.noise_data_file,
+            p.inelastic,
+            p.pcd_mode,
+            p.ewald_mode,
+            p.sa_starting_temp,
+            p.nmfile,
+            p.hydrogen_mode_indices,  # CHD hydrogen modes
+            p.sa_mode_indices,  # CHD, all modes
+            p.ga_mode_indices,  # CHD, all modes
+            p.sa_nsteps,
+            p.ga_nsteps,
+            p.bonds_bool,  # use HO terms on the bonds
+            p.ho_indices1,  # chd (C-C bonds)
+            p.ho_indices2,  # chd (C-H bonds, and H-H "bonds" for the CH2 carbons)
+            p.angles_bool,  # use HO terms on the angles
+            p.angular_indices1,
+            p.angular_indices2,
+            p.sa_step_size,
+            p.ga_step_size,
+            p.sa_harmonic_factor,
+            p.ga_harmonic_factor,
+            p.sa_angular_factor,
+            p.ga_angular_factor,
+            p.nrestarts,
+            p.non_h_modes_only,  # only include "non-hydrogen" modes
+            p.hf_energy,  # run PySCF HF energy
+            p.rmsd_indices,  # chd
+            p.bond_indices,  # chd ring-opening bond
+            p.angle_indices,  # angle
+            p.dihedral_indices,  # chd ring-opening dihedral
+        )
+        return

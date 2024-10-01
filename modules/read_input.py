@@ -35,9 +35,9 @@ class Input_to_params:
         print(f"molecule: {molecule}")
         self.results_dir = str(data["run_params"]["results_dir"])
         # xyz file params
-        self.start_xyz_file = str(data["xyz_files"]["start_xyz_file"])
-        self.reference_xyz_file = str(data["xyz_files"]["reference_xyz_file"])
-        self.target_xyz_file = str(data["xyz_files"]["target_xyz_file"])
+        self.start_xyz_file = str(data["files"]["start_xyz_file"])
+        self.reference_xyz_file = str(data["files"]["reference_xyz_file"])
+        self.target_file = str(data["files"]["target_file"])
         # scattering_params params
         self.inelastic = bool(data["scattering_params"]["inelastic_bool"])
         self.pcd_mode = bool(data["scattering_params"]["pcd_mode_bool"])

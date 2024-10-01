@@ -54,6 +54,8 @@ class Annealing:
         ewald_mode=False,
         bonds_bool=True,
         angles_bool=False,
+        f_start=1e10,
+        predicted_start=0,
     ):
         """simulated annealing minimisation to target_function"""
         ##=#=#=# DEFINITIONS #=#=#=##
@@ -117,14 +119,13 @@ class Annealing:
         def run_annealing(nsteps):
 
             ##=#=#=# INITIATE LOOP VARIABLES #=#=#=#=#
-            xyz = starting_xyz
-            c = 0
-            f, f_best, f_xray_best = 1e9, 1e10, 0.0
-            # xyz_best, predicted_best = 0.0, 0.0  # no harm to pre-define as 0
+            xyz, xyz_best = starting_xyz, starting_xyz
+            f_best = f_start  # initialise on restart
+            predicted_best = predicted_start  # initialise on restart
+            f, f_xray_best = 1e9, 0.0
+            c = 0  # count accepted steps
             mdisp = displacements
-            total_bonding_contrib = 0
-            total_angular_contrib = 0
-            total_xray_contrib = 0
+            total_bonding_contrib, total_angular_contrib, total_xray_contrib = 0, 0, 0
             ##=#=#=# END INITIATE LOOP VARIABLES #=#=#
 
             for i in range(nsteps):
@@ -186,16 +187,17 @@ class Annealing:
                     predicted_function_ = iam_
                     ### x-ray part of objective function
                     ### TO DO: depends on ewald_mode ...
-                    n = qlen
                     if ewald_mode:
                         n = qlen * tlen * plen
+                    else:
+                        n = qlen
                     xray_contrib = (
                         np.sum(
                             (predicted_function_ - target_function) ** 2
                             / np.abs(target_function)
                         )
                         / n
-                    )  # this is a float64.
+                    )
 
                 ### harmonic oscillator part of f
                 # somehow this is faster in numba than the vectorised version
@@ -245,8 +247,6 @@ class Annealing:
                 ##=#=#=# END PCD & CHI2 CALCULATIONS #=#=#=##
 
                 ##=#=#=# ACCEPTANCE CRITERIA #=#=#=##
-                ## as it is it always accepts the first step because f gets reinitialised as 1e9
-                ## that's fine, but optionally add input f_best for restarts
                 if f_ / f < 0.999 or temp > random():
                     c += 1  # count acceptances
                     f, xyz = f_, xyz_  # update f and xyz
@@ -259,14 +259,15 @@ class Annealing:
                     total_xray_contrib += xray_contrib
                 ##=#=#=# END ACCEPTANCE CRITERIA #=#=#=##
             # print ratio of contributions to f
-            # print(f'predicted_best: {type(predicted_best)}')
-            # print(f'total_xray_contrib: {type(total_xray_contrib)}')
             total_contrib = (
                 total_xray_contrib + total_bonding_contrib + total_angular_contrib
             )
-            xray_ratio = total_xray_contrib / total_contrib
-            bonding_ratio = total_bonding_contrib / total_contrib
-            angular_ratio = total_angular_contrib / total_contrib
+            if total_contrib > 0:
+                xray_ratio = total_xray_contrib / total_contrib
+                bonding_ratio = total_bonding_contrib / total_contrib
+                angular_ratio = total_angular_contrib / total_contrib
+            else:
+                xray_ratio, bonding_ratio, angular_ratio = 0, 0, 0
             return (
                 f_best,
                 f_xray_best,

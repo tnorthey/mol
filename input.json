@@ -1,14 +1,14 @@
 {
   "mode": "xyz",
   "run_params": {
-    "run_id": "1d",
+    "run_id": "chd_1d",
     "molecule": "chd",
     "results_dir": "tmp_"
   },
-  "xyz_files": {
+  "files": {
     "start_xyz_file": "xyz/start.xyz",
     "reference_xyz_file": "xyz/chd_reference.xyz",
-    "target_xyz_file": "xyz/target_traj094/target_05.xyz"
+    "target_file": "xyz/target_traj094/target_05.xyz"
   },
   "scattering_params": {
     "inelastic_bool": 1,
@@ -26,8 +26,8 @@
   },
   "simulated_annealing_params": {
     "sa_starting_temp": 1.0,
-    "sa_nsteps": 80,
-    "ga_nsteps": 40,
+    "sa_nsteps": 0,
+    "ga_nsteps": 0,
     "sa_step_size": 0.012,
     "ga_step_size": 0.012,
     "nrestarts": 2,

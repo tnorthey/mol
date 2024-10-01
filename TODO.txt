@@ -3,19 +3,16 @@
 ###############################################
 
 [DONE!] - one input file. Nothing else changes
-  - already have the params module; it's a start
-    - something like that but "input.py" (possibly still with the params module)
 [DONE!] - one run.py file that doesn't need to be edited. And it's callable by just "python run.py"
-
-- simplify functions: single-use, individual tests etc.
-  - (specify exact to do list here...)
+[DONE!] - "xyz" mode test
 
 - "dat" mode working + test
 
-- "xyz" mode test
-
 - 0 step run + test
   - fbest as input (or "f_start")
+
+- simplify functions: single-use, individual tests etc.
+  - (specify exact to do list here...)
 
 - README: description of each variable in input.json
 

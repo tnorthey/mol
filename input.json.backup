@@ -1,14 +1,14 @@
 {
   "mode": "xyz",
   "run_params": {
-    "run_id": "1d",
+    "run_id": "chd_1d",
     "molecule": "chd",
     "results_dir": "tmp_"
   },
-  "xyz_files": {
+  "files": {
     "start_xyz_file": "xyz/start.xyz",
     "reference_xyz_file": "xyz/chd_reference.xyz",
-    "target_xyz_file": "xyz/target_traj094/target_05.xyz"
+    "target_file": "xyz/target_traj094/target_05.xyz"
   },
   "scattering_params": {
     "inelastic_bool": 1,
