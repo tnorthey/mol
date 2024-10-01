@@ -13,7 +13,6 @@ m = mol.Xyz()
 x = xray.Xray()
 sa = sa.Annealing()
 
-
 #############################
 class Wrapper:
     """wrapper functions for simulated annealing strategies"""
@@ -167,7 +166,7 @@ class Wrapper:
         filename, target_file_ext = os.path.splitext(target_file)
         target_function_file = "%s/TARGET_FUNCTION_%s.dat" % (results_dir, run_id)
 
-        if target_file_ext == ".xyz":
+        if mode == "xyz":
             # read from target xyz file
             _, _, atomlist, target_xyz = m.read_xyz(target_file)
             target_iam, atomic, compton, pre_molecular = xyz2iam(
@@ -207,14 +206,14 @@ class Wrapper:
                         noise_array_3d[:, j, i] = noise_array
                 noise_array = noise_array_3d  # redefine as the 3D array
             target_function = target_iam + noise_array  # define target_function
-        elif target_file_ext == ".dat":
+        elif mode == "dat":
             # if target file is a data file, read as target_function
             target_function = np.loadtxt(target_file)
             excitation_factor = 0.057
             target_function /= excitation_factor
             target_xyz = starting_xyz  # added simply to run the rmsd analysis later compared to this
         else:
-            print("Error: target_file must be a .xyz or .dat file!")
+            print('Error: mode value must be "xyz" or "dat"!')
 
         # save target function to file if it doesn't exist
         # if not os.path.exists(target_function_file):
@@ -386,3 +385,4 @@ class Wrapper:
     #####################################
     #####################################
     #####################################
+

@@ -20,7 +20,7 @@ import modules.read_input as read_input
 # create class objects
 m = mol.Xyz()
 w = wrap.Wrapper()
-p = read_input.Input_to_params()
+p = read_input.Input_to_params("input.json")
 
 w.run_1D(
     p.mode,

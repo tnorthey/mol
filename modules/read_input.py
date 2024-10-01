@@ -8,13 +8,13 @@ import sys
 class Input_to_params:
     """read parameters for simulated annealing"""
 
-    def __init__(self):
+    def __init__(self, input_json_file):
         """initialise with hard-coded params"""
 
         ###################################
         # Load input JSON
-        with open("input.json", "r") as file:
-            data = json.load(file)
+        with open(input_json_file, "r") as f:
+            data = json.load(f)
         ### Parameters
         # mode
         self.mode = str(data["mode"])

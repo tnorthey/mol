@@ -13,11 +13,13 @@ import modules.read_input as read_input
 # create class objects
 m = mol.Xyz()
 w = wrap.Wrapper()
-p = read_input.Input_to_params()
+p_chd = read_input.Input_to_params("tests/input_test_chd.json")
+p_nmm = read_input.Input_to_params("tests/input_test_nmm.json")
 
-def test_wrap_chd():
-    '''Test the run_1D function in modules/wrap.py'''
+def call_run_1D(p, mode):
+    '''Call function specifically for testing purposes.'''
     w.run_1D(
+        mode,
         p.run_id,
         p.start_xyz_file,
         p.reference_xyz_file,
@@ -56,68 +58,23 @@ def test_wrap_chd():
         p.angle_indices,    # angle
         p.dihedral_indices,    # chd ring-opening dihedral
     )
-    target_file = "%s/TARGET_FUNCTION_%s.dat" % (p.results_dir, p.run_id)
-    xyz_file = "%s/%s_target.xyz" % (p.results_dir, p.run_id)
+    return
+
+def test_wrap_chd_xyz():
+    '''Test the run_1D function in modules/wrap.py'''
+    mode = "xyz"
+    call_run_1D(p_chd, mode)
+    target_file = "%s/TARGET_FUNCTION_%s.dat" % (p_chd.results_dir, p_chd.run_id)
+    xyz_file = "%s/%s_target.xyz" % (p_chd.results_dir, p_chd.run_id)
     assert os.path.exists(target_file), "%s doesn't exist! It wasn't created..." % target_file
     assert os.path.exists(xyz_file), "%s doesn't exist! It wasn't created..." % xyz_file
 
-
-def _test_wrap_nmm():
-    ###################################
-    run_id = "test_nmm"
-    start_xyz_file = "xyz/nmm_start.xyz"
-    target_xyz_file = "xyz/nmm_target.xyz"
-    reference_xyz_file = "xyz/nmm_opt.xyz"
-    ACC = 0.0
-    ACH = 1.0 
-    results_dir = "tmp_"
-    nmodes = 48
-    ###################################
-    w.run_1D(
-        run_id,
-        start_xyz_file,
-        reference_xyz_file,
-        target_xyz_file,
-        results_dir,
-        qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
-        noise = 0.1,
-        noise_data_file = "noise/noise.dat",
-        inelastic=True,
-        pcd_mode=False,
-        ewald_mode=False,
-        sa_starting_temp = 1.0,
-        nmfile = "nm/nmm_normalmodes.txt",
-        hydrogen_modes = np.arange(38, nmodes),  # CHD hydrogen modes
-        sa_mode_indices = np.arange(0, nmodes),  # CHD, all modes
-        ga_mode_indices = np.arange(0, nmodes),  # CHD, all modes
-        sa_nsteps=20,
-        ga_nsteps=20,
-        ho_indices1 = np.array([
-                        [3, 3, 3, 0, 0, 10, 5], 
-                        [6, 5, 1, 1, 12, 12, 10]]),  # nmm (C-C, C-N, or C-O bonds): 3-6, 3-5, 3-1, 0-1, 0-12, 10-12, 5-10
-        ho_indices2 = np.array([
-                        [6, 6, 6, 1, 1, 0,  0,  10, 10, 5,  5 ],
-                        [7, 8, 9, 2, 4, 14, 15, 11, 13, 16, 17],
-        ]),  # nmm (C-H bonds)
-        angular_bool=False,   # use HO terms on the angles
-        angular_indices1 = np.array([[0, 0], [1, 1], [2, 2]]),
-        angular_indices2 = np.array([[0, 0], [1, 1], [2, 2]]),
-        sa_step_size=0.012,
-        ga_step_size=0.012,
-        sa_harmonic_factor = (ACC, ACH),
-        ga_harmonic_factor = (0.1 * ACC, ACH),
-        sa_angular_factor=0.1,
-        ga_angular_factor=0.1,
-        nrestarts = 1,    # it restarts from the xyz_best of the previous restart
-        non_h_modes_only=False,  # only include "non-hydrogen" modes
-        hf_energy=True,  # run PySCF HF energy
-        rmsd_indices = np.array([3, 5, 6, 10, 12, 0, 1]),  # nmm
-        bond_indices = np.array([0, 5]),   # chd ring-opening bond
-        angle_indices = np.array([6, 3, 12]),   # nmm methyl group angle
-        dihedral_indices = np.array([0, 1, 4, 5]),  # chd ring-opening dihedral
-    )
-
-    target_file = "%s/TARGET_FUNCTION_%s.dat" % (results_dir, run_id)
-    xyz_file = "%s/%s_target.xyz" % (results_dir, run_id)
+def test_wrap_nmm_xyz():
+    '''Test the run_1D function in modules/wrap.py'''
+    mode = "xyz"
+    call_run_1D(p_nmm, mode)
+    target_file = "%s/TARGET_FUNCTION_%s.dat" % (p_nmm.results_dir, p_nmm.run_id)
+    xyz_file = "%s/%s_target.xyz" % (p_nmm.results_dir, p_nmm.run_id)
     assert os.path.exists(target_file), "%s doesn't exist! It wasn't created..." % target_file
     assert os.path.exists(xyz_file), "%s doesn't exist! It wasn't created..." % xyz_file
+
