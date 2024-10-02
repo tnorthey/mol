@@ -32,6 +32,8 @@ scripts/*.dat
 pyscf/
 .vscode
 OpenBLAS-0.3.28-x64-64/
+analysis/*
+analysis/*.{dat,sh,gp,png}
 
 
 # Byte-compiled / optimized / DLL files

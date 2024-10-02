@@ -38,7 +38,7 @@
     "sa_angular_factor": 0.0,
     "ga_angular_factor": 0.0,
     "non_h_modes_only_bool": 0,
-    "hf_energy_bool": 0
+    "hf_energy_bool": 1
   },
   "molecule_params": {
     "chd": {

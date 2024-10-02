@@ -12,12 +12,12 @@
   },
   "scattering_params": {
     "inelastic_bool": 1,
-    "pcd_mode_bool": 0,
+    "pcd_mode_bool": 1,
     "ewald_mode_bool": 0,
     "q": {
-      "qmin": 1e-9,
-      "qmax": 8,
-      "qlen": 81
+      "qmin": 0.3323,
+      "qmax": 4.3727,
+      "qlen": 39
     },
     "noise": { 
       "noise_value": 0.0,
