@@ -1,7 +1,12 @@
 import os
 import numpy as np
 from numpy import linalg as LA
-from pyscf import gto, scf
+try:
+    # Handle the case when PySCF isn't there
+    from pyscf import gto, scf
+    HAVE_PYSCF = True
+except ImportError:
+    HAVE_PYSCF = False
 
 # my modules
 import modules.mol as mol
@@ -343,7 +348,7 @@ class Wrapper:
             bond_distance, angle_degrees, dihedral = 0, 0, 0
             rmsd, mapd, e_mol = 0, 0, 0
         # HF energy with PySCF
-        if hf_energy:
+        if hf_energy and HAVE_PYSCF:
             mol = gto.Mole()
             arr = []
             for i in range(len(atomlist)):
