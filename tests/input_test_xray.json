@@ -1,23 +1,23 @@
 {
-  "mode": "dat",
+  "mode": "xyz",
   "run_params": {
-    "run_id": "nmm_1d",
-    "molecule": "nmm",
+    "run_id": "chd_1d",
+    "molecule": "chd",
     "results_dir": "tmp_"
   },
   "files": {
-    "start_xyz_file": "xyz/nmm_target_geommovie_frame6.xyz",
-    "reference_xyz_file": "xyz/nmm_opt.xyz",
-    "target_file": "data_/nmm/target_50.dat"
+    "start_xyz_file": "xyz/start.xyz",
+    "reference_xyz_file": "xyz/chd_reference.xyz",
+    "target_file": "xyz/target_traj094/target_05.xyz"
   },
   "scattering_params": {
     "inelastic_bool": 1,
-    "pcd_mode_bool": 1,
+    "pcd_mode_bool": 0,
     "ewald_mode_bool": 0,
     "q": {
-      "qmin": 0.3323,
-      "qmax": 4.3727,
-      "qlen": 39
+      "qmin": 1e-9,
+      "qmax": 24,
+      "qlen": 41
     },
     "noise": { 
       "noise_value": 0.0,
@@ -26,11 +26,11 @@
   },
   "simulated_annealing_params": {
     "sa_starting_temp": 1.0,
-    "sa_nsteps": 1000,
-    "ga_nsteps": 1000,
+    "sa_nsteps": 80,
+    "ga_nsteps": 40,
     "sa_step_size": 0.012,
     "ga_step_size": 0.012,
-    "nrestarts": 5,
+    "nrestarts": 2,
     "bonds_bool": 1,
     "sa_harmonic_factor": [10.0, 10.0],
     "ga_harmonic_factor": [1.0, 10.0],
@@ -38,7 +38,7 @@
     "sa_angular_factor": 0.0,
     "ga_angular_factor": 0.0,
     "non_h_modes_only_bool": 0,
-    "hf_energy_bool": 0
+    "hf_energy_bool": 1
   },
   "molecule_params": {
     "chd": {
@@ -80,8 +80,8 @@
       "nmodes": 48,
       "nmfile": "nm/nmm_normalmodes.txt",
       "hydrogen_mode_range": [38, 48],
-      "sa_mode_range": [0, 48],
-      "ga_mode_range": [0, 48],
+      "sa_mode_indices": [0, 48],
+      "ga_mode_indices": [0, 48],
       "ho_indices1":
         [
           [3, 3, 3, 0, 0, 10, 5, 1, 1, 0, 0, 5, 3, 1, 5, 3, 0],

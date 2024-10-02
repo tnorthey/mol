@@ -5,18 +5,16 @@
 [DONE!] - one input file. Nothing else changes
 [DONE!] - one run.py file that doesn't need to be edited. And it's callable by just "python run.py"
 [DONE!] - "xyz" mode test
-
-- "dat" mode working + test
-
-- 0 step run + test
+[DONE!] - "dat" mode working + test
+[DONE!] - 0 step run + test
   - fbest as input (or "f_start")
+[DONE!] - Fix NMM pcd...
 
 - simplify functions: single-use, individual tests etc.
   - (specify exact to do list here...)
 
 - README: description of each variable in input.json
 
-- Optional: remove scipy dependency?
 
 ###############################################
 ###############################################

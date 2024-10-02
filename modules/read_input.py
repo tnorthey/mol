@@ -114,8 +114,10 @@ class Input_to_params:
             data["molecule_params"][molecule]["dihedral_indices"]
         )
 
-        ### other variables
+        ### Define other variables
+        # qvector
         self.qvector = np.linspace(self.qmin, self.qmax, self.qlen, endpoint=True)
+        # specific mode indices
         self.hydrogen_mode_indices = np.arange(
             self.hydrogen_mode_range[0], self.hydrogen_mode_range[1]
         )

@@ -2,10 +2,76 @@ import numpy as np
 from scipy import interpolate
 from numpy.typing import NDArray, DTypeLike
 
-
 class Xray:
     def __init__(self):
-        pass
+        ''' initialise x-ray variables '''
+
+        # Initialise IAM coefficient arrays
+        self.aa = np.array(
+            [
+                [0.489918, 0.262003, 0.196767, 0.049879],  # hydrogen
+                [0.8734, 0.6309, 0.3112, 0.1780],  # helium
+                [1.1282, 0.7508, 0.6175, 0.4653],  # lithium
+                [1.5919, 1.1278, 0.5391, 0.7029],  # berylium
+                [2.0545, 1.3326, 1.0979, 0.7068],  # boron
+                [2.3100, 1.0200, 1.5886, 0.8650],  # carbon
+                [12.2126, 3.1322, 2.0125, 1.1663],  # nitrogen
+                [3.0485, 2.2868, 1.5463, 0.8670],  # oxygen
+                [3.5392, 2.6412, 1.5170, 1.0243],  # fluorine
+                [3.9553, 3.1125, 1.4546, 1.1251],  # neon
+                [4.7626, 3.1736, 1.2674, 1.1128],  # sodium
+                [5.4204, 2.1735, 1.2269, 2.3073],  # magnesium
+                [6.4202, 1.9002, 1.5936, 1.9646],  # aluminium
+                [6.2915, 3.0353, 1.9891, 1.5410],  # Siv
+                [6.4345, 4.1791, 1.7800, 1.4908],  # phosphorus
+                [6.9053, 5.2034, 1.4379, 1.5863],  # sulphur
+                [11.4604, 7.1964, 6.2556, 1.6455],  # chlorine
+            ]
+        )
+
+        self.bb = np.array(
+            [
+                [20.6593, 7.74039, 49.5519, 2.20159],  # hydrogen
+                [9.1037, 3.3568, 22.9276, 0.9821],  # helium
+                [3.9546, 1.0524, 85.3905, 168.261],  # lithium
+                [43.6427, 1.8623, 103.483, 0.5420],  # berylium
+                [23.2185, 1.0210, 60.3498, 0.1403],  # boron
+                [20.8439, 10.2075, 0.5687, 51.6512],  # carbon
+                [0.00570, 9.8933, 28.9975, 0.5826],  # nitrogen
+                [13.2771, 5.7011, 0.3239, 32.9089],  # oxygen
+                [10.2825, 4.2944, 0.2615, 26.1476],  # fluorine
+                [8.4042, 3.4262, 0.2306, 21.7184],  # Ne
+                [3.2850, 8.8422, 0.3136, 129.424],  # Na
+                [2.8275, 79.2611, 0.3808, 7.1937],  # Mg
+                [3.0387, 0.7426, 31.5472, 85.0886],  # Al
+                [2.4386, 32.3337, 0.6785, 81.6937],  # Siv
+                [1.9067, 27.1570, 0.5260, 68.1645],  # P
+                [1.4679, 22.2151, 0.2536, 56.1720],  # S
+                [0.0104, 1.1662, 18.5194, 47.7784],  # Cl
+            ]
+        )
+
+        self.cc = np.array(
+            [
+                0.001305,  # hydrogen
+                0.0064,  # helium
+                0.0377,  # lithium
+                0.0385,  # berylium
+                -0.1932,  # boron
+                0.2156,  # carbon
+                -11.529,  # nitrogen
+                0.2508,  # oxygen
+                0.2776,  # fluorine
+                0.3515,  # Ne
+                0.6760,  # Na
+                0.8584,  # Mg
+                1.1151,  # Al
+                1.1407,  # Si
+                1.1149,  # P
+                0.8669,  # S
+                -9.5574,  # Cl
+            ]
+        )
 
     def iam_calc(
         self,
@@ -93,10 +159,10 @@ class Xray:
         )
 
     def spherical_rotavg(self, f, th, ph):
-        '''
+        """
         Rotational average in sphericals: I use it with the Ewald sphere
         f must be a 3D array with coordinates (r, theta, phi)
-        '''
+        """
         # read size of array axes
         qlen, tlen, plen = f.shape[0], len(th), len(ph)
         # first sum over phi,
@@ -104,12 +170,13 @@ class Xray:
         # multiply by the sin(th) term,
         for j in range(tlen):
             f_rotavg_phi[:, j] *= np.sin(th[j])
-        dth = th[1] - th[0]   # for some reason this is different than the below.. (and this one is correct)
+        dth = (
+            th[1] - th[0]
+        )  # for some reason this is different than the below.. (and this one is correct)
         ph_min, ph_max = np.min(ph), np.max(ph)
         dph = (ph_max - ph_min) / plen
         f_rotavg = np.sum(f_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
         return f_rotavg
-
 
     def iam_calc_ewald(
         self,
@@ -179,8 +246,10 @@ class Xray:
         # multiply by the sin(th) term,
         for j in range(tlen):
             molecular_rotavg_phi[:, j] *= np.sin(th[j])
-        dth = th[1] - th[0]   # for some reason this is different than the below.. (and this one is correct)
-        #dth = (th_max - th_min) / tlen
+        dth = (
+            th[1] - th[0]
+        )  # for some reason this is different than the below.. (and this one is correct)
+        # dth = (th_max - th_min) / tlen
         dph = (ph_max - ph_min) / plen
         molecular_rotavg = (
             np.sum(molecular_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
@@ -198,78 +267,9 @@ class Xray:
             compton_rotavg,
         )
 
-    def read_iam_coeffs(self) -> (NDArray, NDArray, NDArray):
-        """returns the IAM coefficient arrays"""
-        aa = np.array(
-            [
-                [0.489918, 0.262003, 0.196767, 0.049879],  # hydrogen
-                [0.8734, 0.6309, 0.3112, 0.1780],  # helium
-                [1.1282, 0.7508, 0.6175, 0.4653],  # lithium
-                [1.5919, 1.1278, 0.5391, 0.7029],  # berylium
-                [2.0545, 1.3326, 1.0979, 0.7068],  # boron
-                [2.3100, 1.0200, 1.5886, 0.8650],  # carbon
-                [12.2126, 3.1322, 2.0125, 1.1663],  # nitrogen
-                [3.0485, 2.2868, 1.5463, 0.8670],  # oxygen
-                [3.5392, 2.6412, 1.5170, 1.0243],  # fluorine
-                [3.9553, 3.1125, 1.4546, 1.1251],  # neon
-                [4.7626, 3.1736, 1.2674, 1.1128],  # sodium
-                [5.4204, 2.1735, 1.2269, 2.3073],  # magnesium
-                [6.4202, 1.9002, 1.5936, 1.9646],  # aluminium
-                [6.2915, 3.0353, 1.9891, 1.5410],  # Siv
-                [6.4345, 4.1791, 1.7800, 1.4908],  # phosphorus
-                [6.9053, 5.2034, 1.4379, 1.5863],  # sulphur
-                [11.4604, 7.1964, 6.2556, 1.6455],  # chlorine
-            ]
-        )
-
-        bb = np.array(
-            [
-                [20.6593, 7.74039, 49.5519, 2.20159],  # hydrogen
-                [9.1037, 3.3568, 22.9276, 0.9821],  # helium
-                [3.9546, 1.0524, 85.3905, 168.261],  # lithium
-                [43.6427, 1.8623, 103.483, 0.5420],  # berylium
-                [23.2185, 1.0210, 60.3498, 0.1403],  # boron
-                [20.8439, 10.2075, 0.5687, 51.6512],  # carbon
-                [0.00570, 9.8933, 28.9975, 0.5826],  # nitrogen
-                [13.2771, 5.7011, 0.3239, 32.9089],  # oxygen
-                [10.2825, 4.2944, 0.2615, 26.1476],  # fluorine
-                [8.4042, 3.4262, 0.2306, 21.7184],  # Ne
-                [3.2850, 8.8422, 0.3136, 129.424],  # Na
-                [2.8275, 79.2611, 0.3808, 7.1937],  # Mg
-                [3.0387, 0.7426, 31.5472, 85.0886],  # Al
-                [2.4386, 32.3337, 0.6785, 81.6937],  # Siv
-                [1.9067, 27.1570, 0.5260, 68.1645],  # P
-                [1.4679, 22.2151, 0.2536, 56.1720],  # S
-                [0.0104, 1.1662, 18.5194, 47.7784],  # Cl
-            ]
-        )
-
-        cc = np.array(
-            [
-                0.001305,  # hydrogen
-                0.0064,  # helium
-                0.0377,  # lithium
-                0.0385,  # berylium
-                -0.1932,  # boron
-                0.2156,  # carbon
-                -11.529,  # nitrogen
-                0.2508,  # oxygen
-                0.2776,  # fluorine
-                0.3515,  # Ne
-                0.6760,  # Na
-                0.8584,  # Mg
-                1.1151,  # Al
-                1.1407,  # Si
-                1.1149,  # P
-                0.8669,  # S
-                -9.5574,  # Cl
-            ]
-        )
-        return aa, bb, cc
-
     def atomic_factor(self, atom_number, qvector):
         """returns atomic x-ray scattering factor for atom_number, and qvector"""
-        aa, bb, cc = self.read_iam_coeffs()
+        aa, bb, cc = self.aa, self.bb, self.cc
         if isinstance(qvector, float):
             qvector = np.array([qvector])
         qlen = len(qvector)
@@ -294,8 +294,6 @@ class Xray:
             tck = interpolate.splrep(q_compton, arr[atomic_numbers[i] - 1, :], s=0)
             compton_array[i, :] = interpolate.splev(qvector, tck, der=0)
         return compton_array
-
-
 
     def iam_calc_2d(self, atomic_numbers, xyz, qvector):
         """

@@ -18,7 +18,6 @@ m = mol.Xyz()
 x = xray.Xray()
 sa = sa.Annealing()
 
-
 #############################
 class Wrapper:
     """wrapper functions for simulated annealing strategies"""
@@ -85,7 +84,8 @@ class Wrapper:
         dihedral_indices=np.array([0, 1, 4, 5]),  # e.g. chd ring-opening dihedral
     ):
         """
-        simple fitting to CHD 1D data
+        wrapper function that handles restarts, xyz/dat modes, output files,
+        and some analysis e.g. PySCF energy calculations, bond-distance and angle calculations.
         """
         #############################
         ######### Inputs ############
@@ -95,10 +95,7 @@ class Wrapper:
         #
         #############################
 
-        qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
         electron_mode = False
-        twod_mode = False
-        aa, bb, cc = x.read_iam_coeffs()
         th, ph, qlen, tlen, plen, qmin, qmax, th_min, th_max, ph_min, ph_max = (
             x.setup_ewald_coords(qvector)
         )
@@ -148,6 +145,11 @@ class Wrapper:
             reference_xyz, atomic_numbers, compton_array, ewald_mode
         )
 
+        save_starting_reference_iams = False  # for debugging
+        if save_starting_reference_iams:
+            np.savetxt('starting_iam.dat', np.column_stack((qvector, starting_iam)))
+            np.savetxt('reference_iam.dat', np.column_stack((qvector, reference_iam)))
+
         natoms = xyz_start.shape[0]
         displacements = sa.read_nm_displacements(nmfile, natoms)
         nmodes = displacements.shape[0]
@@ -172,6 +174,11 @@ class Wrapper:
         filename, target_file_ext = os.path.splitext(target_file)
         target_function_file = "%s/TARGET_FUNCTION_%s.dat" % (results_dir, run_id)
 
+        ###########################################################
+        ###########################################################
+        ### Section: xyz or dat mode handling                   ###
+        ###########################################################
+        ###########################################################
         if mode == "xyz":
             # read from target xyz file
             _, _, atomlist, target_xyz = m.read_xyz(target_file)
@@ -220,13 +227,16 @@ class Wrapper:
             target_xyz = xyz_start  # added simply to run the rmsd analysis later compared to this
         else:
             print('Error: mode value must be "xyz" or "dat"!')
+        ###########################################################
+        ###########################################################
+        ### End Section: xyz or dat mode handling               ###
+        ###########################################################
+        ###########################################################
 
         # save target function to file if it doesn't exist
         # if not os.path.exists(target_function_file):
         print("Saving data to %s ..." % target_function_file)
         if ewald_mode:
-            ## TO DO: Maybe the error is I "rotavg" the full iam
-            ## before I only rotavg the molecular, atomic and compton separately and then added
             target_function_r = x.spherical_rotavg(target_function, th, ph)
             np.savetxt(
                 target_function_file, np.column_stack((qvector, target_function_r))
@@ -252,12 +262,13 @@ class Wrapper:
         #################################
         # initialise starting "best" values
         xyz_best = xyz_start
-        f_best = 1e10
+        f_best, f_xray_best = 1e10, 1e10
         predicted_best = np.zeros(qlen)
         for i in range(nrestarts):
             ### each restart starts at the previous xyz_best
             xyz_start = xyz_best  
             f_start = f_best
+            f_xray_start = f_xray_best
             predicted_start = predicted_best
             ###
             if i < nrestarts - 1:  # annealing mode
@@ -291,9 +302,6 @@ class Wrapper:
                 compton,
                 atomic,
                 pre_molecular,
-                aa,
-                bb,
-                cc,
                 sa_step_size_array,
                 ho_indices1,
                 ho_indices2,
@@ -310,6 +318,7 @@ class Wrapper:
                 bonds_bool,
                 angles_bool,
                 f_start,
+                f_xray_start,
                 predicted_start,
             )
             print("f_best (SA): %9.8f" % f_best)
@@ -370,6 +379,7 @@ class Wrapper:
             e_mol,
             mapd,
         )
+        ### Final save to files
         ### write best structure to xyz file
         print("writing to xyz... (f: %10.8f)" % f_xray_best)
         f_best_str = ("%10.8f" % f_xray_best).zfill(12)
@@ -379,14 +389,13 @@ class Wrapper:
             atomlist,
             xyz_best,
         )
-        ### Final save to files
         # also write final xyz as "result.xyz"
         # m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
         # predicted data
         if ewald_mode:
             predicted_best_r = x.spherical_rotavg(predicted_best, th, ph)
             predicted_best = predicted_best_r
-
+        ### write predicted data to file
         np.savetxt(
             "%s/%s_%s.dat" % (results_dir, run_id, f_best_str),
             np.column_stack((qvector, predicted_best)),

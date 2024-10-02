@@ -16,7 +16,6 @@ import modules.x as xray
 m = mol.Xyz()
 x = xray.Xray()
 
-
 #############################
 class Annealing:
     """Gradient descent functions"""
@@ -36,9 +35,6 @@ class Annealing:
         compton: NDArray,
         atomic_total: NDArray,
         pre_molecular: NDArray,
-        aa: NDArray,
-        bb: NDArray,
-        cc: NDArray,
         step_size_array: NDArray,
         ho_indices1: NDArray,
         ho_indices2: NDArray,
@@ -55,6 +51,7 @@ class Annealing:
         bonds_bool=True,
         angles_bool=False,
         f_start=1e10,
+        f_xray_start=1e10,
         predicted_start=0,
     ):
         """simulated annealing minimisation to target_function"""
@@ -120,9 +117,9 @@ class Annealing:
 
             ##=#=#=# INITIATE LOOP VARIABLES #=#=#=#=#
             xyz, xyz_best = starting_xyz, starting_xyz
-            f_best = f_start  # initialise on restart
+            f_best, f_xray_best = f_start, f_xray_start  # initialise on restart
             predicted_best = predicted_start  # initialise on restart
-            f, f_xray_best = 1e9, 0.0
+            f = 1e9  # high initial value so 1st step will be accepted
             c = 0  # count accepted steps
             mdisp = displacements
             total_bonding_contrib, total_angular_contrib, total_xray_contrib = 0, 0, 0
@@ -170,7 +167,7 @@ class Annealing:
                     for ii in range(natoms):
                         for jj in range(ii + 1, natoms):  # j > i
                             qdij = qvector * LA.norm(xyz_[ii, :] - xyz_[jj, :])
-                            molecular += pre_molecular[k, :] * np.sin(qdij) / qdij
+                            molecular += 2 * pre_molecular[k, :] * np.sin(qdij) / qdij
                             k += 1
                 iam_ = atomic_total + molecular + compton
                 ##=#=#=# END IAM CALCULATION #=#=#=##
@@ -301,6 +298,7 @@ class Annealing:
         print("Accepted / Total steps: %i/%i" % (c, nsteps))
         # end function
         return f_best, f_xray_best, predicted_best, xyz_best
+
 
     def read_nm_displacements(self, fname: str, natoms: int) -> NDArray:
         """read_nm_displacements: Reads displacement vector from file=fname e.g. 'normalmodes.txt'
