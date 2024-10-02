@@ -29,6 +29,10 @@ tmp
 sed??????
 scripts/*.dat
 *1  ## anything ending in 1
+pyscf/
+.vscode
+OpenBLAS-0.3.28-x64-64/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
