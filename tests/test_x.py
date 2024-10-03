@@ -33,6 +33,9 @@ x = xray.Xray()
 #############################
 # qvector from params object
 qvector = p.qvector
+# theta and phi from p
+th = p.th
+ph = p.ph
 # read test.xyz (perfectly linear H-O-H with exactly 1 Angstrom OH bonds)
 xyzheader, comment, atomlist, xyz = m.read_xyz("xyz/test.xyz")
 #xyzheader, comment, atomlist, xyz = m.read_xyz("xyz/chd_opt.xyz")
@@ -106,7 +109,7 @@ def test_iam_calc_ewald():
         atomic_rotavg,
         molecular_rotavg,
         compton_rotavg,
-    ) = x.iam_calc_ewald(atomic_numbers, xyz, qvector, inelastic, compton_array)
+    ) = x.iam_calc_ewald(atomic_numbers, xyz, qvector, th, ph, inelastic, compton_array)
     qlen = p.qlen
     np.savetxt("tmp_/rotavg.del_%s" % qlen, np.column_stack((qvector, iam_total_rotavg)))
     np.savetxt("tmp_/iam_1d.del_%s" % qlen, np.column_stack((qvector, iam_1d)))

@@ -19,6 +19,16 @@
       "qmax": 8,
       "qlen": 81
     },
+    "th": {
+      "tmin": 0,
+      "tmax": 1,
+      "tlen": 81
+    },
+    "ph": {
+      "pmin": 0,
+      "pmax": 2,
+      "plen": 1
+    },
     "noise": { 
       "noise_value": 0.0,
       "noise_data_file": "noise/noise.dat"

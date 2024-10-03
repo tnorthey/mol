@@ -126,38 +126,6 @@ class Xray:
             iam += compton
         return iam, atomic, molecular, compton, pre_molecular
 
-    def setup_ewald_coords(self, qvector):
-        qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
-        tlen = 1 * qlen
-        plen = 1 * qlen  # more grid points in phi because it spans more
-        ######
-        test_mode = False  ### NB this shouldn't be coded here...
-        if test_mode:
-            tlen = 4
-            plen = 2 * tlen
-            # in test mode with theta and phi with length 1
-            # the linspaces become [0], so th = ph = [0.]
-        ######
-        th_min, th_max = 0, np.pi
-        ph_min, ph_max = 0, 2 * np.pi
-        th = np.linspace(th_min, th_max, tlen, endpoint=True)
-        ph = np.linspace(
-            ph_min, ph_max, plen, endpoint=False
-        )  # skips 2pi as f(0) = f(2pi)
-        return (
-            th,
-            ph,
-            qlen,
-            tlen,
-            plen,
-            qmin,
-            qmax,
-            th_min,
-            th_max,
-            ph_min,
-            ph_max,
-        )
-
     def spherical_rotavg(self, f, th, ph):
         """
         Rotational average in sphericals: I use it with the Ewald sphere
@@ -183,6 +151,8 @@ class Xray:
         atomic_numbers,
         xyz,
         qvector,
+        th,
+        ph,
         inelastic=False,
         compton_array=np.zeros(0),
     ):
@@ -190,9 +160,9 @@ class Xray:
         calculate IAM function in the Ewald sphere
         """
         natoms = len(atomic_numbers)
-        th, ph, qlen, tlen, plen, qmin, qmax, th_min, th_max, ph_min, ph_max = (
-            self.setup_ewald_coords(qvector)
-        )
+        qlen, tlen, plen = len(qvector), len(th), len(ph)
+        qmin, tmin, pmin = min(qvector), min(th), min(ph)
+        qmax, tmax, pmax = max(qvector), max(th), max(ph)
         # define coordinates on meshgrid
         r_grid, th_grid, ph_grid = np.meshgrid(qvector, th, ph, indexing="ij")
         # Convert spherical coordinates to Cartesian coordinates
@@ -250,7 +220,7 @@ class Xray:
             th[1] - th[0]
         )  # for some reason this is different than the below.. (and this one is correct)
         # dth = (th_max - th_min) / tlen
-        dph = (ph_max - ph_min) / plen
+        dph = (pmax - pmin) / plen
         molecular_rotavg = (
             np.sum(molecular_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
         )

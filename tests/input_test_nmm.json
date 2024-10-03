@@ -19,6 +19,16 @@
       "qmax": 4.3727,
       "qlen": 39
     },
+    "th": {
+      "tmin": 0,
+      "tmax": 1,
+      "tlen": 81
+    },
+    "ph": {
+      "pmin": 0,
+      "pmax": 2,
+      "plen": 1
+    },
     "noise": { 
       "noise_value": 0.0,
       "noise_data_file": "noise/noise.dat"
@@ -26,11 +36,11 @@
   },
   "simulated_annealing_params": {
     "sa_starting_temp": 1.0,
-    "sa_nsteps": 1000,
-    "ga_nsteps": 1000,
+    "sa_nsteps": 10,
+    "ga_nsteps": 10,
     "sa_step_size": 0.012,
     "ga_step_size": 0.012,
-    "nrestarts": 5,
+    "nrestarts": 2,
     "bonds_bool": 1,
     "sa_harmonic_factor": [10.0, 10.0],
     "ga_harmonic_factor": [1.0, 10.0],

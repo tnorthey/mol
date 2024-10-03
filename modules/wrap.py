@@ -27,61 +27,7 @@ class Wrapper:
 
     def run(
         self,
-        mode,
-        run_id,
-        start_xyz_file,
-        reference_xyz_file,
-        target_file,
-        results_dir="tmp_",
-        qvector=np.linspace(1e-9, 8.0, 81, endpoint=True),
-        noise=0,
-        noise_data_file="noise/noise.dat",
-        inelastic=True,
-        pcd_mode=False,
-        ewald_mode=False,
-        sa_starting_temp=0.2,
-        nmfile="nm/chd_normalmodes.txt",
-        hydrogen_modes=np.arange(28, 36),  # CHD hydrogen modes
-        sa_mode_indices=np.arange(0, 28),  # CHD, "non-hydrogen" modes
-        ga_mode_indices=np.arange(0, 28),  # CHD, "non-hydrogen" modes
-        sa_nsteps=8000,
-        ga_nsteps=40000,
-        bonds_bool=True,  # use HO terms on the bonds
-        ho_indices1=np.array([[0, 1, 2, 3, 4], [1, 2, 3, 4, 5]]),  # chd (C-C bonds)
-        ho_indices2=np.array(
-            [
-                [6, 12, 5, 5, 0, 0, 1, 2, 3, 4],
-                [7, 13, 12, 13, 6, 7, 8, 9, 10, 11],
-            ]
-        ),  # chd (C-H bonds, and H-H "bonds" for the CH2 carbons)
-        angles_bool=False,  # use HO terms on the angles
-        angular_indices1=np.array(
-            [
-                [6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1],
-                [0, 5, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0],
-                [7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6],
-            ]
-        ),  # chd (non-C-C-C angles: C-C-H, H-C-H angles)
-        angular_indices2=np.array(
-            [
-                [6, 12, 0, 2, 1, 3, 2, 4, 3, 5, 4, 4, 1, 1],
-                [0, 5, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0],
-                [7, 13, 8, 8, 9, 9, 10, 10, 11, 11, 12, 13, 7, 6],
-            ]
-        ),  # chd (non-C-C-C angles: C-C-H, H-C-H angles)
-        sa_step_size=0.01,
-        ga_step_size=0.01,
-        sa_harmonic_factor=(0.01, 0.01),
-        ga_harmonic_factor=(0.01, 0.01),
-        sa_angular_factor=(0.1, 0.1),
-        ga_angular_factor=(0.1, 0.1),
-        nrestarts=5,
-        non_h_modes_only=False,  # only include "non-hydrogen" modes
-        hf_energy=True,  # run PySCF HF energy
-        rmsd_indices=np.array([0, 1, 2, 3, 4, 5]),  # chd non-hydrogen atoms
-        bond_indices=np.array([0, 5]),  # e.g. chd ring-opening bond
-        angle_indices=np.array([6, 3, 12]),  # e.g. NMM methyl group motion angle
-        dihedral_indices=np.array([0, 1, 4, 5]),  # e.g. chd ring-opening dihedral
+        p,
     ):
         """
         wrapper function that handles restarts, xyz/dat modes, output files,
@@ -89,16 +35,13 @@ class Wrapper:
         """
         #############################
         ######### Inputs ############
-        # run_id : define a number to label the start of the output filenames
-        # start_xyz_file : xyz file containing starting positions of the atoms
+        # p.run_id : define a number to label the start of the output filenames
+        # p.start_xyz_file : xyz file containing starting positions of the atoms
         # target_xyz_file : xyz file containing target positions of the atoms
         #
         #############################
 
         electron_mode = False
-        th, ph, qlen, tlen, plen, qmin, qmax, th_min, th_max, ph_min, ph_max = (
-            x.setup_ewald_coords(qvector)
-        )
 
         def xyz2iam(xyz, atomic_numbers, compton_array, ewald_mode):
             """convert xyz file to IAM signal"""
@@ -116,17 +59,19 @@ class Wrapper:
                 ) = x.iam_calc_ewald(
                     atomic_numbers,
                     xyz,
-                    qvector,
-                    inelastic,
+                    p.qvector,
+                    p.th,
+                    p.ph,
+                    p.inelastic,
                     compton_array,
                 )
             else:
                 iam, atomic, molecular, compton, pre_molecular = x.iam_calc(
                     atomic_numbers,
                     xyz,
-                    qvector,
+                    p.qvector,
                     electron_mode,
-                    inelastic,
+                    p.inelastic,
                     compton_array,
                 )
             return iam, atomic, compton, pre_molecular
@@ -134,31 +79,31 @@ class Wrapper:
         #############################
         ### arguments             ###
         #############################
-        _, _, atomlist, xyz_start = m.read_xyz(start_xyz_file)
-        _, _, atomlist, reference_xyz = m.read_xyz(reference_xyz_file)
+        _, _, atomlist, xyz_start = m.read_xyz(p.start_xyz_file)
+        _, _, atomlist, reference_xyz = m.read_xyz(p.reference_xyz_file)
         atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
-        compton_array = x.compton_spline(atomic_numbers, qvector)
+        compton_array = x.compton_spline(atomic_numbers, p.qvector)
         starting_iam, atomic, compton, pre_molecular = xyz2iam(
-            xyz_start, atomic_numbers, compton_array, ewald_mode
+            xyz_start, atomic_numbers, compton_array, p.ewald_mode
         )
         reference_iam, atomic, compton, pre_molecular = xyz2iam(
-            reference_xyz, atomic_numbers, compton_array, ewald_mode
+            reference_xyz, atomic_numbers, compton_array, p.ewald_mode
         )
 
         save_starting_reference_iams = False  # for debugging
         if save_starting_reference_iams:
-            np.savetxt('starting_iam.dat', np.column_stack((qvector, starting_iam)))
-            np.savetxt('reference_iam.dat', np.column_stack((qvector, reference_iam)))
+            np.savetxt('starting_iam.dat', np.column_stack((p.qvector, starting_iam)))
+            np.savetxt('reference_iam.dat', np.column_stack((p.qvector, reference_iam)))
 
         natoms = xyz_start.shape[0]
-        displacements = sa.read_nm_displacements(nmfile, natoms)
+        displacements = sa.read_nm_displacements(p.nmfile, natoms)
         nmodes = displacements.shape[0]
 
         # hydrogen modes damped
         sa_h_mode_modification = np.ones(nmodes)
-        for i in hydrogen_modes:
+        for i in p.hydrogen_mode_indices:
             sa_h_mode_modification[i] = 0.2
-        sa_step_size_array = sa_step_size * np.ones(nmodes) * sa_h_mode_modification
+        p.sa_step_size_array = p.sa_step_size * np.ones(nmodes) * sa_h_mode_modification
 
         #############################
         ### end arguments         ###
@@ -170,39 +115,39 @@ class Wrapper:
         ### Initialise some stuff ###
         #############################
 
-        print(f"Target: {target_file}")
-        filename, target_file_ext = os.path.splitext(target_file)
-        target_function_file = "%s/TARGET_FUNCTION_%s.dat" % (results_dir, run_id)
+        print(f"Target: {p.target_file}")
+        filename, p.target_file_ext = os.path.splitext(p.target_file)
+        target_function_file = "%s/TARGET_FUNCTION_%s.dat" % (p.results_dir, p.run_id)
 
         ###########################################################
         ###########################################################
         ### Section: xyz or dat mode handling                   ###
         ###########################################################
         ###########################################################
-        if mode == "xyz":
+        if p.mode == "xyz":
             # read from target xyz file
-            _, _, atomlist, target_xyz = m.read_xyz(target_file)
+            _, _, atomlist, target_xyz = m.read_xyz(p.target_file)
             target_iam, atomic, compton, pre_molecular = xyz2iam(
-                target_xyz, atomic_numbers, compton_array, ewald_mode
+                target_xyz, atomic_numbers, compton_array, p.ewald_mode
             )
 
-            # target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id
+            # target_iam_file = "tmp_/TARGET_IAM_%s.dat" % p.run_id
             # save target IAM file before noise is added
             # print("Saving data to %s ..." % target_iam_file)
-            # np.savetxt(target_iam_file, np.column_stack((qvector, target_iam)))
+            # np.savetxt(target_iam_file, np.column_stack((p.qvector, target_iam)))
 
             ### ADDITION OF RANDOM NOISE
             noise_file_bool = True
-            # noise_data_file = "noise/noise.dat"
-            print(f"checking if {noise_data_file} exists...")
-            if noise_file_bool and os.path.exists(noise_data_file):
+            # p.noise_data_file = "noise/noise.dat"
+            print(f"checking if {p.noise_data_file} exists...")
+            if noise_file_bool and os.path.exists(p.noise_data_file):
                 # read the noise from a file
-                print(f"Yes. Reading noise data from {noise_data_file}")
-                noise_array = np.loadtxt(noise_data_file)
+                print(f"Yes. Reading noise data from {p.noise_data_file}")
+                noise_array = np.loadtxt(p.noise_data_file)
                 # resize to length of q and scale magnitude
-                noise_array = noise * noise_array[0:qlen]
+                noise_array = p.noise_value * noise_array[0 : p.qlen]
             else:
-                print(f"{noise_data_file} does not exist.")
+                print(f"{p.noise_data_file} does not exist.")
                 # generate random noise here instead of reading from file
                 mu = 0  # normal distribution with mean of mu
                 sigma = noise
@@ -210,18 +155,18 @@ class Wrapper:
                     "Randomly generating noise from normal dist... sigma = %3.2f"
                     % sigma
                 )
-                noise_array = sigma * np.random.randn(qlen) + mu
+                noise_array = sigma * np.random.randn(p.qlen) + mu
             # if Ewald mode the noise_array has to be 3D
-            if ewald_mode:
-                noise_array_3d = np.zeros((qlen, tlen, plen))
-                for i in range(plen):
-                    for j in range(tlen):
+            if p.ewald_mode:
+                noise_array_3d = np.zeros((p.qlen, p.tlen, p.plen))
+                for i in range(p.plen):
+                    for j in range(p.tlen):
                         noise_array_3d[:, j, i] = noise_array
                 noise_array = noise_array_3d  # redefine as the 3D array
             target_function = target_iam + noise_array  # define target_function
-        elif mode == "dat":
+        elif p.mode == "dat":
             # if target file is a data file, read as target_function
-            target_function = np.loadtxt(target_file)
+            target_function = np.loadtxt(p.target_file)
             excitation_factor = 0.057
             target_function /= excitation_factor
             target_xyz = xyz_start  # added simply to run the rmsd analysis later compared to this
@@ -236,14 +181,14 @@ class Wrapper:
         # save target function to file if it doesn't exist
         # if not os.path.exists(target_function_file):
         print("Saving data to %s ..." % target_function_file)
-        if ewald_mode:
+        if p.ewald_mode:
             target_function_r = x.spherical_rotavg(target_function, th, ph)
             np.savetxt(
-                target_function_file, np.column_stack((qvector, target_function_r))
+                target_function_file, np.column_stack((p.qvector, target_function_r))
             )
         else:
             np.savetxt(
-                target_function_file, np.column_stack((qvector, target_function))
+                target_function_file, np.column_stack((p.qvector, target_function))
             )
         # print(target_function)
 
@@ -255,7 +200,7 @@ class Wrapper:
         # else:
         #    target_function = target_iam
         #    print("Saving data to %s ..." % target_function_file)
-        #    np.savetxt(target_function_file, np.column_stack((qvector, target_function)))
+        #    np.savetxt(target_function_file, np.column_stack((p.qvector, target_function)))
 
         #################################
         ### End Initialise some stuff ###
@@ -263,28 +208,28 @@ class Wrapper:
         # initialise starting "best" values
         xyz_best = xyz_start
         f_best, f_xray_best = 1e10, 1e10
-        predicted_best = np.zeros(qlen)
-        for i in range(nrestarts):
+        predicted_best = np.zeros(p.qlen)
+        for i in range(p.nrestarts):
             ### each restart starts at the previous xyz_best
             xyz_start = xyz_best  
             f_start = f_best
             f_xray_start = f_xray_best
             predicted_start = predicted_best
             ###
-            if i < nrestarts - 1:  # annealing mode
+            if i < p.nrestarts - 1:  # annealing mode
                 print(f"Run {i}: SA")
-                nsteps = sa_nsteps
-                starting_temp = sa_starting_temp
-                harmonic_factor = sa_harmonic_factor
-                angular_factor = sa_angular_factor
-                mode_indices = sa_mode_indices
+                nsteps = p.sa_nsteps
+                starting_temp = p.sa_starting_temp
+                harmonic_factor = p.sa_harmonic_factor
+                angular_factor = p.sa_angular_factor
+                mode_indices = p.sa_mode_indices
             else:  # greedy algorithm mode
                 print(f"Run {i}: GA")
-                nsteps = ga_nsteps
+                nsteps = p.ga_nsteps
                 starting_temp = 0
-                harmonic_factor = ga_harmonic_factor
-                angular_factor = ga_angular_factor
-                mode_indices = ga_mode_indices
+                harmonic_factor = p.ga_harmonic_factor
+                angular_factor = p.ga_angular_factor
+                mode_indices = p.ga_mode_indices
             # Run simulated annealing
             (
                 f_best,
@@ -298,25 +243,25 @@ class Wrapper:
                 mode_indices,
                 target_function,
                 reference_iam,
-                qvector,
+                p.qvector,
                 compton,
                 atomic,
                 pre_molecular,
-                sa_step_size_array,
-                ho_indices1,
-                ho_indices2,
-                angular_indices1,
-                angular_indices2,
+                p.sa_step_size_array,
+                p.ho_indices1,
+                p.ho_indices2,
+                p.angular_indices1,
+                p.angular_indices2,
                 starting_temp,
                 nsteps,
-                inelastic,
+                p.inelastic,
                 harmonic_factor,
                 angular_factor,
-                pcd_mode,
+                p.pcd_mode,
                 electron_mode,
-                ewald_mode,
-                bonds_bool,
-                angles_bool,
+                p.ewald_mode,
+                p.bonds_bool,
+                p.angles_bool,
                 f_start,
                 f_xray_start,
                 predicted_start,
@@ -326,29 +271,29 @@ class Wrapper:
         ### analysis on xyz_best
         # bond-length of interest
         bond_distance = np.linalg.norm(
-            xyz_best[bond_indices[0], :] - xyz_best[bond_indices[1], :]
+            xyz_best[p.bond_indices[0], :] - xyz_best[p.bond_indices[1], :]
         )
         # angle of interest
-        p0 = np.array(xyz_best[angle_indices[0], :])
-        p1 = np.array(xyz_best[angle_indices[1], :])  # central point
-        p2 = np.array(xyz_best[angle_indices[2], :])
+        p0 = np.array(xyz_best[p.angle_indices[0], :])
+        p1 = np.array(xyz_best[p.angle_indices[1], :])  # central point
+        p2 = np.array(xyz_best[p.angle_indices[2], :])
         angle_degrees = m.angle_2p_3d(p0, p1, p2)
         # dihedral of interest
-        p0 = np.array(xyz_best[dihedral_indices[0], :])
-        p1 = np.array(xyz_best[dihedral_indices[1], :])
-        p2 = np.array(xyz_best[dihedral_indices[2], :])
-        p3 = np.array(xyz_best[dihedral_indices[3], :])
+        p0 = np.array(xyz_best[p.dihedral_indices[0], :])
+        p1 = np.array(xyz_best[p.dihedral_indices[1], :])
+        p2 = np.array(xyz_best[p.dihedral_indices[2], :])
+        p3 = np.array(xyz_best[p.dihedral_indices[3], :])
         dihedral = m.new_dihedral(np.array([p0, p1, p2, p3]))
         rmsd_target_bool = True
         if rmsd_target_bool:
             # rmsd compared to target
             # Kabsch rotation to target
-            rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, rmsd_indices)
+            rmsd, r = m.rmsd_kabsch(xyz_best, target_xyz, p.rmsd_indices)
             # MAPD compared to target
-            mapd = m.mapd_function(xyz_best, target_xyz, rmsd_indices)
+            mapd = m.mapd_function(xyz_best, target_xyz, p.rmsd_indices)
             # save target xyz
             m.write_xyz(
-                "%s/%s_target.xyz" % (results_dir, run_id),
+                "%s/%s_target.xyz" % (p.results_dir, p.run_id),
                 ".dat file case: xyz_start (not target_xyz)",
                 atomlist,
                 target_xyz,
@@ -357,7 +302,7 @@ class Wrapper:
             bond_distance, angle_degrees, dihedral = 0, 0, 0
             rmsd, mapd, e_mol = 0, 0, 0
         # HF energy with PySCF
-        if hf_energy and HAVE_PYSCF:
+        if p.hf_energy and HAVE_PYSCF:
             mol = gto.Mole()
             arr = []
             for i in range(len(atomlist)):
@@ -384,21 +329,21 @@ class Wrapper:
         print("writing to xyz... (f: %10.8f)" % f_xray_best)
         f_best_str = ("%10.8f" % f_xray_best).zfill(12)
         m.write_xyz(
-            "%s/%s_%s.xyz" % (results_dir, run_id, f_best_str),
+            "%s/%s_%s.xyz" % (p.results_dir, p.run_id, f_best_str),
             header_str,
             atomlist,
             xyz_best,
         )
         # also write final xyz as "result.xyz"
-        # m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
+        # m.write_xyz("tmp_/%s_result.xyz" % p.run_id, "result", atomlist, xyz_best)
         # predicted data
-        if ewald_mode:
+        if p.ewald_mode:
             predicted_best_r = x.spherical_rotavg(predicted_best, th, ph)
             predicted_best = predicted_best_r
         ### write predicted data to file
         np.savetxt(
-            "%s/%s_%s.dat" % (results_dir, run_id, f_best_str),
-            np.column_stack((qvector, predicted_best)),
+            "%s/%s_%s.dat" % (p.results_dir, p.run_id, f_best_str),
+            np.column_stack((p.qvector, predicted_best)),
         )
         return  # end function
 
@@ -414,44 +359,5 @@ class Wrapper:
         Call function; useful to generalise.
         p is the params object from read_input.
         """
-        self.run(
-            p.mode,
-            p.run_id,
-            p.start_xyz_file,
-            p.reference_xyz_file,
-            p.target_file,
-            p.results_dir,
-            p.qvector,
-            p.noise_value,
-            p.noise_data_file,
-            p.inelastic,
-            p.pcd_mode,
-            p.ewald_mode,
-            p.sa_starting_temp,
-            p.nmfile,
-            p.hydrogen_mode_indices,  # CHD hydrogen modes
-            p.sa_mode_indices,  # CHD, all modes
-            p.ga_mode_indices,  # CHD, all modes
-            p.sa_nsteps,
-            p.ga_nsteps,
-            p.bonds_bool,  # use HO terms on the bonds
-            p.ho_indices1,  # chd (C-C bonds)
-            p.ho_indices2,  # chd (C-H bonds, and H-H "bonds" for the CH2 carbons)
-            p.angles_bool,  # use HO terms on the angles
-            p.angular_indices1,
-            p.angular_indices2,
-            p.sa_step_size,
-            p.ga_step_size,
-            p.sa_harmonic_factor,
-            p.ga_harmonic_factor,
-            p.sa_angular_factor,
-            p.ga_angular_factor,
-            p.nrestarts,
-            p.non_h_modes_only,  # only include "non-hydrogen" modes
-            p.hf_energy,  # run PySCF HF energy
-            p.rmsd_indices,  # chd
-            p.bond_indices,  # chd ring-opening bond
-            p.angle_indices,  # angle
-            p.dihedral_indices,  # chd ring-opening dihedral
-        )
+        self.run(p)
         return

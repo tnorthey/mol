@@ -42,10 +42,18 @@ class Input_to_params:
         self.inelastic = bool(data["scattering_params"]["inelastic_bool"])
         self.pcd_mode = bool(data["scattering_params"]["pcd_mode_bool"])
         self.ewald_mode = bool(data["scattering_params"]["ewald_mode_bool"])
-        # q params
+        # radial q params
         self.qmin = float(data["scattering_params"]["q"]["qmin"])
         self.qmax = float(data["scattering_params"]["q"]["qmax"])
-        self.qlen = int(data["scattering_params"]["q"]["qlen"])
+        self.qlen =   int(data["scattering_params"]["q"]["qlen"])
+        # theta params
+        self.tmin = float(data["scattering_params"]["th"]["tmin"])
+        self.tmax = float(data["scattering_params"]["th"]["tmax"])
+        self.tlen =   int(data["scattering_params"]["th"]["tlen"])
+        # phi params
+        self.pmin = float(data["scattering_params"]["ph"]["pmin"])
+        self.pmax = float(data["scattering_params"]["ph"]["pmax"])
+        self.plen =   int(data["scattering_params"]["ph"]["plen"])
         # noise params
         self.noise_value = float(data["scattering_params"]["noise"]["noise_value"])
         self.noise_data_file = str(
@@ -117,6 +125,10 @@ class Input_to_params:
         ### Define other variables
         # qvector
         self.qvector = np.linspace(self.qmin, self.qmax, self.qlen, endpoint=True)
+        # theta (units of pi)
+        self.th = np.pi * np.linspace(self.tmin, self.tmax, self.tlen, endpoint=True)
+        # phi (units of pi), note endpoint=False; skip 2pi as f(0) = f(2pi)
+        self.ph = np.pi * np.linspace(self.pmin, self.pmax, self.plen, endpoint=False)
         # specific mode indices
         self.hydrogen_mode_indices = np.arange(
             self.hydrogen_mode_range[0], self.hydrogen_mode_range[1]
