@@ -121,10 +121,10 @@ def test_iam_calc_ewald():
     np.savetxt("tmp_/compton.del_%s" % qlen, np.column_stack((qvector, compton)))
     assert round(atomic_3d[0, 0, 0], 1) == 66.0, "I_atomic(q = 0) != 66"
     assert round(molecular_3d[0, 0, 0], 1) == 34.0, "I_mol(q = 0) != 34"
-    assert round(iam_3d[0, 0, 0], 0) == 100.0, "H2O I_total(q = 0) != 100"
+    assert round(iam_3d[0, 0, 0], 1) == 100.0, "H2O I_total(q = 0) != 100"
     assert round(atomic_rotavg[0], 1) == 66.0, "I_atomic_rotavg(q = 0) != 66"
-    assert round(molecular_rotavg[0], 0) == 34.0, "I_mol_rotavg(q = 0) != 34"
-    assert round(iam_total_rotavg[0], 0) == 100.0, "H20 I_total_rotavg(q = 0) != 100"
+    assert round(molecular_rotavg[0], 1) == 34.0, "I_mol_rotavg(q = 0) != 34"
+    assert round(iam_total_rotavg[0], 1) == 100.0, "H20 I_total_rotavg(q = 0) != 100"
     delta_total = 100 * (iam_1d - iam_total_rotavg) / iam_1d
     delta_atomic = 100 * (atomic - atomic_rotavg) / atomic
     delta_molecular = 100 * (molecular - molecular_rotavg) / molecular
@@ -136,9 +136,9 @@ def test_iam_calc_ewald():
         round(np.sum(delta_compton) / qlen, 1) == 0.0
     ), "Compton 3d rotavg is not equal to analytic IAM..."
     assert (
-        round(np.sum(delta_molecular) / qlen, 1) < 0.9
+        round(np.sum(delta_molecular) / qlen, 1) < 0.5
     ), "Molecular 3d rotavg is not equal to analytic IAM..."
     assert (
-        round(np.sum(delta_total) / qlen, 1) < 0.9
+        round(np.sum(delta_total) / qlen, 1) < 0.5
     ), "Ewald rotavg is not equal to analytic IAM..."
 

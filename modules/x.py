@@ -130,19 +130,18 @@ class Xray:
         """
         Rotational average in sphericals: I use it with the Ewald sphere
         f must be a 3D array with coordinates (r, theta, phi)
+        Note: f must be the full sphere as I divide by the volume of a sphere 4*pi
         """
         # read size of array axes
-        qlen, tlen, plen = f.shape[0], len(th), len(ph)
+        #qlen, tlen, plen = f.shape[0], len(th), len(ph)
+        tlen = len(th)
         # first sum over phi,
         f_rotavg_phi = np.sum(f, axis=2)
         # multiply by the sin(th) term,
         for j in range(tlen):
             f_rotavg_phi[:, j] *= np.sin(th[j])
-        dth = (
-            th[1] - th[0]
-        )  # for some reason this is different than the below.. (and this one is correct)
-        ph_min, ph_max = np.min(ph), np.max(ph)
-        dph = (ph_max - ph_min) / plen
+        dth = th[1] - th[0]
+        dph = ph[1] - ph[0]
         f_rotavg = np.sum(f_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
         return f_rotavg
 
@@ -205,25 +204,12 @@ class Xray:
                 ynm = xyz[n, 1] - xyz[m, 1]
                 znm = xyz[n, 2] - xyz[m, 2]
                 molecular += 2 * fnm * np.cos((qx * xnm + qy * ynm + qz * znm))
-
         iam_total = atomic + molecular + compton
-        # the rotational average tends towards the exact sinc function IAM solution
         atomic_rotavg = np.sum(atomic, axis=(1, 2)) / (tlen * plen)
         compton_rotavg = np.sum(compton, axis=(1, 2)) / (tlen * plen)
         # molecular rotatational average includes area element sin(th)dth*dph
-        # first sum over phi,
-        molecular_rotavg_phi = np.sum(molecular, axis=2)
-        # multiply by the sin(th) term,
-        for j in range(tlen):
-            molecular_rotavg_phi[:, j] *= np.sin(th[j])
-        dth = (
-            th[1] - th[0]
-        )  # for some reason this is different than the below.. (and this one is correct)
-        # dth = (th_max - th_min) / tlen
-        dph = (pmax - pmin) / plen
-        molecular_rotavg = (
-            np.sum(molecular_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
-        )
+        molecular_rotavg = self.spherical_rotavg(molecular, th, ph)
+        # note: the Ewald sphere rotational average tends towards the exact IAM solution
         iam_total_rotavg = atomic_rotavg + molecular_rotavg + compton_rotavg
         return (
             iam_total,

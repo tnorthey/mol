@@ -27,7 +27,7 @@
     "ph": {
       "pmin": 0,
       "pmax": 2,
-      "plen": 81
+      "plen": 161
     },
     "noise": { 
       "noise_value": 0.0,

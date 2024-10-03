@@ -127,7 +127,7 @@ class Input_to_params:
         self.qvector = np.linspace(self.qmin, self.qmax, self.qlen, endpoint=True)
         # theta (units of pi)
         self.th = np.pi * np.linspace(self.tmin, self.tmax, self.tlen, endpoint=True)
-        # phi (units of pi), note endpoint=False; skip 2pi as f(0) = f(2pi)
+        # phi (units of pi), note f(0) = f(2pi) so endpoint=False
         self.ph = np.pi * np.linspace(self.pmin, self.pmax, self.plen, endpoint=False)
         # specific mode indices
         self.hydrogen_mode_indices = np.arange(
