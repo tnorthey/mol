@@ -2,7 +2,7 @@
 import numpy as np
 import json
 import sys
-
+import pprint
 
 ######
 class Input_to_params:
@@ -135,20 +135,13 @@ class Input_to_params:
         )
         self.sa_mode_indices = np.arange(self.sa_mode_range[0], self.sa_mode_range[1])
         self.ga_mode_indices = np.arange(self.ga_mode_range[0], self.ga_mode_range[1])
+        
+        ### print out all attributes
+        print("##################################################")
+        print("### Initialised with the following parameters: ###")
+        print("##################################################")
+        pprint.pprint(vars(self))
+        print("##################################################")
 
         ###################################
-        # print values
-        # print("reading the following parameters...")
-        # print(self.run_id)
-        # print(self.molecule)
-        # print(self.start_xyz_file)
-        # print(self.reference_xyz_file)
-        # print(self.target_xyz_file)
-        # print(self.results_dir)
-        # print(self.qmin)
-        # print(self.qmax)
-        # print(self.qlen)
-        # print(self.noise_value)
-        # print(self.noise_data_file)
-        # print(self.nrestarts)
-        # print(f'self.angles_bool: {self.angles_bool}')
+

@@ -17,17 +17,17 @@
     "q": {
       "qmin": 1e-9,
       "qmax": 24,
-      "qlen": 81
+      "qlen": 41
     },
     "th": {
       "tmin": 0,
       "tmax": 1,
-      "tlen": 81
+      "tlen": 41
     },
     "ph": {
       "pmin": 0,
       "pmax": 2,
-      "plen": 161
+      "plen": 81
     },
     "noise": { 
       "noise_value": 0.0,

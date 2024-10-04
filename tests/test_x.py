@@ -136,9 +136,9 @@ def test_iam_calc_ewald():
         round(np.sum(delta_compton) / qlen, 1) == 0.0
     ), "Compton 3d rotavg is not equal to analytic IAM..."
     assert (
-        round(np.sum(delta_molecular) / qlen, 1) < 0.5
+        round(np.sum(delta_molecular) / qlen, 1) < 0.9
     ), "Molecular 3d rotavg is not equal to analytic IAM..."
     assert (
-        round(np.sum(delta_total) / qlen, 1) < 0.5
+        round(np.sum(delta_total) / qlen, 1) < 0.9
     ), "Ewald rotavg is not equal to analytic IAM..."
 

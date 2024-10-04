@@ -35,10 +35,7 @@ class Wrapper:
         """
         #############################
         ######### Inputs ############
-        # p.run_id : define a number to label the start of the output filenames
-        # p.start_xyz_file : xyz file containing starting positions of the atoms
-        # target_xyz_file : xyz file containing target positions of the atoms
-        #
+        # p: the parameters object from read_input
         #############################
 
         electron_mode = False
@@ -354,10 +351,3 @@ class Wrapper:
     #####################################
     #####################################
 
-    def call_run(self, p):
-        """
-        Call function; useful to generalise.
-        p is the params object from read_input.
-        """
-        self.run(p)
-        return

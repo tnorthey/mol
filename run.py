@@ -23,6 +23,6 @@ w = wrap.Wrapper()
 p = read_input.Input_to_params("input.json")
 
 # Call the run function
-w.call_run(p)
+w.run(p)
 
 print("Total time: %3.2f s" % float(default_timer() - start))
