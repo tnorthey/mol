@@ -102,9 +102,6 @@ class Annealing:
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
         ### define qx, qy, qz for Ewald mode
         if ewald_mode:
-            th, ph, qlen, tlen, plen, qmin, qmax, th_min, th_max, ph_min, ph_max = (
-                x.setup_ewald_coords(qvector)
-            )  # setup Ewald sphere coordinates
             r_grid, th_grid, ph_grid = np.meshgrid(qvector, th, ph, indexing="ij")
             # Convert spherical coordinates to Cartesian coordinates
             qx = r_grid * np.sin(th_grid) * np.cos(ph_grid)

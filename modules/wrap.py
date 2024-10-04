@@ -147,7 +147,7 @@ class Wrapper:
                 print(f"{p.noise_data_file} does not exist.")
                 # generate random noise here instead of reading from file
                 mu = 0  # normal distribution with mean of mu
-                sigma = noise
+                sigma = p.noise_value
                 print(
                     "Randomly generating noise from normal dist... sigma = %3.2f"
                     % sigma
@@ -179,7 +179,7 @@ class Wrapper:
         # if not os.path.exists(target_function_file):
         print("Saving data to %s ..." % target_function_file)
         if p.ewald_mode:
-            target_function_r = x.spherical_rotavg(target_function, th, ph)
+            target_function_r = x.spherical_rotavg(target_function, p.th, p.ph)
             np.savetxt(
                 target_function_file, np.column_stack((p.qvector, target_function_r))
             )
@@ -335,7 +335,7 @@ class Wrapper:
         # m.write_xyz("tmp_/%s_result.xyz" % p.run_id, "result", atomlist, xyz_best)
         # predicted data
         if p.ewald_mode:
-            predicted_best_r = x.spherical_rotavg(predicted_best, th, ph)
+            predicted_best_r = x.spherical_rotavg(predicted_best, p.th, p.ph)
             predicted_best = predicted_best_r
         ### write predicted data to file
         np.savetxt(

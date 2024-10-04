@@ -2,15 +2,11 @@
 Run simulated annealing
 """
 
-# run example: python3 run.py ...
+# run example: python3 run.py
 
 from timeit import default_timer
 
 start = default_timer()
-import os
-import sys
-import json
-import numpy as np
 
 # my modules
 import modules.mol as mol

@@ -10,6 +10,8 @@
   - fbest as input (or "f_start")
 [DONE!] - Fix NMM pcd...
 
+- sa() function reads in the p object also...
+
 - simplify functions: single-use, individual tests etc.
   - (specify exact to do list here...)
 

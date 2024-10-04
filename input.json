@@ -13,7 +13,7 @@
   "scattering_params": {
     "inelastic_bool": 1,
     "pcd_mode_bool": 0,
-    "ewald_mode_bool": 0,
+    "ewald_mode_bool": 1,
     "q": {
       "qmin": 1e-9,
       "qmax": 8,
@@ -26,8 +26,8 @@
     },
     "ph": {
       "pmin": 0,
-      "pmax": 2,
-      "plen": 1
+      "pmax": 1,
+      "plen": 2
     },
     "noise": { 
       "noise_value": 0.0,
