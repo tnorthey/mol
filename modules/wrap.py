@@ -205,7 +205,11 @@ class Wrapper:
         # initialise starting "best" values
         xyz_best = xyz_start
         f_best, f_xray_best = 1e10, 1e10
-        predicted_best = np.zeros(p.qlen)
+        if p.ewald_mode: 
+            psize = (p.qlen, p.tlen, p.plen)
+        else: 
+            psize = p.qlen
+        predicted_best = np.zeros(psize)
         for i in range(p.nrestarts):
             ### each restart starts at the previous xyz_best
             xyz_start = xyz_best  
@@ -234,13 +238,14 @@ class Wrapper:
                 predicted_best,
                 xyz_best,
             ) = sa.simulated_annealing_modes_ho(
-                atomic_numbers,
                 xyz_start,
                 displacements,
                 mode_indices,
                 target_function,
                 reference_iam,
                 p.qvector,
+                p.th,
+                p.ph,
                 compton,
                 atomic,
                 pre_molecular,
@@ -255,7 +260,6 @@ class Wrapper:
                 harmonic_factor,
                 angular_factor,
                 p.pcd_mode,
-                electron_mode,
                 p.ewald_mode,
                 p.bonds_bool,
                 p.angles_bool,

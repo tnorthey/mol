@@ -25,13 +25,14 @@ class Annealing:
 
     def simulated_annealing_modes_ho(
         self,
-        atomic_numbers: NDArray,
         starting_xyz: NDArray,
         displacements: NDArray,
         mode_indices: NDArray,
         target_function: NDArray,
         reference_iam: NDArray,
         qvector: NDArray,
+        th: NDArray,
+        ph: NDArray,
         compton: NDArray,
         atomic_total: NDArray,
         pre_molecular: NDArray,
@@ -46,7 +47,6 @@ class Annealing:
         bonding_factor=(0.1, 0.1),
         angular_factor=0.1,
         pcd_mode=False,
-        electron_mode=False,
         ewald_mode=False,
         bonds_bool=True,
         angles_bool=False,
@@ -57,13 +57,15 @@ class Annealing:
         """simulated annealing minimisation to target_function"""
         ##=#=#=# DEFINITIONS #=#=#=##
         natoms = starting_xyz.shape[0]  # number of atoms
-        nmodes = displacements.shape[0]  # number of displacement vectors
-        nmode_indices = len(mode_indices)
+        # nmodes = displacements.shape[0]  # number of displacement vectors
+        # nmode_indices = len(mode_indices)
         # print((nmodes, nmode_indices))
-        modes = list(range(nmodes))  # all modes
+        # modes = list(range(nmodes))  # all modes
         ## q-vector, atomic, and pre-molecular IAM contributions ##
         # print(qvector)
         qmin, qmax, qlen = qvector[0], qvector[-1], len(qvector)
+        tmin, tmax, tlen = th[0], th[-1], len(th)
+        pmin, pmax, plen = ph[0], ph[-1], len(ph)
         if not inelastic:
             compton = 0
         ##=#=#=# END DEFINITIONS #=#=#=#
