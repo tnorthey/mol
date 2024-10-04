@@ -31,8 +31,6 @@ class Input_to_params:
         # run params
         self.run_id = str(data["run_params"]["run_id"])
         self.molecule = str(data["run_params"]["molecule"])
-        molecule = self.molecule
-        print(f"molecule: {molecule}")
         self.results_dir = str(data["run_params"]["results_dir"])
         # xyz file params
         self.start_xyz_file = str(data["files"]["start_xyz_file"])
@@ -93,6 +91,7 @@ class Input_to_params:
         )  # run PySCF HF energy
 
         # molecule params
+        molecule = self.molecule
         self.natoms = int(data["molecule_params"][molecule]["natoms"])
         self.nmodes = int(data["molecule_params"][molecule]["nmodes"])
         self.nmfile = str(data["molecule_params"][molecule]["nmfile"])
@@ -137,6 +136,13 @@ class Input_to_params:
         self.ga_mode_indices = np.arange(self.ga_mode_range[0], self.ga_mode_range[1])
         
         ### print out all attributes
+        print("")
+        print("##################################################")
+        print(" ___ ___ _______ _______ _______ _______ _____   ")
+        print("|   |   |     __|   _   |   |   |       |     |_ ")
+        print("|-     -|__     |       |       |   -   |       |")
+        print("|___|___|_______|___|___|__|_|__|_______|_______|")
+        print("")
         print("##################################################")
         print("### Initialised with the following parameters: ###")
         print("##################################################")
