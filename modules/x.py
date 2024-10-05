@@ -133,15 +133,14 @@ class Xray:
         Note: f must be the full sphere as I divide by the volume of a sphere 4*pi
         """
         # read size of array axes
-        #qlen, tlen, plen = f.shape[0], len(th), len(ph)
-        tlen = len(th)
+        qlen, tlen, plen = f.shape[0], len(th), len(ph)
         # first sum over phi,
         f_rotavg_phi = np.sum(f, axis=2)
         # multiply by the sin(th) term,
         for j in range(tlen):
             f_rotavg_phi[:, j] *= np.sin(th[j])
-        dth = th[1] - th[0]
-        dph = ph[1] - ph[0]
+        (dth := th[1] - th[0]) if tlen > 1 else (dth := 1)
+        (dph := ph[1] - ph[0]) if plen > 1 else (dph := 1)
         f_rotavg = np.sum(f_rotavg_phi, axis=1) * dth * dph / (4 * np.pi)
         return f_rotavg
 
