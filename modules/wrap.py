@@ -1,4 +1,5 @@
 import os
+import pprint
 import numpy as np
 from numpy import linalg as LA
 try:
@@ -325,7 +326,6 @@ class Wrapper:
             e_mol,
             mapd,
         )
-        ### Final save to files
         ### write best structure to xyz file
         print("writing to xyz... (f: %10.8f)" % f_xray_best)
         f_best_str = ("%10.8f" % f_xray_best).zfill(12)
@@ -335,6 +335,24 @@ class Wrapper:
             atomlist,
             xyz_best,
         )
+        ### analysis values dictionary for final print out
+        ##### probably change this to pprint_analysis(**kwargs) and loop over kwargs to print them in order..
+        class A:
+            def __init__(self):
+                self.f_xray_best = f_xray_best
+                self.rmsd = rmsd 
+                self.bond_distance = bond_distance
+                self.angle_degrees = angle_degrees
+                self.dihedral_degrees = dihedral
+                self.energy_hf = e_mol
+                self.mapd = mapd
+                ### print analysis values
+                print('################')
+                print('Analysis values:')
+                print('################')
+                pprint.pprint(vars(self))
+                print('################')
+        A()
         # also write final xyz as "result.xyz"
         # m.write_xyz("tmp_/%s_result.xyz" % p.run_id, "result", atomlist, xyz_best)
         # predicted data
