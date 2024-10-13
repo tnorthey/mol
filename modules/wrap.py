@@ -29,8 +29,9 @@ class Wrapper:
     def run(
         self,
         p,
-        start_xyz_file='START_XYZ_FILE',
         run_id='RUN_ID',
+        start_xyz_file='START_XYZ_FILE',
+        target_xyz_file='TARGET_XYZ_FILE',
     ):
         """
         wrapper function that handles restarts, xyz/dat modes, output files,
@@ -46,14 +47,18 @@ class Wrapper:
 
         electron_mode = False
 
-        if start_xyz_file == "START_XYZ_FILE" or start_xyz_file == 0:
-            start_xyz_file = p.start_xyz_file
-        else:
-            print(f'VALUE OVERWRITTEN BY COMMAND LINE ARG: start_xyz_file = {start_xyz_file}')
         if run_id == "RUN_ID" or run_id == 0:
             run_id = p.run_id
         else:
-            print(f'VALUE OVERWRITTEN BY COMMAND LINE ARG: run_id = {run_id}')
+            print(f"VALUE OVERWRITTEN BY COMMAND LINE ARG: 'run_id' = {run_id}")
+        if start_xyz_file == "START_XYZ_FILE" or start_xyz_file == 0:
+            start_xyz_file = p.start_xyz_file
+        else:
+            print(f"VALUE OVERWRITTEN BY COMMAND LINE ARG: 'start_xyz_file' = {start_xyz_file}")
+        if target_xyz_file == "TARGET_XYZ_FILE" or target_xyz_file == 0:
+            target_xyz_file = p.target_xyz_file
+        else:
+            print(f"VALUE OVERWRITTEN BY COMMAND LINE ARG: 'target_xyz_file' = {target_xyz_file}")
 
         def xyz2iam(xyz, atomic_numbers, compton_array, ewald_mode):
             """convert xyz file to IAM signal"""
