@@ -111,7 +111,7 @@ class Annealing:
             qz = r_grid * np.cos(th_grid)
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
 
-        #@njit(nogil=True)  # numba decorator to compile to machine code
+        @njit(nogil=True)  # numba decorator to compile to machine code
         def run_annealing(nsteps):
 
             ##=#=#=# INITIATE LOOP VARIABLES #=#=#=#=#

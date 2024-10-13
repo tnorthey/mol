@@ -29,6 +29,8 @@ class Wrapper:
     def run(
         self,
         p,
+        start_xyz_file='START_XYZ_FILE',
+        run_id='RUN_ID',
     ):
         """
         wrapper function that handles restarts, xyz/dat modes, output files,
@@ -37,9 +39,21 @@ class Wrapper:
         #############################
         ######### Inputs ############
         # p: the parameters object from read_input
+        ### Optional inputs:
+        # start_xyz_file: the starting xyz file (if given it overrides the one in p)
+        # run_id: the run ID (if given it overrides the one in p)
         #############################
 
         electron_mode = False
+
+        if start_xyz_file == "START_XYZ_FILE" or start_xyz_file == 0:
+            start_xyz_file = p.start_xyz_file
+        else:
+            print(f'VALUE OVERWRITTEN BY COMMAND LINE ARG: start_xyz_file = {start_xyz_file}')
+        if run_id == "RUN_ID" or run_id == 0:
+            run_id = p.run_id
+        else:
+            print(f'VALUE OVERWRITTEN BY COMMAND LINE ARG: run_id = {run_id}')
 
         def xyz2iam(xyz, atomic_numbers, compton_array, ewald_mode):
             """convert xyz file to IAM signal"""
@@ -77,7 +91,7 @@ class Wrapper:
         #############################
         ### arguments             ###
         #############################
-        _, _, atomlist, xyz_start = m.read_xyz(p.start_xyz_file)
+        _, _, atomlist, xyz_start = m.read_xyz(start_xyz_file)
         _, _, atomlist, reference_xyz = m.read_xyz(p.reference_xyz_file)
         atomic_numbers = [m.periodic_table(symbol) for symbol in atomlist]
         compton_array = x.compton_spline(atomic_numbers, p.qvector)
@@ -115,7 +129,7 @@ class Wrapper:
 
         print(f"Target: {p.target_file}")
         filename, p.target_file_ext = os.path.splitext(p.target_file)
-        target_function_file = "%s/TARGET_FUNCTION_%s.dat" % (p.results_dir, p.run_id)
+        target_function_file = "%s/TARGET_FUNCTION_%s.dat" % (p.results_dir, run_id)
 
         ###########################################################
         ###########################################################
@@ -129,7 +143,7 @@ class Wrapper:
                 target_xyz, atomic_numbers, compton_array, p.ewald_mode
             )
 
-            # target_iam_file = "tmp_/TARGET_IAM_%s.dat" % p.run_id
+            # target_iam_file = "tmp_/TARGET_IAM_%s.dat" % run_id
             # save target IAM file before noise is added
             # print("Saving data to %s ..." % target_iam_file)
             # np.savetxt(target_iam_file, np.column_stack((p.qvector, target_iam)))
@@ -295,7 +309,7 @@ class Wrapper:
             mapd = m.mapd_function(xyz_best, target_xyz, p.rmsd_indices)
             # save target xyz
             m.write_xyz(
-                "%s/%s_target.xyz" % (p.results_dir, p.run_id),
+                "%s/%s_target.xyz" % (p.results_dir, run_id),
                 ".dat file case: xyz_start (not target_xyz)",
                 atomlist,
                 target_xyz,
@@ -330,7 +344,7 @@ class Wrapper:
         print("writing to xyz... (f: %10.8f)" % f_xray_best)
         f_best_str = ("%10.8f" % f_xray_best).zfill(12)
         m.write_xyz(
-            "%s/%s_%s.xyz" % (p.results_dir, p.run_id, f_best_str),
+            "%s/%s_%s.xyz" % (p.results_dir, run_id, f_best_str),
             header_str,
             atomlist,
             xyz_best,
@@ -352,14 +366,14 @@ class Wrapper:
         pprint.pprint(A)
         print('################')
         # also write final xyz as "result.xyz"
-        # m.write_xyz("tmp_/%s_result.xyz" % p.run_id, "result", atomlist, xyz_best)
+        # m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
         # predicted data
         if p.ewald_mode:
             predicted_best_r = x.spherical_rotavg(predicted_best, p.th, p.ph)
             predicted_best = predicted_best_r
         ### write predicted data to file
         np.savetxt(
-            "%s/%s_%s.dat" % (p.results_dir, p.run_id, f_best_str),
+            "%s/%s_%s.dat" % (p.results_dir, run_id, f_best_str),
             np.column_stack((p.qvector, predicted_best)),
         )
         return  # end function
