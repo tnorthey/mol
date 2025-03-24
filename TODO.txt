@@ -2,6 +2,9 @@
 #####CODE#EDITS################################
 ###############################################
 
+- copy input.json to results dir
+- create results dir if doesn't exist
+
 [DONE!] - one input file. Nothing else changes
 [DONE!] - one run.py file that doesn't need to be edited. And it's callable by just "python run.py"
 [DONE!] - "xyz" mode test

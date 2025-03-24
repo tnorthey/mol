@@ -31,7 +31,7 @@ class Wrapper:
         p,
         run_id='RUN_ID',
         start_xyz_file='START_XYZ_FILE',
-        target_xyz_file='TARGET_XYZ_FILE',
+        target_file='TARGET_FILE',
     ):
         """
         wrapper function that handles restarts, xyz/dat modes, output files,
@@ -55,10 +55,10 @@ class Wrapper:
             start_xyz_file = p.start_xyz_file
         else:
             print(f"VALUE OVERWRITTEN BY COMMAND LINE ARG: 'start_xyz_file' = {start_xyz_file}")
-        if target_xyz_file == "TARGET_XYZ_FILE" or target_xyz_file == 0:
-            target_xyz_file = p.target_xyz_file
+        if target_file == "TARGET_FILE" or target_file == 0:
+            target_file = p.target_file
         else:
-            print(f"VALUE OVERWRITTEN BY COMMAND LINE ARG: 'target_xyz_file' = {target_xyz_file}")
+            print(f"VALUE OVERWRITTEN BY COMMAND LINE ARG: 'target_file' = {target_file}")
 
         def xyz2iam(xyz, atomic_numbers, compton_array, ewald_mode):
             """convert xyz file to IAM signal"""
@@ -132,8 +132,8 @@ class Wrapper:
         ### Initialise some stuff ###
         #############################
 
-        print(f"Target: {p.target_file}")
-        filename, p.target_file_ext = os.path.splitext(p.target_file)
+        print(f"Target: {target_file}")
+        filename, target_file_ext = os.path.splitext(target_file)
         target_function_file = "%s/TARGET_FUNCTION_%s.dat" % (p.results_dir, run_id)
 
         ###########################################################
@@ -143,7 +143,7 @@ class Wrapper:
         ###########################################################
         if p.mode == "xyz":
             # read from target xyz file
-            _, _, atomlist, target_xyz = m.read_xyz(p.target_file)
+            _, _, atomlist, target_xyz = m.read_xyz(target_file)
             target_iam, atomic, compton, pre_molecular = xyz2iam(
                 target_xyz, atomic_numbers, compton_array, p.ewald_mode
             )
@@ -183,7 +183,7 @@ class Wrapper:
             target_function = target_iam + noise_array  # define target_function
         elif p.mode == "dat":
             # if target file is a data file, read as target_function
-            target_function = np.loadtxt(p.target_file)
+            target_function = np.loadtxt(target_file)
             excitation_factor = 0.057
             target_function /= excitation_factor
             target_xyz = xyz_start  # added simply to run the rmsd analysis later compared to this

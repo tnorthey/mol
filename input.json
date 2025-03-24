@@ -3,12 +3,12 @@
   "run_params": {
     "run_id": "chd_ewald_slice",
     "molecule": "chd",
-    "results_dir": "results_chd_ewald_slice_ph0"
+    "results_dir": "results_test"
   },
   "files": {
     "start_xyz_file": "xyz/start.xyz",
     "reference_xyz_file": "xyz/chd_reference.xyz",
-    "target_file": "xyz/target_traj094/target_10.xyz"
+    "target_file": "xyz/target_traj094/target_20.xyz"
   },
   "scattering_params": {
     "inelastic_bool": 1,
@@ -22,7 +22,7 @@
     "th": {
       "tmin": 0,
       "tmax": 1,
-      "tlen": 41
+      "tlen": 21 
     },
     "ph": {
       "pmin": 0,
@@ -40,7 +40,7 @@
     "ga_nsteps": 40000,
     "sa_step_size": 0.012,
     "ga_step_size": 0.012,
-    "nrestarts": 5,
+    "nrestarts": 10,
     "bonds_bool": 1,
     "sa_harmonic_factor": [10.0, 10.0],
     "ga_harmonic_factor": [1.0, 10.0],

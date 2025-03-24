@@ -21,10 +21,11 @@ p = read_input.Input_to_params("input.json")
 
 # command line args
 
-start_xyz_file = sys.argv[1] if len(sys.argv) > 1 else 0
-run_id = sys.argv[2] if len(sys.argv) > 2 else 0
+run_id = sys.argv[1] if len(sys.argv) > 1 else 0
+start_xyz_file = sys.argv[2] if len(sys.argv) > 2 else 0
+target_file = sys.argv[3] if len(sys.argv) > 3 else 0
 
 # Call the run function
-w.run(p, start_xyz_file, run_id)
+w.run(p, run_id, start_xyz_file, target_file)
 
 print("Total time: %3.2f s" % float(default_timer() - start))
