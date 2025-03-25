@@ -203,6 +203,10 @@ class Wrapper:
             np.savetxt(
                 target_function_file, np.column_stack((p.qvector, target_function_r))
             )
+            ### also save to npy file to results_dir
+            npy_save = True
+            if npy_save:
+                np.save('%s/target_function.npy' % p.results_dir, target_function)
         else:
             np.savetxt(
                 target_function_file, np.column_stack((p.qvector, target_function))

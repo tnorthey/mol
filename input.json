@@ -16,16 +16,16 @@
     "ewald_mode_bool": 1,
     "q": {
       "qmin": 1e-9,
-      "qmax": 4,
-      "qlen": 41
+      "qmax": 8,
+      "qlen": 81
     },
     "th": {
       "tmin": 0,
       "tmax": 1,
-      "tlen": 21 
+      "tlen": 81 
     },
     "ph": {
-      "pmin": 0,
+      "pmin": 0.5,
       "pmax": 2,
       "plen": 1
     },
@@ -36,11 +36,11 @@
   },
   "simulated_annealing_params": {
     "sa_starting_temp": 1.0,
-    "sa_nsteps": 8000,
-    "ga_nsteps": 40000,
+    "sa_nsteps": 8,
+    "ga_nsteps": 4,
     "sa_step_size": 0.012,
     "ga_step_size": 0.012,
-    "nrestarts": 10,
+    "nrestarts": 1,
     "bonds_bool": 1,
     "sa_harmonic_factor": [10.0, 10.0],
     "ga_harmonic_factor": [1.0, 10.0],
