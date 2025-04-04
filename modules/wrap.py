@@ -378,6 +378,8 @@ class Wrapper:
         # m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
         # predicted data
         if p.ewald_mode:
+            if npy_save:
+                np.save('%s/predicted_function.npy' % p.results_dir, predicted_best)
             predicted_best_r = x.spherical_rotavg(predicted_best, p.th, p.ph)
             predicted_best = predicted_best_r
         ### write predicted data to file

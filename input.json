@@ -20,14 +20,14 @@
       "qlen": 81
     },
     "th": {
-      "tmin": 0,
+      "tmin": 0.5,
       "tmax": 1,
-      "tlen": 81 
+      "tlen": 1 
     },
     "ph": {
-      "pmin": 0.5,
+      "pmin": 0,
       "pmax": 2,
-      "plen": 1
+      "plen": 81
     },
     "noise": { 
       "noise_value": 0.0,
@@ -36,12 +36,12 @@
   },
   "simulated_annealing_params": {
     "sa_starting_temp": 1.0,
-    "sa_nsteps": 8,
-    "ga_nsteps": 4,
+    "sa_nsteps": 4000,
+    "ga_nsteps": 1000,
     "sa_step_size": 0.012,
     "ga_step_size": 0.012,
-    "nrestarts": 1,
-    "bonds_bool": 1,
+    "nrestarts": 10,
+    "bonds_bool": 0,
     "sa_harmonic_factor": [10.0, 10.0],
     "ga_harmonic_factor": [1.0, 10.0],
     "angles_bool": 0,
