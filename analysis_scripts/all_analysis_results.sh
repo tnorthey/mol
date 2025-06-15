@@ -4,7 +4,7 @@
 
 #for path in ../results_/results_noise*_qmax?_nrestarts5_traj09?_low_constraints_c3/
 #for path in ../results_/results_noise*_qmax?_nrestarts2_traj09?_*_single_target_20/
-for path in ../results_chd_ewald_slice_ph0_qmax8_*/
+for path in /home/thomas/Nextcloud2/adam_thomas_paper_results/results_test_qmax8
 #for path in ../results_/results_noise16.0_qmax8_nrestarts5_traj099_weak_constraints_chd/
 do
     base_name=$(basename ${path})

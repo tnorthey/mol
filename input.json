@@ -1,9 +1,9 @@
 {
   "mode": "xyz",
   "run_params": {
-    "run_id": "chd_ewald_slice",
+    "run_id": "chd_1d",
     "molecule": "chd",
-    "results_dir": "results_test"
+    "results_dir": "tmp_"
   },
   "files": {
     "start_xyz_file": "xyz/start.xyz",
@@ -12,35 +12,35 @@
   },
   "scattering_params": {
     "inelastic_bool": 1,
-    "pcd_mode_bool": 0,
-    "ewald_mode_bool": 1,
+    "pcd_mode_bool": 1,
+    "ewald_mode_bool": 0,
     "q": {
       "qmin": 1e-9,
       "qmax": 8,
       "qlen": 81
     },
     "th": {
-      "tmin": 0.5,
+      "tmin": 0,
       "tmax": 1,
-      "tlen": 1 
+      "tlen": 81
     },
     "ph": {
       "pmin": 0,
       "pmax": 2,
-      "plen": 81
+      "plen": 1
     },
     "noise": { 
-      "noise_value": 0.0,
+      "noise_value": 0.1,
       "noise_data_file": "noise/noise.dat"
     }
   },
   "simulated_annealing_params": {
     "sa_starting_temp": 1.0,
     "sa_nsteps": 4000,
-    "ga_nsteps": 1000,
+    "ga_nsteps": 20000,
     "sa_step_size": 0.012,
     "ga_step_size": 0.012,
-    "nrestarts": 10,
+    "nrestarts": 5,
     "bonds_bool": 0,
     "sa_harmonic_factor": [10.0, 10.0],
     "ga_harmonic_factor": [1.0, 10.0],
@@ -48,7 +48,7 @@
     "sa_angular_factor": 0.0,
     "ga_angular_factor": 0.0,
     "non_h_modes_only_bool": 0,
-    "hf_energy_bool": 1
+    "hf_energy_bool": 0
   },
   "molecule_params": {
     "chd": {

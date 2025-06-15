@@ -35,6 +35,7 @@ pyscf/
 OpenBLAS-0.3.28-x64-64/
 analysis/*
 analysis/*.{dat,sh,gp,png}
+for_paper*
 
 
 # Byte-compiled / optimized / DLL files

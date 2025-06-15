@@ -1,0 +1,7 @@
+
+# analyse 2D results
+
+plot_ewald_slice.ipynb : Plots the 2D slice of the Ewald sphere
+
+
+
