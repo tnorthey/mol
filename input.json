@@ -22,7 +22,7 @@
     "th": {
       "tmin": 0,
       "tmax": 1,
-      "tlen": 81
+      "tlen": 1
     },
     "ph": {
       "pmin": 0,
@@ -30,7 +30,7 @@
       "plen": 1
     },
     "noise": { 
-      "noise_value": 0.1,
+      "noise_value": 1.0,
       "noise_data_file": "noise/noise.dat"
     }
   },

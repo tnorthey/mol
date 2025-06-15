@@ -68,10 +68,6 @@ class Annealing:
         pmin, pmax, plen = ph[0], ph[-1], len(ph)
         if not inelastic:
             compton = 0
-        if pcd_mode:
-            target_function_ = 100 * (target_function / reference_iam - 1)
-        else:
-            target_function_ = target_function
         ##=#=#=# END DEFINITIONS #=#=#=#
 
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
@@ -181,7 +177,7 @@ class Annealing:
                     ### x-ray part of objective function
                     ### TO DO: depends on ewald_mode ...
                     xray_contrib = (
-                        np.sum((predicted_function_ - target_function_) ** 2) / qlen
+                        np.sum((predicted_function_ - target_function) ** 2) / qlen
                     )
                 else:
                     predicted_function_ = iam_
@@ -193,8 +189,8 @@ class Annealing:
                         n = qlen
                     xray_contrib = (
                         np.sum(
-                            (predicted_function_ - target_function_) ** 2
-                            / np.abs(target_function_)
+                            (predicted_function_ - target_function) ** 2
+                            / np.abs(target_function)
                         )
                         / n
                     )

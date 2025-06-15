@@ -180,12 +180,18 @@ class Wrapper:
                     for j in range(p.tlen):
                         noise_array_3d[:, j, i] = noise_array
                 noise_array = noise_array_3d  # redefine as the 3D array
+            ### define target_function, pcd_mode
             target_function = target_iam + noise_array  # define target_function
+            if p.pcd_mode:
+                target_function_ = 100 * (target_function / reference_iam - 1)
+            else:
+                target_function_ = target_function
+
         elif p.mode == "dat":
             # if target file is a data file, read as target_function
-            target_function = np.loadtxt(target_file)
+            target_function_ = np.loadtxt(target_file)
             excitation_factor = 0.057
-            target_function /= excitation_factor
+            target_function_ /= excitation_factor
             target_xyz = xyz_start  # added simply to run the rmsd analysis later compared to this
         else:
             print('Error: mode value must be "xyz" or "dat"!')
@@ -199,17 +205,17 @@ class Wrapper:
         # if not os.path.exists(target_function_file):
         print("Saving data to %s ..." % target_function_file)
         if p.ewald_mode:
-            target_function_r = x.spherical_rotavg(target_function, p.th, p.ph)
+            target_function_r = x.spherical_rotavg(target_function_, p.th, p.ph)
             np.savetxt(
                 target_function_file, np.column_stack((p.qvector, target_function_r))
             )
             ### also save to npy file to results_dir
             npy_save = True
             if npy_save:
-                np.save('%s/target_function.npy' % p.results_dir, target_function)
+                np.save('%s/target_function.npy' % p.results_dir, target_function_)
         else:
             np.savetxt(
-                target_function_file, np.column_stack((p.qvector, target_function))
+                target_function_file, np.column_stack((p.qvector, target_function_))
             )
         # print(target_function)
 
@@ -265,7 +271,7 @@ class Wrapper:
                 xyz_start,
                 displacements,
                 mode_indices,
-                target_function,
+                target_function_,
                 reference_iam,
                 p.qvector,
                 p.th,
