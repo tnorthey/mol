@@ -53,6 +53,7 @@ class Annealing:
         f_start=1e10,
         f_xray_start=1e10,
         predicted_start=0,
+        c_tuning=1,
     ):
         """simulated annealing minimisation to target_function"""
         ##=#=#=# DEFINITIONS #=#=#=##
@@ -203,12 +204,12 @@ class Annealing:
                         r = LA.norm(
                             xyz_[ho_indices1[0][iho], :] - xyz_[ho_indices1[1][iho], :]
                         )
-                        bonding_contrib += bonding_factor[0] * (r - r0_arr1[iho]) ** 2
+                        bonding_contrib += bonding_factor[0] * 0.5 * (r - r0_arr1[iho]) ** 2
                     for iho in range(nho_indices2):
                         r = LA.norm(
                             xyz_[ho_indices2[0][iho], :] - xyz_[ho_indices2[1][iho], :]
                         )
-                        bonding_contrib += bonding_factor[1] * (r - r0_arr2[iho]) ** 2
+                        bonding_contrib += bonding_factor[1] * 0.5 * (r - r0_arr2[iho]) ** 2
 
                 angular_contrib = 0
                 if angles_bool:
@@ -223,7 +224,7 @@ class Annealing:
                         )
                         theta = np.arccos(cosine_theta)
                         angular_contrib += (
-                            angular_factor[0] * (theta - theta0_arr1[i_ang]) ** 2
+                            angular_factor[0] * 0.5 * (theta - theta0_arr1[i_ang]) ** 2
                         )
                     for i_ang in range(len(theta0_arr2)):
                         p0 = xyz_[angular_indices2[0][i_ang], :]
@@ -236,10 +237,10 @@ class Annealing:
                         )
                         theta = np.arccos(cosine_theta)
                         angular_contrib += (
-                            angular_factor[1] * (theta - theta0_arr2[i_ang]) ** 2
+                            angular_factor[1] * 0.5 * (theta - theta0_arr2[i_ang]) ** 2
                         )
                 ### combine x-ray and bonding, angular contributions
-                f_ = xray_contrib + bonding_contrib + angular_contrib
+                f_ = xray_contrib + c_tuning * (bonding_contrib + angular_contrib)
                 ##=#=#=# END PCD & CHI2 CALCULATIONS #=#=#=##
 
                 ##=#=#=# ACCEPTANCE CRITERIA #=#=#=##
@@ -250,8 +251,8 @@ class Annealing:
                         # store values corresponding to f_best
                         f_best, xyz_best, predicted_best = f, xyz, predicted_function_
                         f_xray_best = xray_contrib
-                    total_bonding_contrib += bonding_contrib
-                    total_angular_contrib += angular_contrib
+                    total_bonding_contrib += c_tuning * bonding_contrib
+                    total_angular_contrib += c_tuning * angular_contrib
                     total_xray_contrib += xray_contrib
                 ##=#=#=# END ACCEPTANCE CRITERIA #=#=#=##
             # print ratio of contributions to f
@@ -262,6 +263,10 @@ class Annealing:
                 xray_ratio = total_xray_contrib / total_contrib
                 bonding_ratio = total_bonding_contrib / total_contrib
                 angular_ratio = total_angular_contrib / total_contrib
+                # readjust c_tuning
+                tuning_ratio = 0.01
+                c_tuning_adjusted = tuning_ratio * (1 - total_xray_contrib / total_contrib )
+                # not totally sure this is working how I want...
             else:
                 xray_ratio, bonding_ratio, angular_ratio = 0, 0, 0
             return (
@@ -273,6 +278,7 @@ class Annealing:
                 bonding_ratio,
                 angular_ratio,
                 c,
+                c_tuning_adjusted,
             )
 
         ### END run_annealing() function ###
@@ -288,6 +294,7 @@ class Annealing:
             bonding_ratio,
             angular_ratio,
             c,
+            c_tuning_adjusted,
         ) = run_annealing(nsteps)
         print("run_annealing() time: %3.2f s" % float(default_timer() - start))
         ###
@@ -296,7 +303,7 @@ class Annealing:
         print("angular contrib ratio: %f" % angular_ratio)
         print("Accepted / Total steps: %i/%i" % (c, nsteps))
         # end function
-        return f_best, f_xray_best, predicted_best, xyz_best
+        return f_best, f_xray_best, predicted_best, xyz_best, c_tuning_adjusted
 
 
     def read_nm_displacements(self, fname: str, natoms: int) -> NDArray:

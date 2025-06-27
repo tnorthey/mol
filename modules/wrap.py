@@ -232,6 +232,8 @@ class Wrapper:
         #################################
         ### End Initialise some stuff ###
         #################################
+        # Tuning parameter
+        c_tuning = 1
         # initialise starting "best" values
         xyz_best = xyz_start
         f_best, f_xray_best = 1e10, 1e10
@@ -267,6 +269,7 @@ class Wrapper:
                 f_xray_best,
                 predicted_best,
                 xyz_best,
+                c_tuning_adjusted,
             ) = sa.simulated_annealing_modes_ho(
                 xyz_start,
                 displacements,
@@ -296,8 +299,13 @@ class Wrapper:
                 f_start,
                 f_xray_start,
                 predicted_start,
+                c_tuning,
             )
             print("f_best (SA): %9.8f" % f_best)
+            print("Updating tuning parameter...")
+            print("c_tuning: %9.8f" % c_tuning)
+            c_tuning = c_tuning_adjusted
+            print("c_tuning_adjusted: %9.8f" % c_tuning_adjusted)
 
         ### analysis on xyz_best
         # bond-length of interest
