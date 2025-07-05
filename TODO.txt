@@ -2,8 +2,13 @@
 #####CODE#EDITS################################
 ###############################################
 
-- copy input.json to results dir
-- create results dir if doesn't exist
+- "Sampling ratio" where it initially runs without signal fitting for x% of the steps to pseudo Wigner sample
+- automatically run the normal modes with pyscf
+- automatically find the bonds and apply the correct FF params to them
+- conda etc., describe in README
+
+- auto copy input.json to results dir
+- auto create results dir if doesn't exist (with a boolean choice to do this)
 
 [DONE!] - one input file. Nothing else changes
 [DONE!] - one run.py file that doesn't need to be edited. And it's callable by just "python run.py"
@@ -34,11 +39,6 @@ I think noiseless data was actually a red herring (i.e. misled / distracted me);
 noise
  - creates a non-zero "global" minimum in f_signal
  - is more realistic for approximating experimental data
-
-fix 2D
- - code Mats' correct detector projection (his thesis)
- - show that another dimension of data massively helps
-
 
 ... write the readme
 

@@ -233,7 +233,8 @@ class Wrapper:
         ### End Initialise some stuff ###
         #################################
         # Tuning parameter
-        c_tuning = 1
+        c_tuning = p.c_tuning_initial  # initialise C_tuning
+        print("tuning_ratio_target = %3.2f" % p.tuning_ratio_target)
         # initialise starting "best" values
         xyz_best = xyz_start
         f_best, f_xray_best = 1e10, 1e10
@@ -249,6 +250,10 @@ class Wrapper:
             f_xray_start = f_xray_best
             predicted_start = predicted_best
             ###
+            if i == 1:
+                sampling_ratio = p.sampling_ratio
+            else:
+                sampling_ratio = 0  # don't sample except for the first run
             if i < p.nrestarts - 1:  # annealing mode
                 print(f"Run {i}: SA")
                 nsteps = p.sa_nsteps
@@ -270,6 +275,7 @@ class Wrapper:
                 predicted_best,
                 xyz_best,
                 c_tuning_adjusted,
+                xyz_sampling_end,
             ) = sa.simulated_annealing_modes_ho(
                 xyz_start,
                 displacements,
@@ -299,7 +305,9 @@ class Wrapper:
                 f_start,
                 f_xray_start,
                 predicted_start,
-                c_tuning,
+                p.tuning_ratio_target,
+                p.c_tuning_initial,
+                sampling_ratio,
             )
             print("f_best (SA): %9.8f" % f_best)
             print("Updating tuning parameter...")
@@ -390,6 +398,8 @@ class Wrapper:
         print('################')
         # also write final xyz as "result.xyz"
         # m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
+        # also write xyz_sampling_end
+        m.write_xyz("tmp_/xyz_sampling_end.xyz", "xyz_sampling_end", atomlist, xyz_sampling_end)
         # predicted data
         if p.ewald_mode:
             if npy_save:

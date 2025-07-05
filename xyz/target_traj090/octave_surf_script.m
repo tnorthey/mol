@@ -21,7 +21,7 @@ surf(t, q, pcd(1:81, :));
 xlabel('t (fs)');
 ylabel('q (Å^{-1})');
 zlabel('%ΔI(q,t)');
-caxis([-35 60]);
+caxis([-35 35]);
 zlim([-35 60]);
 %colormap hot
 colormap default

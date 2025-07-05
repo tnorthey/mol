@@ -1,14 +1,14 @@
 {
   "mode": "xyz",
   "run_params": {
-    "run_id": "chd_1d",
-    "molecule": "chd",
+    "run_id": "nmm",
+    "molecule": "nmm",
     "results_dir": "tmp_"
   },
   "files": {
-    "start_xyz_file": "xyz/start.xyz",
-    "reference_xyz_file": "xyz/chd_reference.xyz",
-    "target_file": "xyz/target_traj094/target_20.xyz"
+    "start_xyz_file": "xyz/nmm_start.xyz",
+    "reference_xyz_file": "xyz/nmm_opt.xyz",
+    "target_file": "xyz/"
   },
   "scattering_params": {
     "inelastic_bool": 1,
@@ -20,17 +20,17 @@
       "qlen": 81
     },
     "th": {
-      "tmin": 0,
+      "tmin": 0.5,
       "tmax": 1,
       "tlen": 1
     },
     "ph": {
       "pmin": 0,
       "pmax": 2,
-      "plen": 1
+      "plen": 81
     },
     "noise": { 
-      "noise_value": 0.0,
+      "noise_value": 0,
       "noise_data_file": "noise/noise.dat"
     }
   },
@@ -40,18 +40,15 @@
     "ga_nsteps": 20000,
     "sa_step_size": 0.012,
     "ga_step_size": 0.012,
-    "nrestarts": 5,
+    "nrestarts": 10,
     "bonds_bool": 1,
-    "sa_harmonic_factor": [10.0, 10.0],
-    "ga_harmonic_factor": [1.0, 10.0],
+    "sa_harmonic_factor": [600.0, 800.0],
+    "ga_harmonic_factor": [0.0, 0.0],
     "angles_bool": 0,
     "sa_angular_factor": 0.0,
     "ga_angular_factor": 0.0,
-    "tuning_ratio_target": 0.1,
-    "c_tuning_initial": 0.1,
-    "sampling_ratio": 0.1,
     "non_h_modes_only_bool": 0,
-    "hf_energy_bool": 0
+    "hf_energy_bool": 1
   },
   "molecule_params": {
     "chd": {

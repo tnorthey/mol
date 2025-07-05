@@ -83,6 +83,15 @@ class Input_to_params:
         self.ga_angular_factor = np.array(
             data["simulated_annealing_params"]["ga_angular_factor"]
         )
+        self.tuning_ratio_target = float(
+            data["simulated_annealing_params"]["tuning_ratio_target"]
+        )
+        self.c_tuning_initial = float(
+            data["simulated_annealing_params"]["c_tuning_initial"]
+        )
+        self.sampling_ratio = float(
+            data["simulated_annealing_params"]["sampling_ratio"]
+        )
         self.non_h_modes_only = bool(
             data["simulated_annealing_params"]["non_h_modes_only_bool"]
         )  # only include "non-hydrogen" modes
