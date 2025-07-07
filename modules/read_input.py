@@ -32,6 +32,8 @@ class Input_to_params:
         self.run_id = str(data["run_params"]["run_id"])
         self.molecule = str(data["run_params"]["molecule"])
         self.results_dir = str(data["run_params"]["results_dir"])
+        # options
+        self.run_pyscf_modes_bool = bool(data["options"]["run_pyscf_modes_bool"])
         # xyz file params
         self.start_xyz_file = str(data["files"]["start_xyz_file"])
         self.reference_xyz_file = str(data["files"]["reference_xyz_file"])

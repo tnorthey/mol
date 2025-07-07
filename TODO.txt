@@ -2,7 +2,7 @@
 #####CODE#EDITS################################
 ###############################################
 
-- "Sampling ratio" where it initially runs without signal fitting for x% of the steps to pseudo Wigner sample
+[DONE!] - "Sampling ratio" where it initially runs without signal fitting for x% of the steps to pseudo Wigner sample
 - automatically run the normal modes with pyscf
 - automatically find the bonds and apply the correct FF params to them
 - conda etc., describe in README

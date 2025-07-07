@@ -2,11 +2,90 @@ from openff.toolkit.topology import Molecule, Topology
 from openff.toolkit.typing.engines.smirnoff import ForceField
 from openmm import HarmonicBondForce
 from openmm import unit
+from rdkit import Chem
+from rdkit.Chem import AllChem
+from rdkit.Geometry import Point3D
+from rdkit.Chem import rdchem
+from rdkit.Chem.rdchem import RWMol
+from rdkit.Chem import rdMolTransforms
 import numpy as np
 
 class Retreive_mm_params:
     def __init__(self):
         pass
+
+    def read_xyz(self, filename):
+        with open(filename, 'r') as f:
+            lines = f.readlines()
+        num_atoms = int(lines[0])
+        atom_lines = lines[2:2 + num_atoms]
+    
+        symbols = []
+        coords = []
+        for line in atom_lines:
+            parts = line.strip().split()
+            symbols.append(parts[0])
+            coords.append([float(x) for x in parts[1:4]])
+        return symbols, np.array(coords)
+        
+    def xyz2sdf(self, xyz_file):
+        '''Uses RDKit to guess bonds and create an SDF file from an XYZ file'''
+        # Step 1: Read XYZ file manually
+        symbols, coords = self.read_xyz("start.xyz")
+
+        # Step 2: Build RDKit molecule
+        mol = RWMol()
+        atom_indices = []
+        for symbol in symbols:
+            atom = Chem.Atom(symbol)
+            idx = mol.AddAtom(atom)
+            atom_indices.append(idx)
+        
+        # Step 3: Add bonds based on distance (very simple guess)
+        
+        def guess_bonds(mol, coords, cutoff=1.8):
+            ''' Guess bonds only by distance cutoff '''
+            n = len(coords)
+            for i in range(n):
+                for j in range(i + 1, n):
+                    dist = np.linalg.norm(coords[i] - coords[j])
+                    if dist < cutoff:
+                        mol.AddBond(i, j, Chem.rdchem.BondType.SINGLE)
+        #guess_bonds(mol, coords)
+        
+        pt = rdchem.GetPeriodicTable()
+        
+        def add_bonds_smart(mol, coords, scale=1.2):
+            n = len(coords)
+            for i in range(n):
+                ri = pt.GetRcovalent(mol.GetAtomWithIdx(i).GetAtomicNum())
+                for j in range(i + 1, n):
+                    rj = pt.GetRcovalent(mol.GetAtomWithIdx(j).GetAtomicNum())
+                    max_bond = (ri + rj) * scale
+                    dist = np.linalg.norm(coords[i] - coords[j])
+                    if dist <= max_bond:
+                        mol.AddBond(i, j, Chem.rdchem.BondType.SINGLE)
+        
+        # Then call:
+        add_bonds_smart(mol, coords)
+        
+        # Step 4: Add 3D coordinates
+        conf = Chem.Conformer(len(symbols))
+        for i, pos in enumerate(coords):
+            conf.SetAtomPosition(i, Point3D(*pos))
+        mol.AddConformer(conf)
+        
+        mol = mol.GetMol()  # Finalize edits
+        Chem.SanitizeMol(mol)
+        
+        # Step 5: Optimize (optional, depends on coordinates)
+        #AllChem.UFFOptimizeMolecule(mol)
+        
+        # Step 6: Save to SDF
+        writer = Chem.SDWriter("converted.sdf")
+        writer.write(mol)
+        writer.close()
+        
 
     def create_topology_from_sdf(self, sdf_file, ff_file="openff_unconstrained-2.0.0.offxml")
         '''creates an OpenMM system (topology, forcefield) from the sdf_file'''
@@ -38,6 +117,7 @@ class Retreive_mm_params:
         #print("OpenMM system created with", openmm_system.getNumParticles(), "particles.")
         return openmm_system
  
+
     def retreive_lengths_k_values(self, openmm_system):
         '''gets the bond-lengths and bond-strengths from the OpenMM system (topology, forcefield)'''
        

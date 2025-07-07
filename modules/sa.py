@@ -150,10 +150,10 @@ class Annealing:
                 ##=#=#=# END DISPLACE XYZ RANDOMLY ALONG ALL DISPLACEMENT VECTORS #=#=#=##
 
                 if i >= n_sampling_steps and tmp_bool:
-                    tmp_bool = False
-                    end_sampling = True
+                    tmp_bool = False   # stop this if block repeating
+                    end_sampling = True   # end sampling and begin the annealing
+                    xyz_sampling_end = xyz_   # save xyz at this point
                     print(f"SAMPLING ENDED after {i} / {nsteps} steps")
-                    xyz_sampling_end = xyz_
                 if end_sampling:
                     ##=#=#=# IAM CALCULATION #=#=#=##
                     if (

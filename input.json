@@ -5,6 +5,9 @@
     "molecule": "chd",
     "results_dir": "tmp_"
   },
+  "options": {
+    "run_pyscf_modes_bool": 0
+  },
   "files": {
     "start_xyz_file": "xyz/start.xyz",
     "reference_xyz_file": "xyz/chd_reference.xyz",
@@ -42,13 +45,13 @@
     "ga_step_size": 0.012,
     "nrestarts": 5,
     "bonds_bool": 1,
-    "sa_harmonic_factor": [10.0, 10.0],
-    "ga_harmonic_factor": [1.0, 10.0],
+    "sa_harmonic_factor": [600.0, 800.0],
+    "ga_harmonic_factor": [60.0, 80.0],
     "angles_bool": 0,
     "sa_angular_factor": 0.0,
     "ga_angular_factor": 0.0,
-    "tuning_ratio_target": 0.1,
-    "c_tuning_initial": 0.1,
+    "tuning_ratio_target": 0.01,
+    "c_tuning_initial": 0.01,
     "sampling_ratio": 0.1,
     "non_h_modes_only_bool": 0,
     "hf_energy_bool": 0

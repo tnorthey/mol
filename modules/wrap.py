@@ -13,11 +13,13 @@ except ImportError:
 import modules.mol as mol
 import modules.x as xray
 import modules.sa as sa
+import modules.pyscf_wrapper as pyscf_wrapper
 
 # create class objects
 m = mol.Xyz()
 x = xray.Xray()
 sa = sa.Annealing()
+pyscfw = pyscf_wrapper.Pyscf_wrapper()
 
 #############################
 class Wrapper:
@@ -113,7 +115,22 @@ class Wrapper:
             np.savetxt('reference_iam.dat', np.column_stack((p.qvector, reference_iam)))
 
         natoms = xyz_start.shape[0]
-        displacements = sa.read_nm_displacements(p.nmfile, natoms)
+        ###### mode displacements ######
+        old_txtfile_method = False
+        if old_txtfile_method:
+            displacements = sa.read_nm_displacements(p.nmfile, natoms)
+        if p.run_pyscf_modes_bool:
+            print('Running PySCF normal modes calculation...')
+            displacements, freq_cm1 = pyscfw.xyz_calc_modes(p.reference_xyz_file, save_to_npy=True, basis='sto-3g')
+        else:
+            # check if npy file exists and read from that or error
+            print('Reading normal modes from nm/modes.npy file.')
+            npy_file = 'nm/modes.npy'
+            if os.path.exists(npy_file):
+                displacements = np.load(npy_file)
+            else:
+                print('No "nm/modes.npy" file exists. Change run_pyscf_modes to True. Exiting...')
+                sys.exit()
         nmodes = displacements.shape[0]
 
         # hydrogen modes damped
@@ -250,7 +267,7 @@ class Wrapper:
             f_xray_start = f_xray_best
             predicted_start = predicted_best
             ###
-            if i == 1:
+            if i == 0:
                 sampling_ratio = p.sampling_ratio
             else:
                 sampling_ratio = 0  # don't sample except for the first run
