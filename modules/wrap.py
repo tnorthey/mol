@@ -60,6 +60,23 @@ class Wrapper:
             mm_params.retreive_angles_k_values(topology, openmm_system)
         )
         angle_param_array = np.column_stack((atom1_idx_array, atom2_idx_array, atom3_idx_array, angle_deg_array, k_kcal_per_rad2_array))
+        # mask out chosen ignored bonds
+        mask = np.ones(len(bond_param_array), dtype=bool)
+        for i, j in p.bond_ignore_array:
+            # order ij or ji is equivalent
+            # this works because python has the Truthy equality, i.e. float(1.0) == int(1) is True
+            remove = ((bond_param_array[:, 0] == i) & (bond_param_array[:, 1] == j)) | \
+                     ((bond_param_array[:, 0] == j) & (bond_param_array[:, 1] == i))
+            mask &= ~remove
+        bond_param_array = bond_param_array[mask]
+        # mask out chosen ignored angles
+        mask = np.ones(len(angle_param_array), dtype=bool)
+        for i, j, k in p.angle_ignore_array:
+            # order ijk or kji is equivalent
+            remove = ((angle_param_array[:, 0] == i) & (angle_param_array[:, 1] == j)) & (angle_param_array[:, 2] == k) | \
+                     ((angle_param_array[:, 0] == k) & (angle_param_array[:, 1] == j)) & (angle_param_array[:, 2] == i)
+            mask &= ~remove
+        angle_param_array = angle_param_array[mask]
         # add to parameter object
         p.bond_param_array = bond_param_array
         p.angle_param_array = angle_param_array
@@ -320,15 +337,11 @@ class Wrapper:
                 print(f"Run {i}: SA")
                 nsteps = p.sa_nsteps
                 starting_temp = p.sa_starting_temp
-                harmonic_factor = p.sa_harmonic_factor
-                angular_factor = p.sa_angular_factor
                 mode_indices = p.sa_mode_indices
             else:  # greedy algorithm mode
                 print(f"Run {i}: GA")
                 nsteps = p.ga_nsteps
                 starting_temp = 0
-                harmonic_factor = p.ga_harmonic_factor
-                angular_factor = p.ga_angular_factor
                 mode_indices = p.ga_mode_indices
             # Run simulated annealing
             (
@@ -351,15 +364,11 @@ class Wrapper:
                 atomic,
                 pre_molecular,
                 p.sa_step_size_array,
-                p.ho_indices1,
-                p.ho_indices2,
-                p.angular_indices1,
-                p.angular_indices2,
+                p.bond_param_array,
+                p.angle_param_array,
                 starting_temp,
                 nsteps,
                 p.inelastic,
-                harmonic_factor,
-                angular_factor,
                 p.pcd_mode,
                 p.ewald_mode,
                 p.bonds_bool,

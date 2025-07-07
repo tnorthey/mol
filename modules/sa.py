@@ -3,7 +3,7 @@ from numba import njit
 import numpy as np
 from numpy import linalg as LA
 from numpy.typing import NDArray, DTypeLike
-
+import sys
 from timeit import default_timer
 import cProfile
 import pstats
@@ -16,9 +16,10 @@ import modules.x as xray
 m = mol.Xyz()
 x = xray.Xray()
 
+
 #############################
 class Annealing:
-    """Gradient descent functions"""
+    """Simulated annealing functions"""
 
     def __init__(self):
         pass
@@ -37,15 +38,11 @@ class Annealing:
         atomic_total: NDArray,
         pre_molecular: NDArray,
         step_size_array: NDArray,
-        ho_indices1: NDArray,
-        ho_indices2: NDArray,
-        angular_indices1: NDArray,
-        angular_indices2: NDArray,
+        bond_param_array: NDArray,
+        angle_param_array: NDArray,
         starting_temp=0.2,
         nsteps=10000,
         inelastic=True,
-        bonding_factor=(0.1, 0.1),
-        angular_factor=0.1,
         pcd_mode=False,
         ewald_mode=False,
         bonds_bool=True,
@@ -58,6 +55,20 @@ class Annealing:
         sampling_ratio=0.1,
     ):
         """simulated annealing minimisation to target_function"""
+        ######## READ BOND/ANGLE PARAMS #######
+        # Bonds
+        bond_atom1_idx_arr = bond_param_array[:, 0].astype(int)
+        bond_atom2_idx_arr = bond_param_array[:, 1].astype(int)
+        r0_arr = bond_param_array[:, 2]
+        k_arr = bond_param_array[:, 3]
+        nbonds = len(r0_arr)
+        # Angles
+        angle_atom1_idx_arr = angle_param_array[:, 0].astype(int)
+        angle_atom2_idx_arr = angle_param_array[:, 1].astype(int)
+        angle_atom3_idx_arr = angle_param_array[:, 2].astype(int)
+        theta0_arr = angle_param_array[:, 3]
+        k_theta_arr = angle_param_array[:, 4]
+        nangles = len(theta0_arr)
         ##=#=#=# DEFINITIONS #=#=#=##
         natoms = starting_xyz.shape[0]  # number of atoms
         c_tuning = c_tuning_initial  # initialise C_tuning
@@ -73,15 +84,16 @@ class Annealing:
         if not inelastic:
             compton = 0
         ##=#=#=# END DEFINITIONS #=#=#=#
-
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
-        nho_indices1 = len(ho_indices1[0])  # number of HO indices
-        nho_indices2 = len(ho_indices2[0])  # number of HO indices
-        # Calculate distance arrays for starting_xyz
-        diff = starting_xyz[ho_indices1[0]] - starting_xyz[ho_indices1[1]]
-        r0_arr1 = LA.norm(diff, axis=1)
-        diff = starting_xyz[ho_indices2[0]] - starting_xyz[ho_indices2[1]]
-        r0_arr2 = LA.norm(diff, axis=1)
+
+        def angle3(A, B, C):
+            """Return angle ABC (at B) given three positions A, B, C."""
+            BA = A - B
+            BC = C - B
+            cos_theta = np.dot(BA, BC) / (np.linalg.norm(BA) * np.linalg.norm(BC))
+            cos_theta = np.clip(cos_theta, -1.0, 1.0)
+            angle_rad = np.arccos(cos_theta)
+            return angle_rad
 
         def angle_array(angular_indices):
             """calculate starting angles for angular indices"""
@@ -99,8 +111,6 @@ class Annealing:
                 theta_arr[i_ang] = np.arccos(cosine_theta)
             return theta_arr
 
-        theta0_arr1 = angle_array(angular_indices1)
-        theta0_arr2 = angle_array(angular_indices2)
         # print(np.degrees(theta0_arr))
         # print("HO factors: %4.3f %4.3f" % (bonding_factor[0], bonding_factor[1]))
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
@@ -115,7 +125,7 @@ class Annealing:
             qz = r_grid * np.cos(th_grid)
         ##=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=#=##
 
-        @njit(nogil=True)  # numba decorator to compile to machine code
+        # @njit(nogil=True)  # numba decorator to compile to machine code
         def run_annealing(nsteps):
 
             ##=#=#=# INITIATE LOOP VARIABLES #=#=#=#=#
@@ -150,9 +160,9 @@ class Annealing:
                 ##=#=#=# END DISPLACE XYZ RANDOMLY ALONG ALL DISPLACEMENT VECTORS #=#=#=##
 
                 if i >= n_sampling_steps and tmp_bool:
-                    tmp_bool = False   # stop this if block repeating
-                    end_sampling = True   # end sampling and begin the annealing
-                    xyz_sampling_end = xyz_   # save xyz at this point
+                    tmp_bool = False  # stop this if block repeating
+                    end_sampling = True  # end sampling and begin the annealing
+                    xyz_sampling_end = xyz_  # save xyz at this point
                     print(f"SAMPLING ENDED after {i} / {nsteps} steps")
                 if end_sampling:
                     ##=#=#=# IAM CALCULATION #=#=#=##
@@ -160,7 +170,9 @@ class Annealing:
                         ewald_mode
                     ):  # x-ray signal in Ewald sphere, q = (q_radial, q_theta, q_phi)
                         # molecular
-                        molecular = np.zeros((qlen, tlen, plen))  # total molecular factor
+                        molecular = np.zeros(
+                            (qlen, tlen, plen)
+                        )  # total molecular factor
                         k = 0  # begin counter
                         for n in range(natoms - 1):
                             for m in range(n + 1, natoms):  # j > i
@@ -179,7 +191,9 @@ class Annealing:
                         for ii in range(natoms):
                             for jj in range(ii + 1, natoms):  # j > i
                                 qdij = qvector * LA.norm(xyz_[ii, :] - xyz_[jj, :])
-                                molecular += 2 * pre_molecular[k, :] * np.sin(qdij) / qdij
+                                molecular += (
+                                    2 * pre_molecular[k, :] * np.sin(qdij) / qdij
+                                )
                                 k += 1
                     iam_ = atomic_total + molecular + compton
                     ##=#=#=# END IAM CALCULATION #=#=#=##
@@ -210,47 +224,28 @@ class Annealing:
 
                     ### harmonic oscillator part of f
                     # somehow this is faster in numba than the vectorised version
+                    # New method: read from bond_param_array (OpenMM params)
                     bonding_contrib = 0
                     if bonds_bool:
-                        for iho in range(nho_indices1):
+                        for i in range(nbonds):
                             r = LA.norm(
-                                xyz_[ho_indices1[0][iho], :] - xyz_[ho_indices1[1][iho], :]
+                                xyz_[bond_atom1_idx_arr[i], :]
+                                - xyz_[bond_atom2_idx_arr[i], :]
                             )
-                            bonding_contrib += bonding_factor[0] * 0.5 * (r - r0_arr1[iho]) ** 2
-                        for iho in range(nho_indices2):
-                            r = LA.norm(
-                                xyz_[ho_indices2[0][iho], :] - xyz_[ho_indices2[1][iho], :]
-                            )
-                            bonding_contrib += bonding_factor[1] * 0.5 * (r - r0_arr2[iho]) ** 2
+                            bonding_contrib += k_arr[i] * 0.5 * (r - r0_arr[i]) ** 2
 
                     angular_contrib = 0
                     if angles_bool:
-                        for i_ang in range(len(theta0_arr1)):
-                            p0 = xyz_[angular_indices1[0][i_ang], :]
-                            p1 = xyz_[angular_indices1[1][i_ang], :]
-                            p2 = xyz_[angular_indices1[2][i_ang], :]
-                            ba = p1 - p0
-                            bc = p1 - p2
-                            cosine_theta = np.dot(ba, bc) / (
-                                np.linalg.norm(ba) * np.linalg.norm(bc)
+                        for i in range(nangles):
+                            theta = angle3(
+                                xyz_[angle_atom1_idx_arr[i], :],
+                                xyz_[angle_atom2_idx_arr[i], :],
+                                xyz_[angle_atom3_idx_arr[i], :],
                             )
-                            theta = np.arccos(cosine_theta)
                             angular_contrib += (
-                                angular_factor[0] * 0.5 * (theta - theta0_arr1[i_ang]) ** 2
+                                k_theta_arr[i] * 0.5 * (theta - theta0_arr[i]) ** 2
                             )
-                        for i_ang in range(len(theta0_arr2)):
-                            p0 = xyz_[angular_indices2[0][i_ang], :]
-                            p1 = xyz_[angular_indices2[1][i_ang], :]
-                            p2 = xyz_[angular_indices2[2][i_ang], :]
-                            ba = p1 - p0
-                            bc = p1 - p2
-                            cosine_theta = np.dot(ba, bc) / (
-                                np.linalg.norm(ba) * np.linalg.norm(bc)
-                            )
-                            theta = np.arccos(cosine_theta)
-                            angular_contrib += (
-                                angular_factor[1] * 0.5 * (theta - theta0_arr2[i_ang]) ** 2
-                            )
+
                     ### combine x-ray and bonding, angular contributions
                     f_ = xray_contrib + c_tuning * (bonding_contrib + angular_contrib)
                     ##=#=#=# END PCD & DSIGNAL CALCULATIONS #=#=#=##
@@ -261,7 +256,11 @@ class Annealing:
                         f, xyz = f_, xyz_  # update f and xyz
                         if f < f_best:
                             # store values corresponding to f_best
-                            f_best, xyz_best, predicted_best = f, xyz, predicted_function_
+                            f_best, xyz_best, predicted_best = (
+                                f,
+                                xyz,
+                                predicted_function_,
+                            )
                             f_xray_best = xray_contrib
                         total_bonding_contrib += c_tuning * bonding_contrib
                         total_angular_contrib += c_tuning * angular_contrib
@@ -276,7 +275,9 @@ class Annealing:
                 bonding_ratio = total_bonding_contrib / total_contrib
                 angular_ratio = total_angular_contrib / total_contrib
                 # readjust c_tuning
-                c_tuning_adjusted = tuning_ratio_target * (1 - total_xray_contrib / total_contrib )
+                c_tuning_adjusted = tuning_ratio_target * (
+                    1 - total_xray_contrib / total_contrib
+                )
             else:
                 xray_ratio, bonding_ratio, angular_ratio = 0, 0, 0
             return (
@@ -315,8 +316,14 @@ class Annealing:
         print("angular contrib ratio: %f" % angular_ratio)
         print("Accepted / Total steps: %i/%i" % (c, nsteps))
         # end function
-        return f_best, f_xray_best, predicted_best, xyz_best, c_tuning_adjusted, xyz_sampling_end
-
+        return (
+            f_best,
+            f_xray_best,
+            predicted_best,
+            xyz_best,
+            c_tuning_adjusted,
+            xyz_sampling_end,
+        )
 
     def read_nm_displacements(self, fname: str, natoms: int) -> NDArray:
         """read_nm_displacements: Reads displacement vector from file=fname e.g. 'normalmodes.txt'

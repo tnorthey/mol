@@ -35,6 +35,7 @@ class Input_to_params:
         # options
         self.run_pyscf_modes_bool = bool(data["options"]["run_pyscf_modes_bool"])
         self.pyscf_basis = str(data["options"]["pyscf_basis"])
+        self.verbose_bool = bool(data["options"]["verbose_bool"])
         # xyz file params
         self.start_xyz_file = str(data["files"]["start_xyz_file"])
         self.reference_xyz_file = str(data["files"]["reference_xyz_file"])
@@ -72,20 +73,7 @@ class Input_to_params:
             data["simulated_annealing_params"]["nrestarts"]
         )  # it restarts from the xyz_best of the previous restart
         self.bonds_bool = bool(data["simulated_annealing_params"]["bonds_bool"])
-
-        self.sa_harmonic_factor = np.array(
-            data["simulated_annealing_params"]["sa_harmonic_factor"]
-        )
-        self.ga_harmonic_factor = np.array(
-            data["simulated_annealing_params"]["ga_harmonic_factor"]
-        )
         self.angles_bool = bool(data["simulated_annealing_params"]["angles_bool"])
-        self.sa_angular_factor = np.array(
-            data["simulated_annealing_params"]["sa_angular_factor"]
-        )
-        self.ga_angular_factor = np.array(
-            data["simulated_annealing_params"]["ga_angular_factor"]
-        )
         self.tuning_ratio_target = float(
             data["simulated_annealing_params"]["tuning_ratio_target"]
         )
@@ -116,14 +104,8 @@ class Input_to_params:
         self.ga_mode_range = np.array(
             data["molecule_params"][molecule]["ga_mode_range"]
         )
-        self.ho_indices1 = np.array(data["molecule_params"][molecule]["ho_indices1"])
-        self.ho_indices2 = np.array(data["molecule_params"][molecule]["ho_indices2"])
-        self.angular_indices1 = np.array(
-            data["molecule_params"][molecule]["angular_indices1"]
-        )
-        self.angular_indices2 = np.array(
-            data["molecule_params"][molecule]["angular_indices1"]
-        )
+        self.bond_ignore_array = np.array(data["molecule_params"][molecule]["bond_ignore_array"])
+        self.angle_ignore_array = np.array(data["molecule_params"][molecule]["angle_ignore_array"])
         self.rmsd_indices = np.array(data["molecule_params"][molecule]["rmsd_indices"])
         self.bond_indices = np.array(data["molecule_params"][molecule]["bond_indices"])
         self.angle_indices = np.array(
@@ -158,7 +140,8 @@ class Input_to_params:
         print("##################################################")
         print("### Initialised with the following parameters: ###")
         print("##################################################")
-        pprint.pprint(vars(self))
+        if self.verbose_bool:
+            pprint.pprint(vars(self))
         print("##################################################")
 
         ###################################
