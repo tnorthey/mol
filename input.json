@@ -6,7 +6,9 @@
     "results_dir": "tmp_"
   },
   "options": {
-    "run_pyscf_modes_bool": 0
+    "_comment": "Run normal modes calculation with PySCF.",
+    "run_pyscf_modes_bool": 0,
+    "pyscf_basis": "6-31g*"
   },
   "files": {
     "start_xyz_file": "xyz/start.xyz",
@@ -60,6 +62,7 @@
     "chd": {
       "natoms": 14,
       "nmodes": 36,
+      "_comment_nmfile": "This normal mode file is redundant if you run the modes with PySCF in the options",
       "nmfile": "nm/chd_normalmodes.txt",
       "hydrogen_mode_range": [28, 36],
       "sa_mode_range": [0, 36],

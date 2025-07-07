@@ -1,10 +1,13 @@
 import os
+import sys
 import pprint
 import numpy as np
 from numpy import linalg as LA
+
 try:
     # Handle the case when PySCF isn't there
     from pyscf import gto, scf
+
     HAVE_PYSCF = True
 except ImportError:
     HAVE_PYSCF = False
@@ -14,12 +17,15 @@ import modules.mol as mol
 import modules.x as xray
 import modules.sa as sa
 import modules.pyscf_wrapper as pyscf_wrapper
+import modules.openff_retreive_mm_params as openff_retreive_mm_params
 
 # create class objects
 m = mol.Xyz()
 x = xray.Xray()
 sa = sa.Annealing()
 pyscfw = pyscf_wrapper.Pyscf_wrapper()
+mm_params = openff_retreive_mm_params.Openff_retreive_mm_params()
+
 
 #############################
 class Wrapper:
@@ -28,12 +34,30 @@ class Wrapper:
     def __init__(self):
         pass
 
+    def run_xyz_openff_mm_params(self, p, start_xyz_file):
+        """wrapper for going from xyz file to the bonding/angular OpenFF parameters"""
+        if start_xyz_file == "START_XYZ_FILE" or start_xyz_file == 0:
+            start_xyz_file = p.start_xyz_file
+        else:
+            print(
+                f"VALUE OVERWRITTEN BY COMMAND LINE ARG: 'start_xyz_file' = {start_xyz_file}"
+            )
+        sdf_file = "out.sdf"
+        mm_params.openbabel_xyz2sdf(start_xyz_file, sdf_file)
+        # Now read the SDF file...
+        topology, openmm_system = mm_params.create_topology_from_sdf(sdf_file)
+        # Get the bonds and params
+        atom1_idx_array, atom2_idx_array, length_angstrom_array, k_kcal_per_ang2_array = (
+            mm_params.retreive_lengths_k_values(topology, openmm_system)
+        )
+        print(np.column_stack((atom1_idx_array, atom2_idx_array, length_angstrom_array, k_kcal_per_ang2_array)))
+
     def run(
         self,
         p,
-        run_id='RUN_ID',
-        start_xyz_file='START_XYZ_FILE',
-        target_file='TARGET_FILE',
+        run_id="RUN_ID",
+        start_xyz_file="START_XYZ_FILE",
+        target_file="TARGET_FILE",
     ):
         """
         wrapper function that handles restarts, xyz/dat modes, output files,
@@ -56,11 +80,15 @@ class Wrapper:
         if start_xyz_file == "START_XYZ_FILE" or start_xyz_file == 0:
             start_xyz_file = p.start_xyz_file
         else:
-            print(f"VALUE OVERWRITTEN BY COMMAND LINE ARG: 'start_xyz_file' = {start_xyz_file}")
+            print(
+                f"VALUE OVERWRITTEN BY COMMAND LINE ARG: 'start_xyz_file' = {start_xyz_file}"
+            )
         if target_file == "TARGET_FILE" or target_file == 0:
             target_file = p.target_file
         else:
-            print(f"VALUE OVERWRITTEN BY COMMAND LINE ARG: 'target_file' = {target_file}")
+            print(
+                f"VALUE OVERWRITTEN BY COMMAND LINE ARG: 'target_file' = {target_file}"
+            )
 
         def xyz2iam(xyz, atomic_numbers, compton_array, ewald_mode):
             """convert xyz file to IAM signal"""
@@ -111,8 +139,8 @@ class Wrapper:
 
         save_starting_reference_iams = False  # for debugging
         if save_starting_reference_iams:
-            np.savetxt('starting_iam.dat', np.column_stack((p.qvector, starting_iam)))
-            np.savetxt('reference_iam.dat', np.column_stack((p.qvector, reference_iam)))
+            np.savetxt("starting_iam.dat", np.column_stack((p.qvector, starting_iam)))
+            np.savetxt("reference_iam.dat", np.column_stack((p.qvector, reference_iam)))
 
         natoms = xyz_start.shape[0]
         ###### mode displacements ######
@@ -120,16 +148,20 @@ class Wrapper:
         if old_txtfile_method:
             displacements = sa.read_nm_displacements(p.nmfile, natoms)
         if p.run_pyscf_modes_bool:
-            print('Running PySCF normal modes calculation...')
-            displacements, freq_cm1 = pyscfw.xyz_calc_modes(p.reference_xyz_file, save_to_npy=True, basis='sto-3g')
+            print("Running PySCF normal modes calculation...")
+            displacements, freq_cm1 = pyscfw.xyz_calc_modes(
+                p.reference_xyz_file, save_to_npy=True, basis=p.pyscf_basis
+            )
         else:
             # check if npy file exists and read from that or error
-            print('Reading normal modes from nm/modes.npy file.')
-            npy_file = 'nm/modes.npy'
+            print("Reading normal modes from nm/modes.npy file.")
+            npy_file = "nm/modes.npy"
             if os.path.exists(npy_file):
                 displacements = np.load(npy_file)
             else:
-                print('No "nm/modes.npy" file exists. Change run_pyscf_modes to True. Exiting...')
+                print(
+                    'NO "nm/modes.npy" FILE EXISTS. CHANGE run_pyscf_modes TO True. EXITING...'
+                )
                 sys.exit()
         nmodes = displacements.shape[0]
 
@@ -229,7 +261,7 @@ class Wrapper:
             ### also save to npy file to results_dir
             npy_save = True
             if npy_save:
-                np.save('%s/target_function.npy' % p.results_dir, target_function_)
+                np.save("%s/target_function.npy" % p.results_dir, target_function_)
         else:
             np.savetxt(
                 target_function_file, np.column_stack((p.qvector, target_function_))
@@ -255,14 +287,14 @@ class Wrapper:
         # initialise starting "best" values
         xyz_best = xyz_start
         f_best, f_xray_best = 1e10, 1e10
-        if p.ewald_mode: 
+        if p.ewald_mode:
             psize = (p.qlen, p.tlen, p.plen)
-        else: 
+        else:
             psize = p.qlen
         predicted_best = np.zeros(psize)
         for i in range(p.nrestarts):
             ### each restart starts at the previous xyz_best
-            xyz_start = xyz_best  
+            xyz_start = xyz_best
             f_start = f_best
             f_xray_start = f_xray_best
             predicted_start = predicted_best
@@ -399,28 +431,30 @@ class Wrapper:
         )
         ### analysis values dictionary for final print out
         A = {
-        'f_xray_best' : '%10.8f' % f_xray_best,
-        'rmsd' : '%10.8f' % rmsd ,
-        'bond_distance' : '%10.8f' % bond_distance,
-        'angle_degrees' : '%10.8f' % angle_degrees,
-        'dihedral_degrees' : '%10.8f' % dihedral,
-        'energy_hf' : '%10.8f' % e_mol,
-        'mapd' : '%10.8f' % mapd,
+            "f_xray_best": "%10.8f" % f_xray_best,
+            "rmsd": "%10.8f" % rmsd,
+            "bond_distance": "%10.8f" % bond_distance,
+            "angle_degrees": "%10.8f" % angle_degrees,
+            "dihedral_degrees": "%10.8f" % dihedral,
+            "energy_hf": "%10.8f" % e_mol,
+            "mapd": "%10.8f" % mapd,
         }
         ### print analysis values
-        print('################')
-        print('Analysis values:')
-        print('################')
+        print("################")
+        print("Analysis values:")
+        print("################")
         pprint.pprint(A)
-        print('################')
+        print("################")
         # also write final xyz as "result.xyz"
         # m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
         # also write xyz_sampling_end
-        m.write_xyz("tmp_/xyz_sampling_end.xyz", "xyz_sampling_end", atomlist, xyz_sampling_end)
+        m.write_xyz(
+            "tmp_/xyz_sampling_end.xyz", "xyz_sampling_end", atomlist, xyz_sampling_end
+        )
         # predicted data
         if p.ewald_mode:
             if npy_save:
-                np.save('%s/predicted_function.npy' % p.results_dir, predicted_best)
+                np.save("%s/predicted_function.npy" % p.results_dir, predicted_best)
             predicted_best_r = x.spherical_rotavg(predicted_best, p.th, p.ph)
             predicted_best = predicted_best_r
         ### write predicted data to file
@@ -436,4 +470,3 @@ class Wrapper:
     #####################################
     #####################################
     #####################################
-

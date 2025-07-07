@@ -8,9 +8,10 @@ from rdkit.Geometry import Point3D
 from rdkit.Chem import rdchem
 from rdkit.Chem.rdchem import RWMol
 from rdkit.Chem import rdMolTransforms
+from openbabel import openbabel, pybel
 import numpy as np
 
-class Retreive_mm_params:
+class Openff_retreive_mm_params:
     def __init__(self):
         pass
 
@@ -19,7 +20,6 @@ class Retreive_mm_params:
             lines = f.readlines()
         num_atoms = int(lines[0])
         atom_lines = lines[2:2 + num_atoms]
-    
         symbols = []
         coords = []
         for line in atom_lines:
@@ -28,11 +28,21 @@ class Retreive_mm_params:
             coords.append([float(x) for x in parts[1:4]])
         return symbols, np.array(coords)
         
-    def xyz2sdf(self, xyz_file):
+    def openbabel_xyz2sdf(self, xyz_input_file, sdf_output_file):
+        '''Uses OpenBabel to guess bonds and create an SDF file from an XYZ file'''
+        mol = next(pybel.readfile("xyz", xyz_input_file))  # Read xyz file
+        # Step 2: Add hydrogens and generate 3D structure
+        #mol.addh()
+        #mol.make3D()  # Optionally improve geometry
+        # Step 3: (Optional) optimize geometry with UFF
+        #mol.localopt(forcefield="uff")
+        # Step 4: Write to SDF — this will now include correct bond orders
+        mol.write("sdf", sdf_output_file, overwrite=True)
+
+    def rdkit_xyz2sdf(self, xyz_input_file, sdf_output_file):
         '''Uses RDKit to guess bonds and create an SDF file from an XYZ file'''
         # Step 1: Read XYZ file manually
-        symbols, coords = self.read_xyz("start.xyz")
-
+        symbols, coords = self.read_xyz(xyz_input_file)
         # Step 2: Build RDKit molecule
         mol = RWMol()
         atom_indices = []
@@ -40,9 +50,7 @@ class Retreive_mm_params:
             atom = Chem.Atom(symbol)
             idx = mol.AddAtom(atom)
             atom_indices.append(idx)
-        
         # Step 3: Add bonds based on distance (very simple guess)
-        
         def guess_bonds(mol, coords, cutoff=1.8):
             ''' Guess bonds only by distance cutoff '''
             n = len(coords)
@@ -51,11 +59,8 @@ class Retreive_mm_params:
                     dist = np.linalg.norm(coords[i] - coords[j])
                     if dist < cutoff:
                         mol.AddBond(i, j, Chem.rdchem.BondType.SINGLE)
-        #guess_bonds(mol, coords)
-        
-        pt = rdchem.GetPeriodicTable()
-        
         def add_bonds_smart(mol, coords, scale=1.2):
+            pt = rdchem.GetPeriodicTable()
             n = len(coords)
             for i in range(n):
                 ri = pt.GetRcovalent(mol.GetAtomWithIdx(i).GetAtomicNum())
@@ -65,88 +70,67 @@ class Retreive_mm_params:
                     dist = np.linalg.norm(coords[i] - coords[j])
                     if dist <= max_bond:
                         mol.AddBond(i, j, Chem.rdchem.BondType.SINGLE)
-        
         # Then call:
+        #guess_bonds(mol, coords)
         add_bonds_smart(mol, coords)
-        
         # Step 4: Add 3D coordinates
         conf = Chem.Conformer(len(symbols))
         for i, pos in enumerate(coords):
             conf.SetAtomPosition(i, Point3D(*pos))
         mol.AddConformer(conf)
-        
         mol = mol.GetMol()  # Finalize edits
         Chem.SanitizeMol(mol)
-        
-        # Step 5: Optimize (optional, depends on coordinates)
-        #AllChem.UFFOptimizeMolecule(mol)
-        
         # Step 6: Save to SDF
-        writer = Chem.SDWriter("converted.sdf")
+        writer = Chem.SDWriter(sdf_output_file)
         writer.write(mol)
         writer.close()
         
 
-    def create_topology_from_sdf(self, sdf_file, ff_file="openff_unconstrained-2.0.0.offxml")
+    def create_topology_from_sdf(self, sdf_file, ff_file="openff_unconstrained-2.0.0.offxml", debug_bool=False):
         '''creates an OpenMM system (topology, forcefield) from the sdf_file'''
-
-        # Load molecule from sdf
-        molecule = Molecule.from_file(sdf_file)
-
-        # Optionally generate conformers if none present or to optimize
-        # molecule.generate_conformers()
-        
-        # Create topology from this molecule
-        topology = Topology.from_molecules([molecule])
-        
-        #print(f"Number of atoms: {topology.n_atoms}")
-        #print(f"Number of bonds: {topology.n_bonds}")
-        #print("Atoms:", [atom.symbol for atom in molecule.atoms])
-        
-        # Create topology from the molecule
-        topology = Topology.from_molecules([molecule])
-        
-        #print(f"Topology created with {topology.n_atoms} atoms and {topology.n_bonds} bonds.")
-        
+        # Step 1: Load the SDF with RDKit WITHOUT removing hydrogens
+        rdkit_mol = Chem.SDMolSupplier(sdf_file, removeHs=False)[0]
+        # Step 2: Convert to OpenFF Molecule, preserving explicit atoms
+        off_mol = Molecule.from_rdkit(rdkit_mol, allow_undefined_stereo=True, hydrogens_are_explicit=True)
+        # Step 3: Build the Topology
+        topology = Topology.from_molecules(off_mol)
+        if debug_bool: 
+            # Step 4: Check atom counts
+            print("RDKit atoms:", rdkit_mol.GetNumAtoms())
+            print("OpenFF molecule atoms:", off_mol.n_atoms)
+            print("OpenFF topology atoms:", topology.n_atoms)
         # Now add the forcfield
         ff = ForceField(ff_file)
         #ff = ForceField("openff-2.1.0.offxml")  # this one restrains C-H bonds and doesn't give me the bond strengths
-        
         # Create an OpenMM system
         openmm_system = ff.create_openmm_system(topology)
-        #print("OpenMM system created with", openmm_system.getNumParticles(), "particles.")
-        return openmm_system
+        print("OpenMM system created with", openmm_system.getNumParticles(), "particles.")
+        return topology, openmm_system
  
 
-    def retreive_lengths_k_values(self, openmm_system):
+    def retreive_lengths_k_values(self, topology, openmm_system):
         '''gets the bond-lengths and bond-strengths from the OpenMM system (topology, forcefield)'''
-       
         # Get the HarmonicBondForce from the OpenMM system
         bond_force = next(f for f in openmm_system.getForces() if isinstance(f, HarmonicBondForce))
-        
         # Get the list of atoms for type info
         atoms = list(topology.atoms)
-
         nbonds = bond_force.getNumBonds()
         k_kcal_per_ang2_array = np.zeros(nbonds)
         length_angstrom_array = np.zeros(nbonds)
-
+        atom1_idx_array = np.zeros(nbonds)
+        atom2_idx_array = np.zeros(nbonds)
         # Loop through the bonds in the OpenMM system
         for bond_index in range(nbonds):
             atom1_idx, atom2_idx, length, k = bond_force.getBondParameters(bond_index)
-        
-            #atom1 = atoms[atom1_idx]
-            #atom2 = atoms[atom2_idx]
-        
+            atom1_idx_array[bond_index] = atom1_idx
+            atom2_idx_array[bond_index] = atom2_idx
             length_angstrom = length.value_in_unit(unit.angstrom)
             length_angstrom_array[bond_index] = length_angstrom
             k_kcal_per_ang2 = k.value_in_unit(unit.kilocalories_per_mole / unit.angstrom**2)
             k_kcal_per_ang2_array[bond_index] = k_kcal_per_ang2
-        
             #print(f"Bond {bond_index}: {atom1.symbol}-{atom2.symbol} "
             #      f"({atom1_idx}-{atom2_idx})")
             #print(f"  Length: {length_angstrom:.3f} Å")
             #print(f"  Force constant: {k_kcal_per_ang2} kcal/(mol Å^2)")
-
-        return length_angstrom_array, k_kcal_per_ang2_array
+        return atom1_idx_array, atom2_idx_array, length_angstrom_array, k_kcal_per_ang2_array
         

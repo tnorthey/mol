@@ -3,43 +3,41 @@ from openff.toolkit.typing.engines.smirnoff import ForceField
 from openmm import HarmonicBondForce
 from openmm import HarmonicAngleForce
 from openmm import unit
+from rdkit import Chem
 import numpy as np
+import sys
 
+# Step 1: Load the SDF with RDKit WITHOUT removing hydrogens
+rdkit_mol = Chem.SDMolSupplier("converted.sdf", removeHs=False)[0]
 
-# Load molecule from sdf
-molecule = Molecule.from_file("converted.sdf")
+# Step 2: Convert to OpenFF Molecule, preserving explicit atoms
+off_mol = Molecule.from_rdkit(rdkit_mol, allow_undefined_stereo=True, hydrogens_are_explicit=True)
 
-# Optionally generate conformers if none present or to optimize
-# molecule.generate_conformers()
+# Step 3: Build the Topology
+top = Topology.from_molecules(off_mol)
 
-# Create topology from this molecule
-topology = Topology.from_molecules([molecule])
-
-print(f"Number of atoms: {topology.n_atoms}")
-print(f"Number of bonds: {topology.n_bonds}")
-print("Atoms:", [atom.symbol for atom in molecule.atoms])
-
-# Create topology from the molecule
-topology = Topology.from_molecules([molecule])
-
-print(f"Topology created with {topology.n_atoms} atoms and {topology.n_bonds} bonds.")
+# Step 4: Check atom counts
+print("RDKit atoms:", rdkit_mol.GetNumAtoms())
+print("OpenFF molecule atoms:", off_mol.n_atoms)
+print("OpenFF topology atoms:", top.n_atoms)
 
 # Now add the forcfield
 ff = ForceField("openff_unconstrained-2.0.0.offxml")
 #ff = ForceField("openff-2.1.0.offxml")  # this one restrains C-H bonds and doesn't give me the bond strengths
 
 # Create an OpenMM system
-openmm_system = ff.create_openmm_system(topology)
+openmm_system = ff.create_openmm_system(top)
 print("OpenMM system created with", openmm_system.getNumParticles(), "particles.")
 
 # Get the HarmonicBondForce from the OpenMM system
 bond_force = next(f for f in openmm_system.getForces() if isinstance(f, HarmonicBondForce))
 
 # Get the list of atoms for type info
-atoms = list(topology.atoms)
+atoms = list(top.atoms)
 print(atoms)
 
 nbonds = bond_force.getNumBonds()
+print(f"nbonds from bond_force: {nbonds}")
 k_kcal_per_ang2_array = np.zeros(nbonds)
 print(k_kcal_per_ang2_array)
 
@@ -71,7 +69,7 @@ if angles_bool:
     print(f"Number of angle terms: {angle_force.getNumAngles()}")
     
     # Get the atoms list for atom symbols
-    atoms = list(topology.atoms)
+    atoms = list(top.atoms)
 
     # Loop through all angles
     for angle_index in range(angle_force.getNumAngles()):

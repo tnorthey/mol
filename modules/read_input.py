@@ -34,6 +34,7 @@ class Input_to_params:
         self.results_dir = str(data["run_params"]["results_dir"])
         # options
         self.run_pyscf_modes_bool = bool(data["options"]["run_pyscf_modes_bool"])
+        self.pyscf_basis = str(data["options"]["pyscf_basis"])
         # xyz file params
         self.start_xyz_file = str(data["files"]["start_xyz_file"])
         self.reference_xyz_file = str(data["files"]["reference_xyz_file"])
