@@ -42,15 +42,28 @@ class Wrapper:
             print(
                 f"VALUE OVERWRITTEN BY COMMAND LINE ARG: 'start_xyz_file' = {start_xyz_file}"
             )
-        sdf_file = "out.sdf"
+        
+        # Remove path
+        filename = os.path.basename(start_xyz_file)
+        filename_without_ext = os.path.splitext(filename)[0]
+        sdf_file = f"{p.results_dir}/{filename_without_ext}.sdf"
         mm_params.openbabel_xyz2sdf(start_xyz_file, sdf_file)
         # Now read the SDF file...
         topology, openmm_system = mm_params.create_topology_from_sdf(sdf_file)
         # Get the bonds and params
         atom1_idx_array, atom2_idx_array, length_angstrom_array, k_kcal_per_ang2_array = (
-            mm_params.retreive_lengths_k_values(topology, openmm_system)
+            mm_params.retreive_bonds_k_values(topology, openmm_system)
         )
-        print(np.column_stack((atom1_idx_array, atom2_idx_array, length_angstrom_array, k_kcal_per_ang2_array)))
+        bond_param_array = np.column_stack((atom1_idx_array, atom2_idx_array, length_angstrom_array, k_kcal_per_ang2_array))
+        # Get the angles and params
+        atom1_idx_array, atom2_idx_array, atom3_idx_array, angle_deg_array, k_kcal_per_rad2_array = (
+            mm_params.retreive_angles_k_values(topology, openmm_system)
+        )
+        angle_param_array = np.column_stack((atom1_idx_array, atom2_idx_array, atom3_idx_array, angle_deg_array, k_kcal_per_rad2_array))
+        # add to parameter object
+        p.bond_param_array = bond_param_array
+        p.angle_param_array = angle_param_array
+        return p
 
     def run(
         self,
@@ -145,7 +158,7 @@ class Wrapper:
         natoms = xyz_start.shape[0]
         ###### mode displacements ######
         old_txtfile_method = False
-        if old_txtfile_method:
+        if old_txtfile_method:  # Don't use this unless needed or debugging. Use the PySCF mode option!
             displacements = sa.read_nm_displacements(p.nmfile, natoms)
         if p.run_pyscf_modes_bool:
             print("Running PySCF normal modes calculation...")

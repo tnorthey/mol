@@ -25,8 +25,8 @@ run_id = sys.argv[1] if len(sys.argv) > 1 else 0
 start_xyz_file = sys.argv[2] if len(sys.argv) > 2 else 0
 target_file = sys.argv[3] if len(sys.argv) > 3 else 0
 
-# Call the params function
-w.run_xyz_openff_mm_params(p, start_xyz_file)
+# Call the params function and add them to p object
+p = w.run_xyz_openff_mm_params(p, start_xyz_file)
 
 # Call the run function
 w.run(p, run_id, start_xyz_file, target_file)
