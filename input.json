@@ -5,21 +5,26 @@
     "molecule": "chd",
     "results_dir": "tmp_"
   },
+  "files": {
+    "start_xyz_file": "xyz/start.xyz",
+    "reference_xyz_file": "xyz/chd_reference.xyz",
+    "target_file": "xyz/target_traj094/target_20.xyz"
+  },
   "options": {
     "_comment": "Run normal modes calculation with PySCF.",
     "run_pyscf_modes_bool": 0,
     "pyscf_basis": "6-31g*",
     "verbose_bool": 0
   },
-  "files": {
-    "start_xyz_file": "xyz/start.xyz",
-    "reference_xyz_file": "xyz/chd_reference.xyz",
-    "target_file": "xyz/target_traj094/target_20.xyz"
+  "sampling": {
+    "_comment": "Sampling parameters",
+    "sampling_bool": 1,
+    "boltzmann_temperature": 300
   },
   "scattering_params": {
     "inelastic_bool": 1,
     "pcd_mode_bool": 0,
-    "ewald_mode_bool": 0,
+    "ewald_mode_bool": 1,
     "q": {
       "qmin": 1e-9,
       "qmax": 8,
@@ -47,11 +52,10 @@
     "sa_step_size": 0.012,
     "ga_step_size": 0.012,
     "nrestarts": 5,
-    "bonds_bool": 1,
-    "angles_bool": 1,
+    "bonds_bool": 0,
+    "angles_bool": 0,
     "tuning_ratio_target": 0.01,
     "c_tuning_initial": 0.01,
-    "sampling_ratio": 0.1,
     "non_h_modes_only_bool": 0,
     "hf_energy_bool": 0
   },

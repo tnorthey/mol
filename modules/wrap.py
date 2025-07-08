@@ -18,6 +18,7 @@ import modules.x as xray
 import modules.sa as sa
 import modules.pyscf_wrapper as pyscf_wrapper
 import modules.openff_retreive_mm_params as openff_retreive_mm_params
+import modules.sample as sample
 
 # create class objects
 m = mol.Xyz()
@@ -25,6 +26,7 @@ x = xray.Xray()
 sa = sa.Annealing()
 pyscfw = pyscf_wrapper.Pyscf_wrapper()
 mm_params = openff_retreive_mm_params.Openff_retreive_mm_params()
+sample = sample.Sample()
 
 
 #############################
@@ -42,7 +44,7 @@ class Wrapper:
             print(
                 f"VALUE OVERWRITTEN BY COMMAND LINE ARG: 'start_xyz_file' = {start_xyz_file}"
             )
-        
+
         # Remove path
         filename = os.path.basename(start_xyz_file)
         filename_without_ext = os.path.splitext(filename)[0]
@@ -51,30 +53,58 @@ class Wrapper:
         # Now read the SDF file...
         topology, openmm_system = mm_params.create_topology_from_sdf(sdf_file)
         # Get the bonds and params
-        atom1_idx_array, atom2_idx_array, length_angstrom_array, k_kcal_per_ang2_array = (
-            mm_params.retreive_bonds_k_values(topology, openmm_system)
+        (
+            atom1_idx_array,
+            atom2_idx_array,
+            length_angstrom_array,
+            k_kcal_per_ang2_array,
+        ) = mm_params.retreive_bonds_k_values(topology, openmm_system)
+        bond_param_array = np.column_stack(
+            (
+                atom1_idx_array,
+                atom2_idx_array,
+                length_angstrom_array,
+                k_kcal_per_ang2_array,
+            )
         )
-        bond_param_array = np.column_stack((atom1_idx_array, atom2_idx_array, length_angstrom_array, k_kcal_per_ang2_array))
         # Get the angles and params
-        atom1_idx_array, atom2_idx_array, atom3_idx_array, angle_deg_array, k_kcal_per_rad2_array = (
-            mm_params.retreive_angles_k_values(topology, openmm_system)
+        (
+            atom1_idx_array,
+            atom2_idx_array,
+            atom3_idx_array,
+            angle_deg_array,
+            k_kcal_per_rad2_array,
+        ) = mm_params.retreive_angles_k_values(topology, openmm_system)
+        angle_param_array = np.column_stack(
+            (
+                atom1_idx_array,
+                atom2_idx_array,
+                atom3_idx_array,
+                angle_deg_array,
+                k_kcal_per_rad2_array,
+            )
         )
-        angle_param_array = np.column_stack((atom1_idx_array, atom2_idx_array, atom3_idx_array, angle_deg_array, k_kcal_per_rad2_array))
         # mask out chosen ignored bonds
         mask = np.ones(len(bond_param_array), dtype=bool)
         for i, j in p.bond_ignore_array:
             # order ij or ji is equivalent
             # this works because python has the Truthy equality, i.e. float(1.0) == int(1) is True
-            remove = ((bond_param_array[:, 0] == i) & (bond_param_array[:, 1] == j)) | \
-                     ((bond_param_array[:, 0] == j) & (bond_param_array[:, 1] == i))
+            remove = ((bond_param_array[:, 0] == i) & (bond_param_array[:, 1] == j)) | (
+                (bond_param_array[:, 0] == j) & (bond_param_array[:, 1] == i)
+            )
             mask &= ~remove
         bond_param_array = bond_param_array[mask]
         # mask out chosen ignored angles
         mask = np.ones(len(angle_param_array), dtype=bool)
         for i, j, k in p.angle_ignore_array:
             # order ijk or kji is equivalent
-            remove = ((angle_param_array[:, 0] == i) & (angle_param_array[:, 1] == j)) & (angle_param_array[:, 2] == k) | \
-                     ((angle_param_array[:, 0] == k) & (angle_param_array[:, 1] == j)) & (angle_param_array[:, 2] == i)
+            remove = (
+                (angle_param_array[:, 0] == i) & (angle_param_array[:, 1] == j)
+            ) & (angle_param_array[:, 2] == k) | (
+                (angle_param_array[:, 0] == k) & (angle_param_array[:, 1] == j)
+            ) & (
+                angle_param_array[:, 2] == i
+            )
             mask &= ~remove
         angle_param_array = angle_param_array[mask]
         # add to parameter object
@@ -97,8 +127,9 @@ class Wrapper:
         ######### Inputs ############
         # p: the parameters object from read_input
         ### Optional inputs:
-        # start_xyz_file: the starting xyz file (if given it overrides the one in p)
         # run_id: the run ID (if given it overrides the one in p)
+        # start_xyz_file: the starting xyz file (if given it overrides the one in p)
+        # target_file: the target xyz or dat file (if given it overrides the one in p)
         #############################
 
         electron_mode = False
@@ -175,7 +206,9 @@ class Wrapper:
         natoms = xyz_start.shape[0]
         ###### mode displacements ######
         old_txtfile_method = False
-        if old_txtfile_method:  # Don't use this unless needed or debugging. Use the PySCF mode option!
+        if (
+            old_txtfile_method
+        ):  # Don't use this unless needed or debugging. Use the PySCF mode option!
             displacements = sa.read_nm_displacements(p.nmfile, natoms)
         if p.run_pyscf_modes_bool:
             print("Running PySCF normal modes calculation...")
@@ -184,15 +217,19 @@ class Wrapper:
             )
         else:
             # check if npy file exists and read from that or error
-            print("Reading normal modes from nm/modes.npy file.")
-            npy_file = "nm/modes.npy"
-            if os.path.exists(npy_file):
-                displacements = np.load(npy_file)
+            print(
+                "Reading normal modes from nm/modes.npy and frequencies from nm/frequencies_cm1.npy."
+            )
+            modes_npy_file = "nm/modes.npy"
+            freqs_npy_file = "nm/frequencies_cm1.npy"
+            if os.path.exists(modes_npy_file) and os.path.exists(freqs_npy_file):
+                displacements = np.load(modes_npy_file)
+                freqs_cm1 = np.load(freqs_npy_file)
             else:
                 print(
-                    'NO "nm/modes.npy" FILE EXISTS. CHANGE run_pyscf_modes TO True. EXITING...'
+                    'EITHER "nm/modes.npy" or "nm/frequencies_cm1.npy" DOES NOT EXIST. CHANGE run_pyscf_modes TO True. EXITING...'
                 )
-                sys.exit()
+                sys.exit()  # Exit program
         nmodes = displacements.shape[0]
 
         # hydrogen modes damped
@@ -234,7 +271,6 @@ class Wrapper:
 
             ### ADDITION OF RANDOM NOISE
             noise_file_bool = True
-            # p.noise_data_file = "noise/noise.dat"
             print(f"checking if {p.noise_data_file} exists...")
             if noise_file_bool and os.path.exists(p.noise_data_file):
                 # read the noise from a file
@@ -330,9 +366,26 @@ class Wrapper:
             predicted_start = predicted_best
             ###
             if i == 0:
-                sampling_ratio = p.sampling_ratio
-            else:
-                sampling_ratio = 0  # don't sample except for the first run
+                bond_param_array = p.bond_param_array
+                angle_param_array = p.angle_param_array
+                if p.sampling_bool:
+                    # Boltzmann sample only in first restart
+                    print("Boltzmann distribution sampling...")
+                    sampling_displacements = sample.generate_boltzmann_displacement(
+                        displacements, freqs_cm1, p.boltzmann_temperature
+                    )
+                    # add sampled displacements to xyz
+                    xyz_start += sampling_displacements
+                    # save xyz with boltzmann sampling
+                    m.write_xyz(
+                        "%s/%s_start_sampled.xyz" % (p.results_dir, run_id),
+                        "xyz_start + boltzmann displacements",
+                        atomlist,
+                        xyz_start,
+                    )
+            # else:
+            # redefine angles and bond-distances based on xyz_best
+
             if i < p.nrestarts - 1:  # annealing mode
                 print(f"Run {i}: SA")
                 nsteps = p.sa_nsteps
@@ -350,7 +403,6 @@ class Wrapper:
                 predicted_best,
                 xyz_best,
                 c_tuning_adjusted,
-                xyz_sampling_end,
             ) = sa.simulated_annealing_modes_ho(
                 xyz_start,
                 displacements,
@@ -364,8 +416,8 @@ class Wrapper:
                 atomic,
                 pre_molecular,
                 p.sa_step_size_array,
-                p.bond_param_array,
-                p.angle_param_array,
+                bond_param_array,
+                angle_param_array,
                 starting_temp,
                 nsteps,
                 p.inelastic,
@@ -378,7 +430,6 @@ class Wrapper:
                 predicted_start,
                 p.tuning_ratio_target,
                 p.c_tuning_initial,
-                sampling_ratio,
             )
             print("f_best (SA): %9.8f" % f_best)
             print("Updating tuning parameter...")
@@ -469,10 +520,6 @@ class Wrapper:
         print("################")
         # also write final xyz as "result.xyz"
         # m.write_xyz("tmp_/%s_result.xyz" % run_id, "result", atomlist, xyz_best)
-        # also write xyz_sampling_end
-        m.write_xyz(
-            "tmp_/xyz_sampling_end.xyz", "xyz_sampling_end", atomlist, xyz_sampling_end
-        )
         # predicted data
         if p.ewald_mode:
             if npy_save:

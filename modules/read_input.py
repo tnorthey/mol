@@ -36,6 +36,9 @@ class Input_to_params:
         self.run_pyscf_modes_bool = bool(data["options"]["run_pyscf_modes_bool"])
         self.pyscf_basis = str(data["options"]["pyscf_basis"])
         self.verbose_bool = bool(data["options"]["verbose_bool"])
+        # sampling options
+        self.sampling_bool = bool(data["sampling"]["sampling_bool"])
+        self.boltzmann_temperature = bool(data["sampling"]["boltzmann_temperature"])
         # xyz file params
         self.start_xyz_file = str(data["files"]["start_xyz_file"])
         self.reference_xyz_file = str(data["files"]["reference_xyz_file"])
@@ -79,9 +82,6 @@ class Input_to_params:
         )
         self.c_tuning_initial = float(
             data["simulated_annealing_params"]["c_tuning_initial"]
-        )
-        self.sampling_ratio = float(
-            data["simulated_annealing_params"]["sampling_ratio"]
         )
         self.non_h_modes_only = bool(
             data["simulated_annealing_params"]["non_h_modes_only_bool"]
