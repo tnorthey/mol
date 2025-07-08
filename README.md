@@ -25,7 +25,6 @@ Install required packages with conda-forge,
 conda install -c conda-forge pyscf numba rdkit openbabel openmm openff-toolkit
 ```
 
-
 ### run tests using pytest
 ```sh
 pytest -v

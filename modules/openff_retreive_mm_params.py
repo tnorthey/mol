@@ -101,6 +101,8 @@ class Openff_retreive_mm_params:
         off_mol = Molecule.from_rdkit(
             rdkit_mol, allow_undefined_stereo=True, hydrogens_are_explicit=True
         )
+        # Other step: avoid an error with partial charge assignment later (which isn't needed anyway)
+        off_mol.assign_partial_charges("formal_charge")  # uses integer formal charges
         # Step 3: Build the Topology
         topology = Topology.from_molecules(off_mol)
         if debug_bool:
