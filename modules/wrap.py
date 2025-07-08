@@ -49,7 +49,10 @@ class Wrapper:
         filename = os.path.basename(start_xyz_file)
         filename_without_ext = os.path.splitext(filename)[0]
         sdf_file = f"{p.results_dir}/{filename_without_ext}.sdf"
-        mm_params.openbabel_xyz2sdf(start_xyz_file, sdf_file)
+        # If SDF file exists, skip making it
+        if not os.path.exists(sdf_file):
+            print('Creating SDF file from XYZ...')
+            mm_params.openbabel_xyz2sdf(start_xyz_file, sdf_file)
         # Now read the SDF file...
         topology, openmm_system = mm_params.create_topology_from_sdf(sdf_file)
         # Get the bonds and params
@@ -94,6 +97,7 @@ class Wrapper:
             )
             mask &= ~remove
         bond_param_array = bond_param_array[mask]
+        print(bond_param_array)
         # mask out chosen ignored angles
         mask = np.ones(len(angle_param_array), dtype=bool)
         for i, j, k in p.angle_ignore_array:

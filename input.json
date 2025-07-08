@@ -24,7 +24,7 @@
   "scattering_params": {
     "inelastic_bool": 1,
     "pcd_mode_bool": 0,
-    "ewald_mode_bool": 1,
+    "ewald_mode_bool": 0,
     "q": {
       "qmin": 1e-9,
       "qmax": 8,
@@ -33,12 +33,12 @@
     "th": {
       "tmin": 0,
       "tmax": 1,
-      "tlen": 1
+      "tlen": 21
     },
     "ph": {
       "pmin": 0,
       "pmax": 2,
-      "plen": 1
+      "plen": 21
     },
     "noise": { 
       "noise_value": 0.0,
@@ -52,7 +52,7 @@
     "sa_step_size": 0.012,
     "ga_step_size": 0.012,
     "nrestarts": 5,
-    "bonds_bool": 0,
+    "bonds_bool": 1,
     "angles_bool": 0,
     "tuning_ratio_target": 0.01,
     "c_tuning_initial": 0.01,
@@ -68,9 +68,18 @@
       "hydrogen_mode_range": [28, 36],
       "sa_mode_range": [0, 36],
       "ga_mode_range": [0, 36],
+      "_comment_bond_ignore_array": 
+        [
+          [0, 5],
+          [0, 1],
+          [1, 2],
+          [2, 3],
+          [3, 4],
+          [4, 5] 
+        ],
       "bond_ignore_array": 
         [
-          [0, 5] 
+          [0, 5]
         ],
       "angle_ignore_array": 
         [
