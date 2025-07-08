@@ -102,7 +102,7 @@ class Openff_retreive_mm_params:
             rdkit_mol, allow_undefined_stereo=True, hydrogens_are_explicit=True
         )
         # Other step: avoid an error with partial charge assignment later (which isn't needed anyway)
-        off_mol.assign_partial_charges("zeros")  # uses integer formal charges
+        off_mol.assign_partial_charges("formal_charge")  # uses integer formal charges
         # Step 3: Build the Topology
         topology = Topology.from_molecules(off_mol)
         if debug_bool:
@@ -111,7 +111,7 @@ class Openff_retreive_mm_params:
             print("OpenFF molecule atoms:", off_mol.n_atoms)
             print("OpenFF topology atoms:", topology.n_atoms)
         # Now add the forcfield
-        ff = ForceField(ff_file)
+        ff = ForceField(ff_file, allow_nonintegral_charges=True)
         # ff = ForceField("openff-2.1.0.offxml")  # this one restrains C-H bonds and doesn't give me the bond strengths
         # Create an OpenMM system
         openmm_system = ff.create_openmm_system(topology)
