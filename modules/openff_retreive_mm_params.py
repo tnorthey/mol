@@ -111,7 +111,7 @@ class Openff_retreive_mm_params:
             print("OpenFF molecule atoms:", off_mol.n_atoms)
             print("OpenFF topology atoms:", topology.n_atoms)
         # Now add the forcfield
-        ff = ForceField(ff_file, allow_nonintegral_charges=True)
+        ff = ForceField(ff_file)
         # ff = ForceField("openff-2.1.0.offxml")  # this one restrains C-H bonds and doesn't give me the bond strengths
         # Create an OpenMM system
         openmm_system = ff.create_openmm_system(topology)
