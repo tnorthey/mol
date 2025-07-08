@@ -10,7 +10,9 @@ from rdkit.Chem import rdchem
 from rdkit.Chem.rdchem import RWMol
 from rdkit.Chem import rdMolTransforms
 from openbabel import openbabel, pybel
+from openff.toolkit.utils.toolkits import ToolkitRegistry, BuiltInToolkitWrapper
 import numpy as np
+
 
 
 class Openff_retreive_mm_params:
@@ -95,6 +97,9 @@ class Openff_retreive_mm_params:
         self, sdf_file, ff_file="openff_unconstrained-2.0.0.offxml", debug_bool=False
     ):
         """creates an OpenMM system (topology, forcefield) from the sdf_file"""
+        # 0: use toolkit registry
+        toolkit_registry = ToolkitRegistry()
+        toolkit_registry.register_toolkit(BuiltInToolkitWrapper())
         # Step 1: Load the SDF with RDKit WITHOUT removing hydrogens
         rdkit_mol = Chem.SDMolSupplier(sdf_file, removeHs=False)[0]
         # Step 2: Convert to OpenFF Molecule, preserving explicit atoms
@@ -102,7 +107,8 @@ class Openff_retreive_mm_params:
             rdkit_mol, allow_undefined_stereo=True, hydrogens_are_explicit=True
         )
         # Other step: avoid an error with partial charge assignment later (which isn't needed anyway)
-        off_mol.assign_partial_charges("formal_charge")  # uses integer formal charges
+
+        off_mol.assign_partial_charges("formal_charge", toolkit_registry=toolkit_registry)
         # Step 3: Build the Topology
         topology = Topology.from_molecules(off_mol)
         if debug_bool:
