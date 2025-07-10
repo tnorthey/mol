@@ -39,7 +39,8 @@ class Input_to_params:
         # sampling options
         self.sampling_bool = bool(data["sampling"]["sampling_bool"])
         self.boltzmann_temperature = bool(data["sampling"]["boltzmann_temperature"])
-        # xyz file params
+        # file params
+        self.forcefield_file = str(data["files"]["forcefield_file"])
         self.start_xyz_file = str(data["files"]["start_xyz_file"])
         self.start_sdf_file = str(data["files"]["start_sdf_file"])
         self.reference_xyz_file = str(data["files"]["reference_xyz_file"])

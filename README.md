@@ -22,7 +22,7 @@ conda activate myenv
 
 Install required packages with conda-forge,
 ```sh
-conda install -c conda-forge pyscf numba rdkit openbabel openmm openff-toolkit
+conda install -c conda-forge pyscf numba rdkit openbabel openmm openff-toolkit openff-forcefields
 ```
 
 ### run tests using pytest

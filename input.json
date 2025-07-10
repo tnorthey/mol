@@ -6,10 +6,11 @@
     "results_dir": "tmp_"
   },
   "files": {
+    "forcefield_file": "forcefields/openff_unconstrained-2.0.0.offxml",
     "start_xyz_file": "xyz/start.xyz",
     "start_sdf_file": "sdf/start.sdf",
     "reference_xyz_file": "xyz/chd_reference.xyz",
-    "target_file": "xyz/target_traj094/target_20.xyz"
+    "target_file": "xyz/target_traj099/target_10.xyz"
   },
   "options": {
     "_comment": "Run normal modes calculation with PySCF.",
@@ -28,8 +29,8 @@
     "ewald_mode_bool": 0,
     "q": {
       "qmin": 1e-9,
-      "qmax": 8,
-      "qlen": 81
+      "qmax": 4,
+      "qlen": 41
     },
     "th": {
       "tmin": 0,

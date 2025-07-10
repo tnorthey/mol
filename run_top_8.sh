@@ -3,7 +3,7 @@
 results_dir=$1
 previous_step_number=$2
 next_step_number=$3
-traj_number=094
+traj_number=099
 
 top8_xyz_list=$(ls -1 "$results_dir"/"$previous_step_number"_???.*.xyz | head -n 4)
 

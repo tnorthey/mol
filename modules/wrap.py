@@ -55,7 +55,7 @@ class Wrapper:
             print('Creating SDF file from XYZ...')
             mm_params.openbabel_xyz2sdf(start_xyz_file, sdf_file)
         # Now read the SDF file...
-        topology, openmm_system = mm_params.create_topology_from_sdf(sdf_file)
+        topology, openmm_system = mm_params.create_topology_from_sdf(sdf_file, p.forcefield_file)
         # Get the bonds and params
         (
             atom1_idx_array,

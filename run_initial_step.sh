@@ -1,9 +1,9 @@
 #!/bin/bash
 
-traj_number=094
+traj_number=099
 
 # run multiple times to make a larger initial pool
-for j in {0..1}
+for j in {0..4}
 do
     for i in {0..3}
     do
