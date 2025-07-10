@@ -3,9 +3,9 @@
 traj_number=094
 
 # run multiple times to make a larger initial pool
-for j in {0..0}
+for j in {0..1}
 do
-    for i in {0..0}
+    for i in {0..3}
     do
         python run.py 10 xyz/start.xyz xyz/target_traj"$traj_number"/target_10.xyz &
     done

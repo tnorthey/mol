@@ -48,7 +48,8 @@ class Wrapper:
         # Remove path
         filename = os.path.basename(start_xyz_file)
         filename_without_ext = os.path.splitext(filename)[0]
-        sdf_file = f"{p.results_dir}/{filename_without_ext}.sdf"
+        sdf_file = p.start_sdf_file
+        #sdf_file = f"{p.results_dir}/{filename_without_ext}.sdf"
         # If SDF file exists, skip making it
         if not os.path.exists(sdf_file):
             print('Creating SDF file from XYZ...')

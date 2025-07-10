@@ -227,11 +227,22 @@ class Annealing:
                 angular_contrib = 0
                 if angles_bool:
                     for i in range(nangles):
-                        theta = angle3(
-                            xyz_[angle_atom1_idx_arr[i], :],
-                            xyz_[angle_atom2_idx_arr[i], :],
-                            xyz_[angle_atom3_idx_arr[i], :],
-                        )
+                        #theta = angle3(
+                        #    xyz_[angle_atom1_idx_arr[i], :],
+                        #    xyz_[angle_atom2_idx_arr[i], :],
+                        #    xyz_[angle_atom3_idx_arr[i], :],
+                        #)
+
+                        """Return angle ABC (at B) given three positions A, B, C."""
+                        """Faster to not call outside function. And works better with numba."""
+                        BA = xyz_[angle_atom1_idx_arr[i], :] - xyz_[angle_atom2_idx_arr[i], :]
+                        BC = xyz_[angle_atom3_idx_arr[i], :] - xyz_[angle_atom2_idx_arr[i], :]
+                        norm_BA = np.sqrt(np.sum(BA * BA))
+                        norm_BC = np.sqrt(np.sum(BC * BC))
+                        cos_theta = np.dot(BA, BC) / (norm_BA * norm_BC)
+                        cos_theta = min(1.0, max(-1.0, cos_theta))  # stops cosine being out of range [-1, 1] due to slight numerical flucuations
+                        theta = np.arccos(cos_theta)
+
                         angular_contrib += (
                             k_theta_arr[i] * 0.5 * (theta - theta0_arr[i]) ** 2
                         )

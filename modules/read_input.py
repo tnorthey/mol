@@ -41,6 +41,7 @@ class Input_to_params:
         self.boltzmann_temperature = bool(data["sampling"]["boltzmann_temperature"])
         # xyz file params
         self.start_xyz_file = str(data["files"]["start_xyz_file"])
+        self.start_sdf_file = str(data["files"]["start_sdf_file"])
         self.reference_xyz_file = str(data["files"]["reference_xyz_file"])
         self.target_file = str(data["files"]["target_file"])
         # scattering_params params
