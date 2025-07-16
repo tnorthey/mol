@@ -48,6 +48,7 @@ class Input_to_params:
         # scattering_params params
         self.inelastic = bool(data["scattering_params"]["inelastic_bool"])
         self.pcd_mode = bool(data["scattering_params"]["pcd_mode_bool"])
+        self.excitation_factor = bool(data["scattering_params"]["excitation_factor"])
         self.ewald_mode = bool(data["scattering_params"]["ewald_mode_bool"])
         # radial q params
         self.qmin = float(data["scattering_params"]["q"]["qmin"])
@@ -71,6 +72,7 @@ class Input_to_params:
             data["simulated_annealing_params"]["sa_starting_temp"]
         )
         self.sa_nsteps = int(data["simulated_annealing_params"]["sa_nsteps"])
+        self.greedy_algorithm_bool = bool(data["simulated_annealing_params"]["greedy_algorithm_bool"])
         self.ga_nsteps = int(data["simulated_annealing_params"]["ga_nsteps"])
         self.sa_step_size = float(data["simulated_annealing_params"]["sa_step_size"])
         self.ga_step_size = float(data["simulated_annealing_params"]["ga_step_size"])

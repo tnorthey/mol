@@ -14,7 +14,6 @@ from openff.toolkit.utils.toolkits import ToolkitRegistry, BuiltInToolkitWrapper
 import numpy as np
 
 
-
 class Openff_retreive_mm_params:
     def __init__(self):
         pass

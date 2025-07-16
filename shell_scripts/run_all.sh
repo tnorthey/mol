@@ -1,23 +1,15 @@
 #!/bin/bash
 
-./go_1D_chd.sh xyz/start.xyz 20 "closed"
+results_dir=$1  # 1st command line arg
 
-./go_1D_chd.sh tmp_/20_1d_near.xyz 35 "open"
-./go_1D_chd.sh tmp_/35_1d_near.xyz 40 "open"
-./go_1D_chd.sh tmp_/40_1d_near.xyz 45 "open"
-./go_1D_chd.sh tmp_/45_1d_near.xyz 50 "open"
-./go_1D_chd.sh tmp_/50_1d_near.xyz 55 "open"
-./go_1D_chd.sh tmp_/55_1d_near.xyz 60 "open"
-./go_1D_chd.sh tmp_/60_1d_near.xyz 65 "open"
-./go_1D_chd.sh tmp_/65_1d_near.xyz 70 "open"
-./go_1D_chd.sh tmp_/70_1d_near.xyz 75 "open"
+list=(10 20 10 20 32 20 10 20 32 37 32 20 32 37 40 37 32 37 40 45 40 37 40 45 50 45 40 45 50 55 50 45 50 55 60 55 50 55 60 65 60 55 60 65 70 65 60 65 70 75 70 65 70 75 70 75 70 65 60 55 50 45 40 37 32 20 10 10 20 20 32 32 37 37 40 40 45 45 50 50 55 55 60 60 65 65 70 70 75 75 70 70 65 65 60 60 55 55 50 50 45 45 40 40 37 37 32 32 20 20 10)
+length=${#list[@]}
 
-./go_1D_chd.sh tmp_/75_1d_near.xyz 70 "open"
-./go_1D_chd.sh tmp_/70_1d_near.xyz 65 "open"
-./go_1D_chd.sh tmp_/65_1d_near.xyz 60 "open"
-./go_1D_chd.sh tmp_/60_1d_near.xyz 55 "open"
-./go_1D_chd.sh tmp_/55_1d_near.xyz 50 "open"
-./go_1D_chd.sh tmp_/50_1d_near.xyz 45 "open"
-./go_1D_chd.sh tmp_/45_1d_near.xyz 40 "open"
-./go_1D_chd.sh tmp_/40_1d_near.xyz 35 "open"
-./go_1D_chd.sh tmp_/35_1d_near.xyz 20 "open"
+#./run_initial_step.sh;
+#for (( i=1; i<$length; i++ ))
+
+for (( i=1; i<$length; i++ ))
+do
+    echo ${list[i-1]} ${list[i]}
+    ./run_top_8.sh $results_dir ${list[i-1]} ${list[i]}
+done

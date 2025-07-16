@@ -1,9 +1,9 @@
 #!/bin/bash
 
-results_dir=$1
-previous_step_number=$2
-next_step_number=$3
-traj_number=099
+previous_step_number=$1
+next_step_number=$2
+traj_number=$3
+results_dir="tmp_"
 
 top8_xyz_list=$(ls -1 "$results_dir"/"$previous_step_number"_???.*.xyz | head -n 4)
 

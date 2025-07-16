@@ -155,6 +155,13 @@ class Annealing:
                 xyz_ = xyz + summed_displacement  # save a temporary displaced xyz: xyz_
                 ##=#=#=# END DISPLACE XYZ RANDOMLY ALONG ALL DISPLACEMENT VECTORS #=#=#=##
 
+                ##=#=#=# TEMPERATURE ACCEPTANCE CRITERIA #=#=#=##
+                if temp > random():
+                    c += 1  # count acceptances
+                    xyz = xyz_  # update xyz to displaced xyz
+                    continue  # go to next step in for loop
+                ##=#=#=# END TEMPERATURE ACCEPTANCE CRITERIA #=#=#=##
+
                 ##=#=#=# IAM CALCULATION #=#=#=##
                 if (
                     ewald_mode
@@ -252,7 +259,7 @@ class Annealing:
                 ##=#=#=# END PCD & DSIGNAL CALCULATIONS #=#=#=##
 
                 ##=#=#=# ACCEPTANCE CRITERIA #=#=#=##
-                if f_ / f < 0.999 or temp > random():
+                if f_ / f < 0.999:
                     c += 1  # count acceptances
                     f, xyz = f_, xyz_  # update f and xyz
                     if f < f_best:

@@ -112,6 +112,7 @@ class Wrapper:
             )
             mask &= ~remove
         angle_param_array = angle_param_array[mask]
+        print(angle_param_array)
         # add to parameter object
         p.bond_param_array = bond_param_array
         p.angle_param_array = angle_param_array
@@ -310,7 +311,7 @@ class Wrapper:
         elif p.mode == "dat":
             # if target file is a data file, read as target_function
             target_function_ = np.loadtxt(target_file)
-            excitation_factor = 0.057
+            excitation_factor = p.excitation_factor
             target_function_ /= excitation_factor
             target_xyz = xyz_start  # added simply to run the rmsd analysis later compared to this
         else:
@@ -363,7 +364,7 @@ class Wrapper:
         else:
             psize = p.qlen
         predicted_best = np.zeros(psize)
-        for i in range(p.nrestarts):
+        for i in range(p.nrestarts + 1):
             ### each restart starts at the previous xyz_best
             xyz_start = xyz_best
             f_start = f_best
@@ -391,16 +392,19 @@ class Wrapper:
             # else:
             # redefine angles and bond-distances based on xyz_best
 
-            if i < p.nrestarts - 1:  # annealing mode
+            if i < p.nrestarts:  # annealing mode
                 print(f"Run {i}: SA")
                 nsteps = p.sa_nsteps
                 starting_temp = p.sa_starting_temp
                 mode_indices = p.sa_mode_indices
-            else:  # greedy algorithm mode
-                print(f"Run {i}: GA")
-                nsteps = p.ga_nsteps
-                starting_temp = 0
-                mode_indices = p.ga_mode_indices
+            else:   # handle the final greedy mode if chosen, or skip
+                if p.greedy_algorithm_bool:  # greedy algorithm mode
+                    print(f"Run {i}: GA")
+                    nsteps = p.ga_nsteps
+                    starting_temp = 0
+                    mode_indices = p.ga_mode_indices
+                else:
+                    continue
             # Run simulated annealing
             (
                 f_best,

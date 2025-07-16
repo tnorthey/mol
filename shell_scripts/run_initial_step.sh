@@ -1,6 +1,6 @@
 #!/bin/bash
 
-traj_number=099
+traj_number=$1  # 090, 094, etc.
 
 # run multiple times to make a larger initial pool
 for j in {0..4}
