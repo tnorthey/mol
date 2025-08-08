@@ -1,7 +1,7 @@
 {
   "mode": "dat",
   "run_params": {
-    "run_id": "nmm_1d_test",
+    "run_id": "nmm_1d",
     "molecule": "nmm",
     "results_dir": "tmp_"
   },
@@ -10,7 +10,7 @@
     "start_xyz_file": "xyz/nmm_start.xyz",
     "start_sdf_file": "sdf/start.sdf",
     "reference_xyz_file": "xyz/nmm_opt.xyz",
-    "target_file": "data_/nmm/target_29_end_avg.dat"
+    "target_file": "data_/nmm/target_20.dat"
   },
   "options": {
     "_comment": "Run normal modes calculation with PySCF.",
@@ -21,7 +21,7 @@
   "sampling": {
     "_comment": "Sampling parameters",
     "sampling_bool": 1,
-    "boltzmann_temperature": 300
+    "boltzmann_temperature": 1000
   },
   "scattering_params": {
     "inelastic_bool": 1,
@@ -52,16 +52,14 @@
     "sa_starting_temp": 1,
     "sa_nsteps": 4000,
     "greedy_algorithm_bool": 1,
-    "ga_nsteps": 20000,
+    "ga_nsteps": 4000,
     "sa_step_size": 0.012,
     "ga_step_size": 0.012,
-    "nrestarts": 4,
-    "ntotalruns": 25,
+    "nrestarts": 2,
     "bonds_bool": 1,
     "angles_bool": 1,
-    "torsions_bool": 1,
-    "tuning_ratio_target": 0.1,
-    "c_tuning_initial": 0.1,
+    "tuning_ratio_target": 0.001,
+    "c_tuning_initial": 0.001,
     "non_h_modes_only_bool": 0,
     "hf_energy_bool": 0
   },
@@ -111,26 +109,16 @@
       "bond_ignore_array": 
         [],
       "angle_ignore_array": 
-        [],
-      "_angle_ignore_array": 
         [
           [6, 3, 1],
-          [6, 3, 5]
-        ],
-      "torsion_ignore_array": 
-        [
-          [3, 1, 0, 12],
-          [0, 1, 3, 5],
-          [0, 1, 3, 6],
-          [0, 12, 10, 5],
-          [0, 12, 10, 11],
-          [1, 0, 12, 10]
+          [6, 3, 5],
+          [0, 1, 3],
+          [10, 5, 3]
         ],
       "rmsd_indices": [3, 5, 6, 10, 12, 0, 1],
       "bond_indices": [6, 12],
       "angle_indices": [6, 3, 12],
-      "dihedral_indices": [6, 3, 5, 10],
-      "torsional_indices": [0, 1, 5, 10]
+      "dihedral_indices": [6, 3, 10, 5]
     }
   }
 }

@@ -199,6 +199,28 @@ class Xyz:
         y = np.dot(np.cross(b1, v), w)
         return np.degrees(np.arctan2(y, x))
 
+    def directional_angle_3d(self, A, B, C, normal):
+        A, B, C, normal = map(np.array, (A, B, C, normal))
+        v1 = A - B
+        v2 = C - B
+    
+        # Normalize input vectors
+        v1 /= np.linalg.norm(v1)
+        v2 /= np.linalg.norm(v2)
+    
+        # Angle (unsigned)
+        dot = np.clip(np.dot(v1, v2), -1.0, 1.0)
+        angle = np.arccos(dot)
+    
+        # Sign of angle via direction of cross product
+        cross = np.cross(v1, v2)
+        sign = np.sign(np.dot(cross, normal))
+    
+        # Apply sign
+        signed_angle = np.degrees(angle) * sign % 360
+        return signed_angle
+
+
     def angle_2p_3d(self, a, b, c):
         """angle between two points in 3D"""
         v1 = np.array([a[0] - b[0], a[1] - b[1], a[2] - b[2]])

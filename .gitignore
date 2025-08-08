@@ -1,4 +1,5 @@
 # custom
+run_*.sh
 *.png
 ccv_start_results_*
 ccv_start_initial_results_*

@@ -4,6 +4,7 @@ import json
 import sys
 import pprint
 
+
 ######
 class Input_to_params:
     """read parameters for simulated annealing"""
@@ -48,20 +49,20 @@ class Input_to_params:
         # scattering_params params
         self.inelastic = bool(data["scattering_params"]["inelastic_bool"])
         self.pcd_mode = bool(data["scattering_params"]["pcd_mode_bool"])
-        self.excitation_factor = bool(data["scattering_params"]["excitation_factor"])
+        self.excitation_factor = float(data["scattering_params"]["excitation_factor"])
         self.ewald_mode = bool(data["scattering_params"]["ewald_mode_bool"])
         # radial q params
         self.qmin = float(data["scattering_params"]["q"]["qmin"])
         self.qmax = float(data["scattering_params"]["q"]["qmax"])
-        self.qlen =   int(data["scattering_params"]["q"]["qlen"])
+        self.qlen = int(data["scattering_params"]["q"]["qlen"])
         # theta params
         self.tmin = float(data["scattering_params"]["th"]["tmin"])
         self.tmax = float(data["scattering_params"]["th"]["tmax"])
-        self.tlen =   int(data["scattering_params"]["th"]["tlen"])
+        self.tlen = int(data["scattering_params"]["th"]["tlen"])
         # phi params
         self.pmin = float(data["scattering_params"]["ph"]["pmin"])
         self.pmax = float(data["scattering_params"]["ph"]["pmax"])
-        self.plen =   int(data["scattering_params"]["ph"]["plen"])
+        self.plen = int(data["scattering_params"]["ph"]["plen"])
         # noise params
         self.noise_value = float(data["scattering_params"]["noise"]["noise_value"])
         self.noise_data_file = str(
@@ -72,15 +73,21 @@ class Input_to_params:
             data["simulated_annealing_params"]["sa_starting_temp"]
         )
         self.sa_nsteps = int(data["simulated_annealing_params"]["sa_nsteps"])
-        self.greedy_algorithm_bool = bool(data["simulated_annealing_params"]["greedy_algorithm_bool"])
+        self.greedy_algorithm_bool = bool(
+            data["simulated_annealing_params"]["greedy_algorithm_bool"]
+        )
         self.ga_nsteps = int(data["simulated_annealing_params"]["ga_nsteps"])
         self.sa_step_size = float(data["simulated_annealing_params"]["sa_step_size"])
         self.ga_step_size = float(data["simulated_annealing_params"]["ga_step_size"])
+        self.ntotalruns = int(
+            data["simulated_annealing_params"]["ntotalruns"]
+        )  # repeat everything from the start n_totalruns times; this is here for efficiency, equivalent to setting this to 1 and rerunning the program many times
         self.nrestarts = int(
             data["simulated_annealing_params"]["nrestarts"]
         )  # it restarts from the xyz_best of the previous restart
         self.bonds_bool = bool(data["simulated_annealing_params"]["bonds_bool"])
         self.angles_bool = bool(data["simulated_annealing_params"]["angles_bool"])
+        self.torsions_bool = bool(data["simulated_annealing_params"]["torsions_bool"])
         self.tuning_ratio_target = float(
             data["simulated_annealing_params"]["tuning_ratio_target"]
         )
@@ -108,15 +115,22 @@ class Input_to_params:
         self.ga_mode_range = np.array(
             data["molecule_params"][molecule]["ga_mode_range"]
         )
-        self.bond_ignore_array = np.array(data["molecule_params"][molecule]["bond_ignore_array"])
-        self.angle_ignore_array = np.array(data["molecule_params"][molecule]["angle_ignore_array"])
+        self.bond_ignore_array = np.array(
+            data["molecule_params"][molecule]["bond_ignore_array"]
+        )
+        self.angle_ignore_array = np.array(
+            data["molecule_params"][molecule]["angle_ignore_array"]
+        )
+        self.torsion_ignore_array = np.array(
+            data["molecule_params"][molecule]["torsion_ignore_array"]
+        )
         self.rmsd_indices = np.array(data["molecule_params"][molecule]["rmsd_indices"])
         self.bond_indices = np.array(data["molecule_params"][molecule]["bond_indices"])
         self.angle_indices = np.array(
             data["molecule_params"][molecule]["angle_indices"]
         )
-        self.dihedral_indices = np.array(
-            data["molecule_params"][molecule]["dihedral_indices"]
+        self.torsional_indices = np.array(
+            data["molecule_params"][molecule]["torsional_indices"]
         )
 
         ### Define other variables
@@ -132,7 +146,7 @@ class Input_to_params:
         )
         self.sa_mode_indices = np.arange(self.sa_mode_range[0], self.sa_mode_range[1])
         self.ga_mode_indices = np.arange(self.ga_mode_range[0], self.ga_mode_range[1])
-        
+
         ### print out all attributes
         print("")
         print("##################################################")
@@ -149,4 +163,3 @@ class Input_to_params:
         print("##################################################")
 
         ###################################
-

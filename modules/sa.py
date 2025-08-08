@@ -40,13 +40,15 @@ class Annealing:
         step_size_array: NDArray,
         bond_param_array: NDArray,
         angle_param_array: NDArray,
+        torsion_param_array: NDArray,
         starting_temp=0.2,
         nsteps=10000,
         inelastic=True,
         pcd_mode=False,
         ewald_mode=False,
         bonds_bool=True,
-        angles_bool=False,
+        angles_bool=True,
+        torsions_bool=True,
         f_start=1e10,
         f_xray_start=1e10,
         predicted_start=0,
@@ -68,6 +70,14 @@ class Annealing:
         theta0_arr = angle_param_array[:, 3]
         k_theta_arr = angle_param_array[:, 4]
         nangles = len(theta0_arr)
+        # Torsions
+        torsion_atom1_idx_arr = torsion_param_array[:, 0].astype(int)
+        torsion_atom2_idx_arr = torsion_param_array[:, 1].astype(int)
+        torsion_atom3_idx_arr = torsion_param_array[:, 2].astype(int)
+        torsion_atom4_idx_arr = torsion_param_array[:, 3].astype(int)
+        delta0_arr = torsion_param_array[:, 4]
+        k_delta_arr = torsion_param_array[:, 5]
+        ntorsions = len(delta0_arr)
         ##=#=#=# DEFINITIONS #=#=#=##
         natoms = starting_xyz.shape[0]  # number of atoms
         c_tuning = c_tuning_initial  # initialise C_tuning
@@ -134,7 +144,12 @@ class Annealing:
             f = 1e9  # high initial value so 1st step will be accepted
             c = 0  # count accepted steps
             mdisp = displacements
-            total_bonding_contrib, total_angular_contrib, total_xray_contrib = 0, 0, 0
+            (
+                total_bonding_contrib,
+                total_angular_contrib,
+                total_torsional_contrib,
+                total_xray_contrib,
+            ) = (0, 0, 0, 0)
             ##=#=#=# END INITIATE LOOP VARIABLES #=#=#
 
             for i in range(nsteps):
@@ -167,9 +182,7 @@ class Annealing:
                     ewald_mode
                 ):  # x-ray signal in Ewald sphere, q = (q_radial, q_theta, q_phi)
                     # molecular
-                    molecular = np.zeros(
-                        (qlen, tlen, plen)
-                    )  # total molecular factor
+                    molecular = np.zeros((qlen, tlen, plen))  # total molecular factor
                     k = 0  # begin counter
                     for n in range(natoms - 1):
                         for m in range(n + 1, natoms):  # j > i
@@ -188,9 +201,7 @@ class Annealing:
                     for ii in range(natoms):
                         for jj in range(ii + 1, natoms):  # j > i
                             qdij = qvector * LA.norm(xyz_[ii, :] - xyz_[jj, :])
-                            molecular += (
-                                2 * pre_molecular[k, :] * np.sin(qdij) / qdij
-                            )
+                            molecular += 2 * pre_molecular[k, :] * np.sin(qdij) / qdij
                             k += 1
                 iam_ = atomic_total + molecular + compton
                 ##=#=#=# END IAM CALCULATION #=#=#=##
@@ -234,28 +245,73 @@ class Annealing:
                 angular_contrib = 0
                 if angles_bool:
                     for i in range(nangles):
-                        #theta = angle3(
+                        # theta = angle3(
                         #    xyz_[angle_atom1_idx_arr[i], :],
                         #    xyz_[angle_atom2_idx_arr[i], :],
                         #    xyz_[angle_atom3_idx_arr[i], :],
-                        #)
+                        # )
 
                         """Return angle ABC (at B) given three positions A, B, C."""
                         """Faster to not call outside function. And works better with numba."""
-                        BA = xyz_[angle_atom1_idx_arr[i], :] - xyz_[angle_atom2_idx_arr[i], :]
-                        BC = xyz_[angle_atom3_idx_arr[i], :] - xyz_[angle_atom2_idx_arr[i], :]
+                        BA = (
+                            xyz_[angle_atom1_idx_arr[i], :]
+                            - xyz_[angle_atom2_idx_arr[i], :]
+                        )
+                        BC = (
+                            xyz_[angle_atom3_idx_arr[i], :]
+                            - xyz_[angle_atom2_idx_arr[i], :]
+                        )
                         norm_BA = np.sqrt(np.sum(BA * BA))
                         norm_BC = np.sqrt(np.sum(BC * BC))
                         cos_theta = np.dot(BA, BC) / (norm_BA * norm_BC)
-                        cos_theta = min(1.0, max(-1.0, cos_theta))  # stops cosine being out of range [-1, 1] due to slight numerical flucuations
+                        cos_theta = min(
+                            1.0, max(-1.0, cos_theta)
+                        )  # stops cosine being out of range [-1, 1] due to slight numerical flucuations
                         theta = np.arccos(cos_theta)
 
                         angular_contrib += (
                             k_theta_arr[i] * 0.5 * (theta - theta0_arr[i]) ** 2
                         )
 
+                torsion_contrib = 0
+                if torsions_bool:
+                    for i in range(ntorsions):
+                        # calculate the dihedrals
+                        p0 = xyz_[torsion_atom1_idx_arr[i], :]
+                        p1 = xyz_[torsion_atom2_idx_arr[i], :]
+                        p2 = xyz_[torsion_atom3_idx_arr[i], :]
+                        p3 = xyz_[torsion_atom4_idx_arr[i], :]
+
+                        b0 = -1.0 * (p1 - p0)
+                        b1 = p2 - p1
+                        b2 = p3 - p2
+
+                        # normalize b1 so that it does not influence magnitude of vector
+                        # projections that come next
+                        b1 /= np.linalg.norm(b1)
+
+                        # vector projections
+                        # v = projection of b0 onto plane perpendicular to b1
+                        #   = b0 minus component that aligns with b1
+                        # w = projection of b2 onto plane perpendicular to b1
+                        #   = b2 minus component that aligns with b1
+                        v = b0 - np.dot(b0, b1) * b1
+                        w = b2 - np.dot(b2, b1) * b1
+
+                        # angle between v and w in a plane is the torsion angle
+                        # v and w may not be normalized but that's fine since tan is y/x
+                        x = np.dot(v, w)
+                        y = np.dot(np.cross(b1, v), w)
+                        torsion = np.arctan2(y, x)
+
+                        torsion_contrib += k_delta_arr[i] * (
+                            1 + np.cos(torsion - delta0_arr[i])
+                        )
+
                 ### combine x-ray and bonding, angular contributions
-                f_ = xray_contrib + c_tuning * (bonding_contrib + angular_contrib)
+                f_ = xray_contrib + c_tuning * (
+                    bonding_contrib + angular_contrib + torsion_contrib
+                )
                 ##=#=#=# END PCD & DSIGNAL CALCULATIONS #=#=#=##
 
                 ##=#=#=# ACCEPTANCE CRITERIA #=#=#=##
@@ -272,22 +328,27 @@ class Annealing:
                         f_xray_best = xray_contrib
                     total_bonding_contrib += c_tuning * bonding_contrib
                     total_angular_contrib += c_tuning * angular_contrib
+                    total_torsional_contrib += c_tuning * torsion_contrib
                     total_xray_contrib += xray_contrib
                 ##=#=#=# END ACCEPTANCE CRITERIA #=#=#=##
             # print ratio of contributions to f
             total_contrib = (
-                total_xray_contrib + total_bonding_contrib + total_angular_contrib
+                total_xray_contrib
+                + total_bonding_contrib
+                + total_angular_contrib
+                + total_torsional_contrib
             )
             if total_contrib > 0:
                 xray_ratio = total_xray_contrib / total_contrib
                 bonding_ratio = total_bonding_contrib / total_contrib
                 angular_ratio = total_angular_contrib / total_contrib
+                torsional_ratio = total_torsional_contrib / total_contrib
                 # readjust c_tuning
                 c_tuning_adjusted = tuning_ratio_target * (
                     1 - total_xray_contrib / total_contrib
                 )
             else:
-                xray_ratio, bonding_ratio, angular_ratio = 0, 0, 0
+                xray_ratio, bonding_ratio, angular_ratio, torsional_ratio = 0, 0, 0, 0
             return (
                 f_best,
                 f_xray_best,
@@ -296,6 +357,7 @@ class Annealing:
                 xray_ratio,
                 bonding_ratio,
                 angular_ratio,
+                torsional_ratio,
                 c,
                 c_tuning_adjusted,
             )
@@ -312,6 +374,7 @@ class Annealing:
             xray_ratio,
             bonding_ratio,
             angular_ratio,
+            torsional_ratio,
             c,
             c_tuning_adjusted,
         ) = run_annealing(nsteps)
@@ -320,6 +383,7 @@ class Annealing:
         print("xray contrib ratio: %f" % xray_ratio)
         print("bonding contrib ratio: %f" % bonding_ratio)
         print("angular contrib ratio: %f" % angular_ratio)
+        print("torsional contrib ratio: %f" % torsional_ratio)
         print("Accepted / Total steps: %i/%i" % (c, nsteps))
         # end function
         return (
