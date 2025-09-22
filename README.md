@@ -1,10 +1,3 @@
-````{verbatim} 
- ___ ___ _______ _______ _______ _______ _____   
-|   |   |     __|   _   |   |   |       |     |_ 
-|-     -|__     |       |       |   -   |       |
-|___|___|_______|___|___|__|_|__|_______|_______|
-
-````
 # Simulated Annealing for Molecular Geometry Retrieval
 
 This repository contains the Python implementation of the **simulated annealing (SA) framework** described in:
