@@ -90,7 +90,7 @@ class Wrapper:
             atom1_idx_array,
             atom2_idx_array,
             atom3_idx_array,
-            angle_deg_array,
+            angle_rad_array,
             k_kcal_per_rad2_array,
         ) = mm_params.retreive_angles_k_values(topology, openmm_system)
         angle_param_array = np.column_stack(
@@ -98,7 +98,7 @@ class Wrapper:
                 atom1_idx_array,
                 atom2_idx_array,
                 atom3_idx_array,
-                angle_deg_array,
+                angle_rad_array,
                 k_kcal_per_rad2_array,
             )
         )
@@ -516,10 +516,10 @@ class Wrapper:
             p2 = np.array(xyz_best[p.angle_indices[2], :])
             angle_degrees = m.directional_angle_3d(p0, p1, p2, [0, 1, 0])
             # dihedral of interest
-            p0 = np.array(xyz_best[p.torsional_indices[0], :])
-            p1 = np.array(xyz_best[p.torsional_indices[1], :])
-            p2 = np.array(xyz_best[p.torsional_indices[2], :])
-            p3 = np.array(xyz_best[p.torsional_indices[3], :])
+            p0 = np.array(xyz_best[p.dihedral_indices[0], :])
+            p1 = np.array(xyz_best[p.dihedral_indices[1], :])
+            p2 = np.array(xyz_best[p.dihedral_indices[2], :])
+            p3 = np.array(xyz_best[p.dihedral_indices[3], :])
             dihedral = m.new_dihedral(np.array([p0, p1, p2, p3]))
             rmsd_target_bool = True
             if rmsd_target_bool:

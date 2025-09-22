@@ -129,8 +129,8 @@ class Input_to_params:
         self.angle_indices = np.array(
             data["molecule_params"][molecule]["angle_indices"]
         )
-        self.torsional_indices = np.array(
-            data["molecule_params"][molecule]["torsional_indices"]
+        self.dihedral_indices = np.array(
+            data["molecule_params"][molecule]["dihedral_indices"]
         )
 
         ### Define other variables

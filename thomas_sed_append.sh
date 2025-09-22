@@ -1,8 +1,9 @@
 #!/bin/bash
 
-dir="for_paper_nmm_experiment_fitting/tmp_0p1_allbondsangles"
+dir="for_paper_nmm_experiment_fitting/tmp_0p1_allbondsanglestorsions"
+dir="tmp_"
 
-for j in {20..48}
+for j in {18..21}
 do
     for i in "$dir"/"$j"_0*.xyz
     do
@@ -20,7 +21,6 @@ do
       }
       { print }
     ' "$i" > tmp && mv tmp "$i"
-
 
     done
 done

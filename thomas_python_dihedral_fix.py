@@ -14,7 +14,8 @@ _, _, atomlist, xyz = m.read_xyz(xyz_file)
 #print(xyz)
 
 #dihedral_indices = [6, 3, 5, 10]
-dihedral_indices = [5, 10, 0, 1]
+dihedral_indices = [6, 3, 1, 0]
+#dihedral_indices = [5, 10, 0, 1]
 
 # dihedral of interest
 p0 = np.array(xyz[dihedral_indices[0], :])
