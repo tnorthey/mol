@@ -22,14 +22,14 @@ We recommend using **[Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 
 2. Install the required packages from `conda-forge`:
    ```sh
-   conda install -c conda-forge pyscf numba rdkit openbabel openmm openff-toolkit openff-forcefields
+   conda install -c conda-forge pyscf numba rdkit openbabel openmm openff-toolkit openff-forcefields pytest
    ```
 
 This ensures reproducibility and avoids version conflicts across platforms.
 
 ---
 
-## 🧪 Running Tests
+## 🧪 Running Tests (Under construction...)
 
 To verify the installation:
 ```sh
