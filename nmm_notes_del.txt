@@ -1,0 +1,18 @@
+
+
+There is a ring-buckling effect in the solution set.
+We take the average of both torsional angles from each side of the ring to average it out. They are phi_C5-N-C4-C3 and phi_C5-N-C2-C1. 
+We believe that the solution set here is more expansive/robust than previous work [Haiwan paper] since it works by finding structures which fit the data directly rather than using a large pool of sampled structures about a central point. We say we have found additional possibilities for the structure that the wavepacket undergoes.
+
+The figure shows the torsion angle phi_C5-N-C4-C3 from [Haiwan paper] and compares it to the ring-methyl angle of S_10% (subset of solution space representing the lower decile of dsignal in S) and S_50% (subset of solution space below the median value of dsignal). Taking these subsets removes outliers, and abides the assumption that a better fit implies a better structure (Discuss earlier!). 
+
+Overall agreement is found with the previous experimental work fitting [Haiwan]. A slight deviation is that the methyl bend (i.e. going from planar to the chair structure) occurs slightly faster in S_10%, although structures representing the agreeing slower rate of bending are present in S_50%. This could be explained by the underlying averaging done in the 1M structure method whereby a Gaussian fit is performed over the whole Wigner distribution, and in fact, even bad fits to the data shift the centre of the Gaussian (where the representative structure is chosen from). This could introduce a slight inaccuracy which is not present in the simulated annealing method. (Albeit this is speculative)...
+
+They found the excitation factor to be $\gamma = 5.7\%$.
+
+The NMM data is presented as percentage difference data $\%\Delta I(q, t)$, where the reference signal $I_\mathrm{off}(q)$ is the scattering pattern of the ground-state unexcited molecules. 
+
+The data is binned in time intervals of 0.05 ps, and we have data from $-1$ to $4$ ps, with $0$ ps being the time-zero of the experiment when the pump laser is initiated. The average of data from $-1$ to $-0.15$ ps was taken to improve signal-to-noise for the $t < 0$ data, then this averaged data was used for fitting. The $t > -0.15$ ps data has some signal appearing, implying the laser has been initiated here and the molecule is undergoing structural change. We assume the molecule should not move much from its starting position, however this fitting was performed to obtain a set of structures for $t < -0.15$ ps representing the starting structure based purely on the data. \TN{Although the t<0 data is noisy, and has up to 2\% difference at some points (even after averaging), so the model will move the structure... Test anyway? Ideally, I should fit to the ground state signal directly, but I don't have the raw data.} 
+
+All time points from $-0.1$ to $0.85$ ps (i.e. 38 time points) were fitted individually 200 times each, all starting from the NMM optimised ground-state geometry. Then, as before, the subset of points $\mathcal{S}'$ was taken to remove outliers.
+

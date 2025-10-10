@@ -1,16 +1,16 @@
 {
-  "mode": "dat",
+  "mode": "xyz",
   "run_params": {
-    "run_id": "nmm_1d_test2",
-    "molecule": "nmm",
+    "run_id": "chd_test",
+    "molecule": "chd",
     "results_dir": "tmp_"
   },
   "files": {
     "forcefield_file": "forcefields/openff_unconstrained-2.0.0.offxml",
-    "start_xyz_file": "xyz/nmm_start.xyz",
+    "start_xyz_file": "xyz/start.xyz",
     "start_sdf_file": "sdf/start.sdf",
-    "reference_xyz_file": "xyz/nmm_opt.xyz",
-    "target_file": "data_/nmm/target_29_end_avg.dat"
+    "reference_xyz_file": "xyz/chd_reference.xyz",
+    "target_file": "xyz/start.xyz"
   },
   "options": {
     "_comment": "Run normal modes calculation with PySCF.",
@@ -20,28 +20,28 @@
   },
   "sampling": {
     "_comment": "Sampling parameters",
-    "sampling_bool": 1,
+    "sampling_bool": 0,
     "boltzmann_temperature": 300
   },
   "scattering_params": {
     "inelastic_bool": 1,
-    "pcd_mode_bool": 1,
+    "pcd_mode_bool": 0,
     "excitation_factor" : 0.057,
     "ewald_mode_bool": 0,
     "q": {
-      "qmin": 0.3323,
-      "qmax": 4.3727,
-      "qlen": 39
+      "qmin": 1e-9,
+      "qmax": 4,
+      "qlen": 41
     },
     "th": {
       "tmin": 0,
       "tmax": 1,
-      "tlen": 21
+      "tlen": 41
     },
     "ph": {
       "pmin": 0,
       "pmax": 2,
-      "plen": 21
+      "plen": 41
     },
     "noise": { 
       "noise_value": 0.0,
@@ -50,13 +50,13 @@
   },
   "simulated_annealing_params": {
     "sa_starting_temp": 1,
-    "sa_nsteps": 4000,
+    "sa_nsteps": 20,
     "greedy_algorithm_bool": 1,
-    "ga_nsteps": 20000,
+    "ga_nsteps": 20,
     "sa_step_size": 0.012,
     "ga_step_size": 0.012,
-    "nrestarts": 4,
-    "ntotalruns": 25,
+    "nrestarts": 1,
+    "ntotalruns": 1,
     "bonds_bool": 1,
     "angles_bool": 1,
     "torsions_bool": 1,
@@ -95,6 +95,9 @@
           [5, 0, 1],
           [4, 5, 0],
           [5, 0, 1]
+        ],
+      "torsion_ignore_array": 
+        [
         ],
       "rmsd_indices": [0, 1, 2, 3, 4, 5],
       "bond_indices": [0, 5],

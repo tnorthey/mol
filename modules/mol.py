@@ -123,14 +123,16 @@ class Xyz:
 
     def rmsd_kabsch(self, xyz, xyz_, indices):
         """RMSD between xyz and xyz_ for atom indices"""
-        # first rotate xyz to have max coincidence with xyz_
-        estimated_rotation, rmsd_ = R.align_vectors(xyz[indices, :], xyz_[indices, :])
-        xyz_rotated = np.dot(xyz, estimated_rotation.as_matrix())
-        # xyz_rotated = xyz
-        rmsd = np.sqrt(
-            ((((xyz_rotated[indices, :] - xyz_[indices, :]) ** 2)) * 3).mean()
-        )
-        return rmsd, estimated_rotation
+        # take the indices for xyz
+        xyz = xyz[indices, :]
+        xyz_ = xyz_[indices, :]
+        # centre them (remove effect of translations)
+        xyz -= xyz.mean(axis=0)
+        xyz_ -= xyz_.mean(axis=0)
+        # rotate xyz to have max coincidence with xyz_
+        rot, rmsd = R.align_vectors(xyz, xyz_)  # gives rotation matrix and post-rotation rmsd
+        # xyz = rot.apply(xyz)  # apply rotation
+        return rmsd, rot
 
     def mapd_function(self, xyz, xyz_, indices, bond_print=False):
         """calculate MAPD as defined in Yong et al. Faraday Disc. (2021)"""
@@ -203,23 +205,22 @@ class Xyz:
         A, B, C, normal = map(np.array, (A, B, C, normal))
         v1 = A - B
         v2 = C - B
-    
+
         # Normalize input vectors
         v1 /= np.linalg.norm(v1)
         v2 /= np.linalg.norm(v2)
-    
+
         # Angle (unsigned)
         dot = np.clip(np.dot(v1, v2), -1.0, 1.0)
         angle = np.arccos(dot)
-    
+
         # Sign of angle via direction of cross product
         cross = np.cross(v1, v2)
         sign = np.sign(np.dot(cross, normal))
-    
+
         # Apply sign
         signed_angle = np.degrees(angle) * sign % 360
         return signed_angle
-
 
     def angle_2p_3d(self, a, b, c):
         """angle between two points in 3D"""
