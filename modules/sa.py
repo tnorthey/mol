@@ -348,7 +348,7 @@ class Annealing:
                 #    1 - total_xray_contrib / total_contrib
                 # )
                 c_tuning_adjusted = (
-                    tuning_ratio_target
+                    (1 - tuning_ratio_target)
                     * c_tuning
                     / (1 - total_xray_contrib / total_contrib)
                 )
