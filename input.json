@@ -10,7 +10,7 @@
     "start_xyz_file": "xyz/start.xyz",
     "start_sdf_file": "sdf/start.sdf",
     "reference_xyz_file": "xyz/chd_reference.xyz",
-    "target_file": "xyz/start.xyz"
+    "target_file": "xyz/target_traj094/target_20.xyz"
   },
   "options": {
     "_comment": "Run normal modes calculation with PySCF.",
@@ -20,7 +20,7 @@
   },
   "sampling": {
     "_comment": "Sampling parameters",
-    "sampling_bool": 0,
+    "sampling_bool": 1,
     "boltzmann_temperature": 300
   },
   "scattering_params": {
@@ -50,17 +50,17 @@
   },
   "simulated_annealing_params": {
     "sa_starting_temp": 1,
-    "sa_nsteps": 20,
+    "sa_nsteps": 4000,
     "greedy_algorithm_bool": 1,
-    "ga_nsteps": 20,
+    "ga_nsteps": 20000,
     "sa_step_size": 0.012,
     "ga_step_size": 0.012,
-    "nrestarts": 1,
-    "ntotalruns": 1,
+    "nrestarts": 5,
+    "ntotalruns": 5,
     "bonds_bool": 1,
     "angles_bool": 1,
     "torsions_bool": 1,
-    "tuning_ratio_target": 0.1,
+    "tuning_ratio_target": 1000,
     "c_tuning_initial": 0.1,
     "non_h_modes_only_bool": 0,
     "hf_energy_bool": 0
@@ -88,16 +88,23 @@
           [0, 5]
         ],
       "angle_ignore_array": 
+        [],
+      "torsion_ignore_array": 
+        [],
+      "_angle_ignore_array": 
         [
           [0, 1, 2],
           [1, 2, 3],
+          [2, 3, 4],
           [3, 4, 5],
-          [5, 0, 1],
           [4, 5, 0],
           [5, 0, 1]
         ],
-      "torsion_ignore_array": 
+      "_torsion_ignore_array": 
         [
+          [0, 1, 2, 3],
+          [1, 2, 3, 4],
+          [2, 3, 4, 5]
         ],
       "rmsd_indices": [0, 1, 2, 3, 4, 5],
       "bond_indices": [0, 5],

@@ -344,8 +344,13 @@ class Annealing:
                 angular_ratio = total_angular_contrib / total_contrib
                 torsional_ratio = total_torsional_contrib / total_contrib
                 # readjust c_tuning
-                c_tuning_adjusted = tuning_ratio_target * (
-                    1 - total_xray_contrib / total_contrib
+                # c_tuning_adjusted = tuning_ratio_target * (
+                #    1 - total_xray_contrib / total_contrib
+                # )
+                c_tuning_adjusted = (
+                    tuning_ratio_target
+                    * c_tuning
+                    / (1 - total_xray_contrib / total_contrib)
                 )
             else:
                 xray_ratio, bonding_ratio, angular_ratio, torsional_ratio = 0, 0, 0, 0
