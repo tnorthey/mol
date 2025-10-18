@@ -245,12 +245,6 @@ class Annealing:
                 angular_contrib = 0
                 if angles_bool:
                     for i in range(nangles):
-                        # theta = angle3(
-                        #    xyz_[angle_atom1_idx_arr[i], :],
-                        #    xyz_[angle_atom2_idx_arr[i], :],
-                        #    xyz_[angle_atom3_idx_arr[i], :],
-                        # )
-
                         """Return angle ABC (at B) given three positions A, B, C."""
                         """Faster to not call outside function. And works better with numba."""
                         BA = (
@@ -344,9 +338,6 @@ class Annealing:
                 angular_ratio = total_angular_contrib / total_contrib
                 torsional_ratio = total_torsional_contrib / total_contrib
                 # readjust c_tuning
-                # c_tuning_adjusted = tuning_ratio_target * (
-                #    1 - total_xray_contrib / total_contrib
-                # )
                 c_tuning_adjusted = (
                     (1 - tuning_ratio_target)
                     * c_tuning

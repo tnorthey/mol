@@ -60,7 +60,7 @@
     "bonds_bool": 1,
     "angles_bool": 1,
     "torsions_bool": 1,
-    "tuning_ratio_target": 1000,
+    "tuning_ratio_target": 1,
     "c_tuning_initial": 0.1,
     "non_h_modes_only_bool": 0,
     "hf_energy_bool": 0
