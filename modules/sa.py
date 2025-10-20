@@ -326,13 +326,11 @@ class Annealing:
                     total_xray_contrib += xray_contrib
                 ##=#=#=# END ACCEPTANCE CRITERIA #=#=#=##
             # print ratio of contributions to f
-            total_contrib = (
-                total_xray_contrib
-                + total_bonding_contrib
-                + total_angular_contrib
-                + total_torsional_contrib
+            priors_contrib = (
+                total_bonding_contrib + total_angular_contrib + total_torsional_contrib
             )
-            if total_contrib > 0:
+            total_contrib = total_xray_contrib + priors_contrib
+            if total_contrib > 0 and priors_contrib > 0:
                 xray_ratio = total_xray_contrib / total_contrib
                 bonding_ratio = total_bonding_contrib / total_contrib
                 angular_ratio = total_angular_contrib / total_contrib
@@ -344,7 +342,13 @@ class Annealing:
                     / (1 - total_xray_contrib / total_contrib)
                 )
             else:
-                xray_ratio, bonding_ratio, angular_ratio, torsional_ratio = 0, 0, 0, 0
+                (
+                    xray_ratio,
+                    bonding_ratio,
+                    angular_ratio,
+                    torsional_ratio,
+                    c_tuning_adjusted,
+                ) = (0, 0, 0, 0, 0)
             return (
                 f_best,
                 f_xray_best,

@@ -1,7 +1,7 @@
 {
   "mode": "xyz",
   "run_params": {
-    "run_id": "50_test",
+    "run_id": "20",
     "molecule": "chd",
     "results_dir": "tmp_"
   },
@@ -10,7 +10,7 @@
     "start_xyz_file": "xyz/start.xyz",
     "start_sdf_file": "sdf/chd_start.sdf",
     "reference_xyz_file": "xyz/chd_reference.xyz",
-    "target_file": "xyz/target_traj090/target_50.xyz"
+    "target_file": "xyz/target_traj094/target_20.xyz"
   },
   "options": {
     "_comment": "Run normal modes calculation with PySCF.",
@@ -25,9 +25,9 @@
   },
   "scattering_params": {
     "inelastic_bool": 1,
-    "pcd_mode_bool": 1,
-    "excitation_factor" : 1.0,
-    "ewald_mode_bool": 0,
+    "pcd_mode_bool": 0,
+    "excitation_factor" : 0.057,
+    "ewald_mode_bool": 1,
     "q": {
       "qmin": 1e-9,
       "qmax": 4,
@@ -57,11 +57,11 @@
     "ga_step_size": 0.012,
     "nrestarts": 5,
     "ntotalruns": 5,
-    "bonds_bool": 0,
-    "angles_bool": 0,
-    "torsions_bool": 0,
-    "tuning_ratio_target": 0.9,
-    "c_tuning_initial": 0.01,
+    "bonds_bool": 1,
+    "angles_bool": 1,
+    "torsions_bool": 1,
+    "tuning_ratio_target": 0.001,
+    "c_tuning_initial": 0.001,
     "non_h_modes_only_bool": 0,
     "hf_energy_bool": 0
   },
@@ -79,8 +79,6 @@
           [0, 5]
         ],
       "angle_ignore_array": 
-        [],
-      "_angle_ignore_array": 
         [
           [0, 1, 2],
           [1, 2, 3],
@@ -90,8 +88,6 @@
           [5, 0, 1]
         ],
       "torsion_ignore_array": 
-        [],
-      "_torsion_ignore_array": 
         [
           [0, 1, 2, 3],
 	  [1, 2, 3, 4],
