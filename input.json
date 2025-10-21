@@ -16,7 +16,8 @@
     "_comment": "Run normal modes calculation with PySCF.",
     "run_pyscf_modes_bool": 0,
     "pyscf_basis": "6-31g*",
-    "verbose_bool": 0
+    "verbose_bool": 0,
+    "write_dat_file_bool": 0
   },
   "sampling": {
     "_comment": "Sampling parameters",

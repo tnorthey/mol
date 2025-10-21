@@ -595,10 +595,11 @@ class Wrapper:
                 predicted_best_r = x.spherical_rotavg(predicted_best, p.th, p.ph)
                 predicted_best = predicted_best_r
             ### write predicted data to file
-            np.savetxt(
-                "%s/%s_%s.dat" % (p.results_dir, run_id, f_best_str),
-                np.column_stack((p.qvector, predicted_best)),
-            )
+            if p.write_dat_file_bool:
+                np.savetxt(
+                    "%s/%s_%s.dat" % (p.results_dir, run_id, f_best_str),
+                    np.column_stack((p.qvector, predicted_best)),
+                )
         return  # end function
 
     #####################################

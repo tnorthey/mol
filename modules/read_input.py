@@ -37,6 +37,7 @@ class Input_to_params:
         self.run_pyscf_modes_bool = bool(data["options"]["run_pyscf_modes_bool"])
         self.pyscf_basis = str(data["options"]["pyscf_basis"])
         self.verbose_bool = bool(data["options"]["verbose_bool"])
+        self.write_dat_file_bool = bool(data["options"]["write_dat_file_bool"])
         # sampling options
         self.sampling_bool = bool(data["sampling"]["sampling_bool"])
         self.boltzmann_temperature = bool(data["sampling"]["boltzmann_temperature"])
