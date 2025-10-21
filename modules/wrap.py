@@ -402,14 +402,14 @@ class Wrapper:
         #    np.savetxt(target_function_file, np.column_stack((p.qvector, target_function)))
 
         xyz_start_ = xyz_start  # save original xyz_start as xyz_start_
+        # Tuning parameter
+        c_tuning = p.c_tuning_initial  # initialise C_tuning
+        print("tuning_ratio_target = %3.2f" % p.tuning_ratio_target)
         for k in range(p.ntotalruns):
             #################################
             ### End Initialise some stuff ###
             #################################
             print(f"Starting run {k + 1} / {p.ntotalruns}...")
-            # Tuning parameter
-            c_tuning = p.c_tuning_initial  # initialise C_tuning
-            print("tuning_ratio_target = %3.2f" % p.tuning_ratio_target)
             # initialise starting "best" values
             xyz_start = xyz_start_  # use original start point
             xyz_best = xyz_start

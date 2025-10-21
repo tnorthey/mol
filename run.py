@@ -24,6 +24,8 @@ p = read_input.Input_to_params("input.json")
 run_id = sys.argv[1] if len(sys.argv) > 1 else 0
 start_xyz_file = sys.argv[2] if len(sys.argv) > 2 else 0
 target_file = sys.argv[3] if len(sys.argv) > 3 else 0
+if len(sys.argv) > 4:
+    p.tuning_ratio_target = float(sys.argv[4])
 
 # Call the params function and add them to p object
 p = w.run_xyz_openff_mm_params(p, start_xyz_file)
